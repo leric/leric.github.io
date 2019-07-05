@@ -1,17 +1,26 @@
-safe:        true
-auto:        false
-server:      false
-server_port: 4000
-baseurl:    /
-url: http://localhost:4000
+title: 程序员思维
+email: leric.zhang@gmail.com
+description: >- # this means to ignore newlines until "baseurl:"
+  信息时代的手艺人，用程序的思维理解世界. 
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "https://leric.github.io"
+twitter_username: lericzhang
+github_username:  leric
 
-source:      .
-destination: ./_site
-plugins:     ./_plugins
+# Build settings
+markdown: kramdown
+theme: minima
+plugins:
+  - jekyll-feed
 
-future:      true
-lsi:         false
-pygments:    true
-markdown:    maruku
-permalink:   date
-
+# Exclude from processing.
+# The following items will not be processed, by default. Create a custom list
+# to override the default setting.
+# exclude:
+#   - Gemfile
+#   - Gemfile.lock
+#   - node_modules
+#   - vendor/bundle/
+#   - vendor/cache/
+#   - vendor/gems/
+#   - vendor/ruby/
