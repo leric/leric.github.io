@@ -1,8 +1,9 @@
 ---
 layout: post
-title:  "Welcome to Jekyll!"
-date:   2019-07-05 14:42:47 +0800
-categories: jekyll update
+title:  "程序员思维"
+date:   2019-08-23 18:02:47 +0800
+categories: about
+published: true
 ---
 You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
 
@@ -16,7 +17,6 @@ def print_hi(name):
 
 if __name__ == '__main__':
     print_hi('Tom')
-#=> prints 'Hi, Tom' to STDOUT.
 {% endhighlight %}
 
 Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll Talk][jekyll-talk].

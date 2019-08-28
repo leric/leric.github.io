@@ -1,8 +1,10 @@
 ---
 layout: page
-title: About
+title: 关于作者
 permalink: /about/
 ---
+
+十多年奋战在Coding第一线的一枚中年程序员
 
 This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
 

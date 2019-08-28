@@ -1,10 +1,9 @@
 title: 程序员思维
 email: leric.zhang@gmail.com
-description: >- # this means to ignore newlines until "baseurl:"
-  信息时代的手艺人，用程序的思维理解世界. 
-baseurl: "" # the subpath of your site, e.g. /blog
+description: >-
+  用代码的逻辑理解世界. 
+baseurl: ""
 url: "https://leric.github.io"
-twitter_username: lericzhang
 github_username:  leric
 
 # Build settings
