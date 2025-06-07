@@ -14,73 +14,373 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 <html lang="en">
 	<head>
 		<BaseHead title={title} description={description} />
-		<style>
-			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
-			}
-			.hero-image {
-				width: 100%;
-			}
-			.hero-image img {
-				display: block;
-				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
-			}
-			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
-			}
-			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
-				text-align: center;
-				line-height: 1;
-			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
-			}
-			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
-			}
-			.last-updated-on {
-				font-style: italic;
-			}
-		</style>
 	</head>
-
 	<body>
+		<div class="reading-progress" id="reading-progress"></div>
 		<Header />
 		<main>
-			<article>
-				<div class="hero-image">
-					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
-				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
+			<article class="blog-post">
+				<!-- Article Header -->
+				<header class="article-header">
+					<h1 class="article-title">{title}</h1>
+					<div class="article-meta">
+						<div class="meta-info">
 							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
+							{updatedDate && (
+								<span class="updated-date">
+									Updated <FormattedDate date={updatedDate} />
+								</span>
+							)}
+							<span class="reading-time">5 min read</span>
 						</div>
-						<h1>{title}</h1>
-						<hr />
 					</div>
+				</header>
+
+				<!-- Hero Image -->
+				{heroImage && (
+					<div class="hero-image">
+						<Image 
+							src={heroImage} 
+							alt={title}
+							width={1200}
+							height={600}
+							loading="eager"
+						/>
+					</div>
+				)}
+
+				<!-- Article Content -->
+				<div class="article-content">
 					<slot />
 				</div>
+
+				<!-- Article Footer -->
+				<footer class="article-footer">
+					<div class="tags">
+						<span class="tag">Technology</span>
+						<span class="tag">Design</span>
+					</div>
+					<div class="share-buttons">
+						<button class="share-btn" onclick="shareArticle()">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<circle cx="18" cy="5" r="3"></circle>
+								<circle cx="6" cy="12" r="3"></circle>
+								<circle cx="18" cy="19" r="3"></circle>
+								<line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+								<line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+							</svg>
+							Share
+						</button>
+					</div>
+				</footer>
 			</article>
 		</main>
 		<Footer />
+
+		<script>
+			// Reading progress indicator
+			function updateReadingProgress() {
+				const article = document.querySelector('.article-content');
+				const progressBar = document.getElementById('reading-progress');
+				
+				if (!article || !progressBar) return;
+				
+				const articleTop = article.offsetTop;
+				const articleHeight = article.offsetHeight;
+				const windowHeight = window.innerHeight;
+				const scrollTop = window.pageYOffset;
+				
+				const progress = Math.min(
+					Math.max((scrollTop - articleTop + windowHeight * 0.3) / articleHeight, 0),
+					1
+				);
+				
+				progressBar.style.width = `${progress * 100}%`;
+			}
+			
+			// Share functionality
+			function shareArticle() {
+				if (navigator.share) {
+					navigator.share({
+						title: document.title,
+						url: window.location.href
+					});
+				} else {
+					// Fallback: copy to clipboard
+					navigator.clipboard.writeText(window.location.href);
+					alert('Link copied to clipboard!');
+				}
+			}
+			
+			// Event listeners
+			window.addEventListener('scroll', updateReadingProgress);
+			window.addEventListener('resize', updateReadingProgress);
+			document.addEventListener('DOMContentLoaded', updateReadingProgress);
+			
+			// Make share function global
+			window.shareArticle = shareArticle;
+		</script>
 	</body>
 </html>
+
+<style>
+	.blog-post {
+		max-width: var(--reading-width);
+		margin: 0 auto;
+		padding: 0 var(--content-padding);
+	}
+	
+	/* Article Header */
+	.article-header {
+		padding: 60px 0 40px;
+		text-align: center;
+		border-bottom: 1px solid var(--border-light);
+		margin-bottom: 40px;
+	}
+	
+	.article-title {
+		font-family: var(--font-serif);
+		font-size: clamp(32px, 5vw, 48px);
+		font-weight: 700;
+		color: rgb(var(--black));
+		line-height: 1.2;
+		margin-bottom: 24px;
+		letter-spacing: -0.02em;
+		max-width: 800px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	
+	.article-meta {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 24px;
+		flex-wrap: wrap;
+	}
+	
+	.meta-info {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		font-size: 14px;
+		color: rgb(var(--gray));
+	}
+	
+	.updated-date::before,
+	.reading-time::before {
+		content: '•';
+		margin-right: 16px;
+	}
+	
+	/* Hero Image */
+	.hero-image {
+		margin: 0 0 60px 0;
+		border-radius: 8px;
+		overflow: hidden;
+		background: rgb(var(--gray-light));
+	}
+	
+	.hero-image img {
+		width: 100%;
+		height: auto;
+		display: block;
+		margin: 0;
+	}
+	
+	/* Article Content */
+	.article-content {
+		font-size: 20px;
+		line-height: 1.58;
+		color: rgb(var(--black));
+		margin-bottom: 80px;
+	}
+	
+	.article-content > *:first-child {
+		margin-top: 0;
+	}
+	
+	.article-content > *:last-child {
+		margin-bottom: 0;
+	}
+	
+	/* Enhanced typography for article content */
+	.article-content h2 {
+		margin-top: 56px;
+		margin-bottom: 16px;
+	}
+	
+	.article-content h3 {
+		margin-top: 48px;
+		margin-bottom: 12px;
+	}
+	
+	.article-content h4,
+	.article-content h5,
+	.article-content h6 {
+		margin-top: 40px;
+		margin-bottom: 8px;
+	}
+	
+	.article-content p {
+		margin-bottom: 28px;
+	}
+	
+	.article-content blockquote {
+		margin: 40px 0;
+		padding: 0 0 0 32px;
+		border-left: 4px solid rgb(var(--black));
+		font-style: italic;
+		font-size: 24px;
+		line-height: 1.48;
+		color: rgba(var(--black), 0.8);
+	}
+	
+	.article-content img {
+		margin: 40px 0;
+		border-radius: 8px;
+		box-shadow: var(--shadow-light);
+	}
+	
+	.article-content pre {
+		margin: 40px 0;
+		font-size: 14px;
+		line-height: 1.6;
+	}
+	
+	.article-content ul,
+	.article-content ol {
+		margin: 28px 0;
+		padding-left: 32px;
+	}
+	
+	.article-content li {
+		margin-bottom: 12px;
+	}
+	
+	/* Article Footer */
+	.article-footer {
+		padding: 40px 0;
+		border-top: 1px solid var(--border-light);
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 24px;
+	}
+	
+	.tags {
+		display: flex;
+		gap: 12px;
+		flex-wrap: wrap;
+	}
+	
+	.tag {
+		background: rgb(var(--gray-light));
+		color: rgb(var(--gray));
+		padding: 6px 12px;
+		border-radius: 16px;
+		font-size: 12px;
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
+	
+	.share-buttons {
+		display: flex;
+		gap: 12px;
+	}
+	
+	.share-btn {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		background: none;
+		border: 1px solid var(--border-light);
+		padding: 8px 16px;
+		border-radius: 20px;
+		color: rgb(var(--gray));
+		font-size: 14px;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+	
+	.share-btn:hover {
+		background: rgb(var(--gray-light));
+		color: rgb(var(--black));
+	}
+	
+	/* Responsive Design */
+	@media (max-width: 768px) {
+		.article-header {
+			padding: 40px 0 32px;
+			margin-bottom: 32px;
+		}
+		
+		.article-title {
+			font-size: 32px;
+			margin-bottom: 20px;
+		}
+		
+		.meta-info {
+			flex-direction: column;
+			gap: 8px;
+			text-align: center;
+		}
+		
+		.updated-date::before,
+		.reading-time::before {
+			content: '';
+			margin-right: 0;
+		}
+		
+		.hero-image {
+			margin-bottom: 40px;
+		}
+		
+		.article-content {
+			font-size: 18px;
+			margin-bottom: 60px;
+		}
+		
+		.article-content blockquote {
+			font-size: 20px;
+			padding-left: 24px;
+			margin: 32px 0;
+		}
+		
+		.article-content h2 {
+			margin-top: 48px;
+		}
+		
+		.article-content h3 {
+			margin-top: 40px;
+		}
+		
+		.article-footer {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 20px;
+		}
+	}
+	
+	@media (max-width: 480px) {
+		.article-header {
+			padding: 32px 0 24px;
+			margin-bottom: 24px;
+		}
+		
+		.article-title {
+			font-size: 28px;
+		}
+		
+		.article-content {
+			font-size: 17px;
+		}
+		
+		.article-content blockquote {
+			font-size: 18px;
+			padding-left: 20px;
+		}
+	}
+</style>
