@@ -5,7 +5,7 @@ import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://leric.github.io",
+  site: "https://www.airic.dev",
   base: "/",
   output: "static",
   integrations: [mdx(), sitemap()],
