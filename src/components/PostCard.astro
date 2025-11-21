@@ -9,9 +9,11 @@ interface Props {
 	heroImage?: any;
 	slug: string;
 	featured?: boolean;
+	category?: string;
+	readingTime?: number;
 }
 
-const { title, description, pubDate, heroImage, slug, featured = false } = Astro.props;
+const { title, description, pubDate, heroImage, slug, featured = false, category, readingTime = 5 } = Astro.props;
 ---
 
 <article class={`post-card ${featured ? 'featured' : ''}`}>
@@ -32,8 +34,8 @@ const { title, description, pubDate, heroImage, slug, featured = false } = Astro
 			<p class="post-description">{description}</p>
 			<div class="post-meta">
 				<FormattedDate date={pubDate} />
-				<span class="reading-time">5 min read</span>
-				<span class="post-category">Product</span>
+				<span class="reading-time">{readingTime} min read</span>
+				{category && <span class="post-category">{category}</span>}
 			</div>
 		</div>
 	</a>

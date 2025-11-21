@@ -4,12 +4,11 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
-import NewsletterSignup from '../components/NewsletterSignup.astro';
 import { Image } from 'astro:assets';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, category, tags } = Astro.props;
 ---
 
 <html lang="en">
@@ -24,7 +23,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				<!-- Article Header -->
 				<header class="article-header">
 					<div class="article-meta-top">
-						<span class="category-tag">Product</span>
+						{category && <span class="category-tag">{category}</span>}
 						<div class="meta-info">
 							<FormattedDate date={pubDate} />
 							{updatedDate && (
@@ -32,7 +31,6 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 									Updated <FormattedDate date={updatedDate} />
 								</span>
 							)}
-							<span class="reading-time">5 min read</span>
 						</div>
 					</div>
 					<h1 class="article-title">{title}</h1>
@@ -57,18 +55,13 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 					<slot />
 				</div>
 
-				<!-- Newsletter Signup -->
-				<div class="article-newsletter">
-					<NewsletterSignup />
-				</div>
-
 				<!-- Article Footer -->
 				<footer class="article-footer">
-					<div class="article-tags">
-						<span class="tag">Product Management</span>
-						<span class="tag">Strategy</span>
-						<span class="tag">Growth</span>
-					</div>
+					{tags && tags.length > 0 && (
+						<div class="article-tags">
+							{tags.map(tag => <span class="tag">{tag}</span>)}
+						</div>
+					)}
 					<div class="share-section">
 						<p class="share-text">Found this useful? Share it with your network:</p>
 						<div class="share-buttons">
@@ -315,24 +308,28 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		margin-bottom: 8px;
 	}
 	
-	/* Newsletter Signup in Article */
-	.article-newsletter {
-		margin: 48px 0;
-		padding: 32px 0;
-		border-top: 1px solid var(--border);
-		border-bottom: 1px solid var(--border);
-	}
-	
 	/* Article Footer */
 	.article-footer {
 		padding: 32px 0;
+		border-top: 1px solid var(--border);
+		margin-top: 48px;
 	}
-	
+
 	.article-tags {
 		margin-bottom: 32px;
 		display: flex;
 		flex-wrap: wrap;
 		gap: 8px;
+	}
+
+	.tag {
+		background: var(--background-alt);
+		color: var(--accent);
+		padding: 6px 12px;
+		border-radius: 16px;
+		font-size: 12px;
+		font-weight: 600;
+		text-transform: capitalize;
 	}
 	
 	.share-section {
@@ -433,10 +430,6 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			margin: 24px 0;
 		}
 		
-		.article-newsletter {
-			margin: 40px 0;
-			padding: 24px 0;
-		}
 		
 		.share-buttons {
 			flex-direction: column;

@@ -8,20 +8,13 @@ import { SITE_TITLE } from '../consts';
 		<div class="header-brand">
 			<a href="/" class="brand-link">
 				<span class="brand-title">{SITE_TITLE}</span>
-				<span class="brand-tagline">Weekly insights for ambitious professionals</span>
+				<span class="brand-tagline">Software Architecture & AI Development</span>
 			</a>
 		</div>
 		<nav class="header-nav">
 			<HeaderLink href="/">Latest</HeaderLink>
 			<HeaderLink href="/blog">Archive</HeaderLink>
 			<HeaderLink href="/about">About</HeaderLink>
-			<button class="subscribe-btn">
-				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-					<polyline points="22,6 12,13 2,6"></polyline>
-				</svg>
-				Subscribe
-			</button>
 		</nav>
 	</div>
 </header>
@@ -80,27 +73,6 @@ import { SITE_TITLE } from '../consts';
 		gap: 32px;
 	}
 	
-	.subscribe-btn {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		background: var(--accent);
-		color: white;
-		border: none;
-		padding: 10px 20px;
-		border-radius: 6px;
-		font-weight: 600;
-		font-size: 14px;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		font-family: var(--font-primary);
-	}
-	
-	.subscribe-btn:hover {
-		background: var(--accent-hover);
-		transform: translateY(-1px);
-	}
-	
 	@media (max-width: 768px) {
 		.header-container {
 			min-height: 64px;
@@ -117,24 +89,11 @@ import { SITE_TITLE } from '../consts';
 		.brand-tagline {
 			font-size: 11px;
 		}
-		
-		.subscribe-btn {
-			padding: 8px 16px;
-			font-size: 13px;
-		}
 	}
-	
+
 	@media (max-width: 640px) {
 		.header-nav {
 			gap: 16px;
-		}
-		
-		.subscribe-btn span {
-			display: none;
-		}
-		
-		.subscribe-btn {
-			padding: 8px 12px;
 		}
 	}
 </style>

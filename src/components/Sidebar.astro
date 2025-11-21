@@ -1,64 +1,65 @@
 ---
-import NewsletterSignup from './NewsletterSignup.astro';
+import { getCollection } from 'astro:content';
+import { AUTHOR } from '../consts';
+
+const allPosts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+const popularPosts = allPosts.slice(0, 3);
+
+const allCategories = [...new Set(allPosts.map(post => post.data.category).filter(Boolean))];
+const categoryCounts = allCategories.map(category => ({
+	name: category,
+	count: allPosts.filter(post => post.data.category === category).length
+}));
 ---
 
 <aside class="sidebar">
-	<!-- Newsletter Signup -->
-	<NewsletterSignup />
-	
 	<!-- Popular Posts -->
 	<div class="sidebar-section">
-		<h3 class="sidebar-title">Most Popular</h3>
+		<h3 class="sidebar-title">Recent Posts</h3>
 		<div class="popular-posts">
-			<a href="#" class="popular-post">
-				<span class="post-number">1</span>
-				<div class="post-info">
-					<h4>How to build a product roadmap that actually works</h4>
-					<span class="post-date">Dec 15, 2024</span>
-				</div>
-			</a>
-			<a href="#" class="popular-post">
-				<span class="post-number">2</span>
-				<div class="post-info">
-					<h4>The ultimate guide to product-market fit</h4>
-					<span class="post-date">Dec 8, 2024</span>
-				</div>
-			</a>
-			<a href="#" class="popular-post">
-				<span class="post-number">3</span>
-				<div class="post-info">
-					<h4>10 frameworks for making better product decisions</h4>
-					<span class="post-date">Dec 1, 2024</span>
-				</div>
-			</a>
+			{popularPosts.map((post, index) => (
+				<a href={`/blog/${post.id}/`} class="popular-post">
+					<span class="post-number">{index + 1}</span>
+					<div class="post-info">
+						<h4>{post.data.title}</h4>
+						<span class="post-date">{post.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+					</div>
+				</a>
+			))}
 		</div>
 	</div>
-	
+
 	<!-- Categories -->
-	<div class="sidebar-section">
-		<h3 class="sidebar-title">Topics</h3>
-		<div class="categories">
-			<a href="#" class="category-link">Product Management <span class="count">(24)</span></a>
-			<a href="#" class="category-link">Growth <span class="count">(18)</span></a>
-			<a href="#" class="category-link">Career <span class="count">(15)</span></a>
-			<a href="#" class="category-link">Leadership <span class="count">(12)</span></a>
-			<a href="#" class="category-link">Strategy <span class="count">(9)</span></a>
+	{categoryCounts.length > 0 && (
+		<div class="sidebar-section">
+			<h3 class="sidebar-title">Topics</h3>
+			<div class="categories">
+				{categoryCounts.map((category) => (
+					<a href={`/blog`} class="category-link">
+						{category.name} <span class="count">({category.count})</span>
+					</a>
+				))}
+			</div>
 		</div>
-	</div>
-	
+	)}
+
 	<!-- About Author -->
 	<div class="sidebar-section">
 		<h3 class="sidebar-title">About the Author</h3>
 		<div class="author-bio">
 			<div class="author-avatar">
-				<img src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop" alt="Author" />
+				<img src={AUTHOR.avatar} alt={AUTHOR.name} />
 			</div>
 			<div class="author-info">
-				<h4>Alex Johnson</h4>
-				<p>Former VP of Product at Airbnb. Now helping ambitious professionals level up their careers through actionable insights.</p>
+				<h4>{AUTHOR.name}</h4>
+				<p>{AUTHOR.bio}</p>
 				<div class="author-links">
-					<a href="#" class="author-link">Twitter</a>
-					<a href="#" class="author-link">LinkedIn</a>
+					{AUTHOR.social.medium && <a href={AUTHOR.social.medium} target="_blank" rel="noopener" class="author-link">Medium</a>}
+					{AUTHOR.social.twitter && <a href={AUTHOR.social.twitter} target="_blank" rel="noopener" class="author-link">Twitter</a>}
+					{AUTHOR.social.github && <a href={AUTHOR.social.github} target="_blank" rel="noopener" class="author-link">GitHub</a>}
 				</div>
 			</div>
 		</div>
@@ -70,7 +71,7 @@ import NewsletterSignup from './NewsletterSignup.astro';
 		width: 100%;
 		max-width: 320px;
 	}
-	
+
 	.sidebar-section {
 		background: white;
 		border: 1px solid var(--border);
@@ -78,7 +79,7 @@ import NewsletterSignup from './NewsletterSignup.astro';
 		padding: 24px;
 		margin-bottom: 24px;
 	}
-	
+
 	.sidebar-title {
 		font-size: 16px;
 		font-weight: 700;
@@ -87,14 +88,14 @@ import NewsletterSignup from './NewsletterSignup.astro';
 		padding-bottom: 8px;
 		border-bottom: 1px solid var(--border-light);
 	}
-	
+
 	/* Popular Posts */
 	.popular-posts {
 		display: flex;
 		flex-direction: column;
 		gap: 16px;
 	}
-	
+
 	.popular-post {
 		display: flex;
 		align-items: flex-start;
@@ -105,11 +106,11 @@ import NewsletterSignup from './NewsletterSignup.astro';
 		border-radius: 6px;
 		transition: background 0.2s ease;
 	}
-	
+
 	.popular-post:hover {
 		background: var(--background-alt);
 	}
-	
+
 	.post-number {
 		background: var(--accent);
 		color: white;
@@ -123,7 +124,7 @@ import NewsletterSignup from './NewsletterSignup.astro';
 		font-weight: 700;
 		flex-shrink: 0;
 	}
-	
+
 	.post-info h4 {
 		font-size: 14px;
 		font-weight: 600;
@@ -131,19 +132,19 @@ import NewsletterSignup from './NewsletterSignup.astro';
 		margin: 0 0 4px 0;
 		line-height: 1.3;
 	}
-	
+
 	.post-date {
 		font-size: 12px;
 		color: var(--text-muted);
 	}
-	
+
 	/* Categories */
 	.categories {
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
 	}
-	
+
 	.category-link {
 		display: flex;
 		justify-content: space-between;
@@ -156,23 +157,23 @@ import NewsletterSignup from './NewsletterSignup.astro';
 		border-radius: 6px;
 		transition: all 0.2s ease;
 	}
-	
+
 	.category-link:hover {
 		background: var(--background-alt);
 		color: var(--primary);
 	}
-	
+
 	.count {
 		font-size: 12px;
 		color: var(--text-muted);
 		font-weight: 400;
 	}
-	
+
 	/* Author Bio */
 	.author-bio {
 		text-align: center;
 	}
-	
+
 	.author-avatar {
 		width: 80px;
 		height: 80px;
@@ -181,34 +182,35 @@ import NewsletterSignup from './NewsletterSignup.astro';
 		margin: 0 auto 16px;
 		border: 3px solid var(--border-light);
 	}
-	
+
 	.author-avatar img {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
 		margin: 0;
 	}
-	
+
 	.author-info h4 {
 		font-size: 16px;
 		font-weight: 700;
 		color: var(--primary);
 		margin: 0 0 8px 0;
 	}
-	
+
 	.author-info p {
 		font-size: 13px;
 		color: var(--secondary);
 		line-height: 1.5;
 		margin-bottom: 16px;
 	}
-	
+
 	.author-links {
 		display: flex;
 		justify-content: center;
 		gap: 16px;
+		flex-wrap: wrap;
 	}
-	
+
 	.author-link {
 		font-size: 12px;
 		color: var(--accent);
@@ -217,11 +219,11 @@ import NewsletterSignup from './NewsletterSignup.astro';
 		text-transform: uppercase;
 		letter-spacing: 0.5px;
 	}
-	
+
 	.author-link:hover {
 		color: var(--accent-hover);
 	}
-	
+
 	@media (max-width: 1024px) {
 		.sidebar {
 			max-width: none;
@@ -230,12 +232,12 @@ import NewsletterSignup from './NewsletterSignup.astro';
 			gap: 24px;
 		}
 	}
-	
+
 	@media (max-width: 768px) {
 		.sidebar {
 			grid-template-columns: 1fr;
 		}
-		
+
 		.sidebar-section {
 			padding: 20px;
 		}

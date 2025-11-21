@@ -3,6 +3,8 @@ title: "Architecture-Aware AI Agents: Principles for Coherent Collaboration in D
 description: "Twelve principles for designing AI agents that maintain architectural coherence while collaborating on complex software projects."
 pubDate: "Aug 26 2024"
 heroImage: "../../assets/blog-placeholder-4.jpg"
+category: "AI Agents"
+tags: ["AI Agents", "Architecture", "Collaboration", "Best Practices"]
 ---
 
 *This is Part 4 of the "AI-Powered Domain Engineering" series. Check out Part 1: [Beyond Vibe Coding: Why AI Won't Replace Software Engineers](https://medium.com/@lericzhang/beyond-vibe-coding-why-ai-wont-replace-software-engineers-f92ebac9d436), Part 2: [The Context Conundrum: A Shared Limit for Humans and AI](https://medium.com/@lericzhang/the-context-conundrum-a-shared-limit-for-humans-and-ai-261d14284798), and Part 3: [Domain-Driven Design: Streamlining AI-Powered Software Development](https://medium.com/@lericzhang/domain-driven-design-streamlining-ai-powered-software-development-0ea0b8ded573). In this installment, we bridge theory to practice by designing AI agents that preserve architectural coherence — the "continuous narrative" that makes great software endure.*

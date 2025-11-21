@@ -22,19 +22,20 @@ const posts = (await getCollection('blog')).sort(
 		<main>
 			<div class="archive-header">
 				<h1>Complete Archive</h1>
-				<p>All {posts.length} stories, organized by most recent. Use the sidebar to filter by topic or find popular posts.</p>
+				<p>All {posts.length} articles on software engineering, AI, and system architecture.</p>
 			</div>
 			
 			<div class="content-layout">
 				<div class="main-content">
 					<div class="posts-archive">
 						{posts.map((post) => (
-							<PostCard 
+							<PostCard
 								title={post.data.title}
 								description={post.data.description}
 								pubDate={post.data.pubDate}
 								heroImage={post.data.heroImage}
 								slug={post.id}
+								category={post.data.category}
 							/>
 						))}
 					</div>

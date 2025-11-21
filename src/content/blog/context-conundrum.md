@@ -3,6 +3,8 @@ title: "The Context Conundrum: A Shared Limit for Humans and AI"
 description: "Exploring how abstraction, functional programming, and Clean Architecture help both humans and AI manage context complexity in software development."
 pubDate: "Aug 02 2024"
 heroImage: "../../assets/blog-placeholder-2.jpg"
+category: "Software Architecture"
+tags: ["Architecture", "AI", "Clean Code", "Design Patterns"]
 ---
 
 *This is Part 2 of my series — check out Part 1: "[Beyond Vibe Coding: Why AI Won't Replace Software Engineers.](https://medium.com/@lericzhang/beyond-vibe-coding-why-ai-wont-replace-software-engineers-f92ebac9d436)"*

@@ -3,6 +3,8 @@ title: "Domain-Driven Design: Streamlining AI-Powered Software Development"
 description: "How Domain-Driven Design provides a strategic framework for tackling complex, domain-heavy software projects with AI assistance."
 pubDate: "Aug 02 2024"
 heroImage: "../../assets/blog-placeholder-3.jpg"
+category: "Domain-Driven Design"
+tags: ["DDD", "AI", "Software Architecture", "Best Practices"]
 ---
 
 This is Part 3 of the series. Check out [Part 1: *Beyond Vibe Coding*](https://medium.com/@lericzhang/beyond-vibe-coding-why-ai-wont-replace-software-engineers-f92ebac9d436) and [Part 2: *The Context Conundrum*](https://medium.com/@lericzhang/the-context-conundrum-a-shared-limit-for-humans-and-ai-261d14284798).

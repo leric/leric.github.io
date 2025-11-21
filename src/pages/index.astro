@@ -11,8 +11,8 @@ const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
-const featuredPost = posts[0];
-const recentPosts = posts.slice(1, 7);
+const featuredPost = posts.find(p => p.data.featured) || posts[0];
+const recentPosts = posts.filter(p => p.id !== featuredPost.id).slice(0, 6);
 ---
 
 <!doctype html>
@@ -23,80 +23,51 @@ const recentPosts = posts.slice(1, 7);
 	<body>
 		<Header />
 		<main>
-			<!-- Newsletter Header -->
-			<section class="newsletter-header">
-				<div class="issue-info">
-					<span class="issue-number">Issue #247</span>
-					<span class="issue-date">December 22, 2024</span>
-				</div>
-				<h1 class="newsletter-title">This week in product, growth, and career</h1>
-				<p class="newsletter-intro">
-					Your weekly dose of insights, frameworks, and actionable advice to level up your career. 
-					This week: building better product roadmaps, the psychology of user onboarding, and career moves that actually matter.
-				</p>
+			<!-- Blog Header -->
+			<section class="blog-header">
+				<h1 class="blog-title">{SITE_TITLE}</h1>
+				<p class="blog-intro">{SITE_DESCRIPTION}</p>
 			</section>
 
 			<div class="content-layout">
 				<div class="main-content">
-					<!-- Featured Story -->
+					<!-- Featured Post -->
 					{featuredPost && (
-						<section class="newsletter-section">
+						<section class="blog-section">
 							<div class="section-header">
-								<h2 class="section-title">🔥 Featured Story</h2>
-								<p class="section-subtitle">The most important read this week</p>
+								<h2 class="section-title">Featured Post</h2>
 							</div>
-							<PostCard 
+							<PostCard
 								title={featuredPost.data.title}
 								description={featuredPost.data.description}
 								pubDate={featuredPost.data.pubDate}
 								heroImage={featuredPost.data.heroImage}
 								slug={featuredPost.id}
 								featured={true}
+								category={featuredPost.data.category}
 							/>
 						</section>
 					)}
 
-					<!-- Recent Stories -->
-					<section class="newsletter-section">
+					<!-- Recent Posts -->
+					<section class="blog-section">
 						<div class="section-header">
-							<h2 class="section-title">📚 Recent Stories</h2>
-							<p class="section-subtitle">Catch up on what you might have missed</p>
+							<h2 class="section-title">Recent Posts</h2>
 						</div>
 						<div class="posts-grid">
 							{recentPosts.map((post) => (
-								<PostCard 
+								<PostCard
 									title={post.data.title}
 									description={post.data.description}
 									pubDate={post.data.pubDate}
 									heroImage={post.data.heroImage}
 									slug={post.id}
+									category={post.data.category}
 								/>
 							))}
 						</div>
 						<div class="view-archive">
 							<a href="/blog" class="btn btn-outline">View Full Archive →</a>
-						</div>
-					</section>
-
-					<!-- Quick Insights -->
-					<section class="newsletter-section">
-						<div class="section-header">
-							<h2 class="section-title">💡 Quick Insights</h2>
-							<p class="section-subtitle">Bite-sized wisdom for busy professionals</p>
-						</div>
-						<div class="insights-grid">
-							<div class="insight-card">
-								<h3>Product Tip</h3>
-								<p>Always validate your assumptions with real user data before building new features. A simple user interview can save weeks of development time.</p>
-							</div>
-							<div class="insight-card">
-								<h3>Growth Hack</h3>
-								<p>The best growth loops are invisible to users but create compounding value. Focus on natural sharing moments in your product experience.</p>
-							</div>
-							<div class="insight-card">
-								<h3>Career Move</h3>
-								<p>Document your wins weekly, not annually. When promotion time comes, you'll have concrete examples of your impact ready to go.</p>
-							</div>
 						</div>
 					</section>
 				</div>
@@ -109,55 +80,28 @@ const recentPosts = posts.slice(1, 7);
 </html>
 
 <style>
-	/* Newsletter Header */
-	.newsletter-header {
+	/* Blog Header */
+	.blog-header {
 		text-align: center;
-		padding: 40px 0 60px;
+		padding: 40px 0 48px;
 		border-bottom: 1px solid var(--border);
 		margin-bottom: 48px;
 	}
-	
-	.issue-info {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		gap: 16px;
-		margin-bottom: 16px;
-		font-size: 14px;
-		color: var(--text-muted);
-	}
-	
-	.issue-number {
-		background: var(--accent);
-		color: white;
-		padding: 4px 12px;
-		border-radius: 12px;
-		font-weight: 600;
-		font-size: 12px;
-		text-transform: uppercase;
-		letter-spacing: 0.5px;
-	}
-	
-	.issue-date::before {
-		content: '•';
-		margin-right: 16px;
-		color: var(--border);
-	}
-	
-	.newsletter-title {
-		font-size: clamp(28px, 5vw, 42px);
+
+	.blog-title {
+		font-size: clamp(32px, 5vw, 48px);
 		font-weight: 800;
 		color: var(--primary);
 		margin-bottom: 16px;
 		letter-spacing: -0.03em;
 		line-height: 1.2;
 	}
-	
-	.newsletter-intro {
-		font-size: 16px;
+
+	.blog-intro {
+		font-size: 18px;
 		line-height: 1.6;
 		color: var(--secondary);
-		max-width: 600px;
+		max-width: 700px;
 		margin: 0 auto;
 	}
 	
@@ -184,42 +128,16 @@ const recentPosts = posts.slice(1, 7);
 	.view-archive {
 		text-align: center;
 	}
-	
-	/* Quick Insights */
-	.insights-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-		gap: 20px;
+
+	.section-header {
+		margin-bottom: 24px;
 	}
-	
-	.insight-card {
-		background: var(--background-alt);
-		border: 1px solid var(--border-light);
-		border-radius: var(--card-radius);
-		padding: 20px;
-		transition: all 0.2s ease;
-	}
-	
-	.insight-card:hover {
-		background: white;
-		border-color: var(--accent);
-		box-shadow: var(--shadow-sm);
-	}
-	
-	.insight-card h3 {
-		font-size: 14px;
+
+	.section-title {
+		font-size: 24px;
 		font-weight: 700;
-		color: var(--accent);
+		color: var(--primary);
 		margin-bottom: 8px;
-		text-transform: uppercase;
-		letter-spacing: 0.5px;
-	}
-	
-	.insight-card p {
-		font-size: 14px;
-		line-height: 1.5;
-		color: var(--secondary);
-		margin: 0;
 	}
 	
 	/* Responsive Design */
@@ -231,41 +149,27 @@ const recentPosts = posts.slice(1, 7);
 	}
 	
 	@media (max-width: 768px) {
-		.newsletter-header {
-			padding: 32px 0 40px;
+		.blog-header {
+			padding: 32px 0 32px;
 			margin-bottom: 32px;
 		}
-		
-		.issue-info {
-			flex-direction: column;
-			gap: 8px;
+
+		.blog-intro {
+			font-size: 16px;
 		}
-		
-		.issue-date::before {
-			display: none;
-		}
-		
+
 		.posts-grid {
 			grid-template-columns: 1fr;
 		}
-		
-		.insights-grid {
-			grid-template-columns: 1fr;
-			gap: 16px;
-		}
-		
+
 		.content-layout {
 			gap: 24px;
 		}
 	}
-	
+
 	@media (max-width: 480px) {
-		.newsletter-header {
-			padding: 24px 0 32px;
-		}
-		
-		.insight-card {
-			padding: 16px;
+		.blog-header {
+			padding: 24px 0 24px;
 		}
 	}
 </style>
