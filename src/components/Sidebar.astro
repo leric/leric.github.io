@@ -1,17 +1,18 @@
 ---
-import { getCollection } from 'astro:content';
-import { AUTHOR } from '../consts';
+import { getCollection } from "astro:content";
+import { AUTHOR } from "../consts";
 
-const allPosts = (await getCollection('blog')).sort(
+const allPosts = (await getCollection("blog")).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
 const popularPosts = allPosts.slice(0, 3);
 
-const allCategories = [...new Set(allPosts.map(post => post.data.category).filter(Boolean))];
-const categoryCounts = allCategories.map(category => ({
-	name: category,
-	count: allPosts.filter(post => post.data.category === category).length
+const allTags = [...new Set(allPosts.flatMap((post) => post.data.tags || []))];
+const tagCounts = allTags.map((tag) => ({
+	name: tag,
+	count: allPosts.filter((post) => (post.data.tags || []).includes(tag))
+		.length,
 }));
 ---
 
@@ -20,31 +21,45 @@ const categoryCounts = allCategories.map(category => ({
 	<div class="sidebar-section">
 		<h3 class="sidebar-title">Recent Posts</h3>
 		<div class="popular-posts">
-			{popularPosts.map((post, index) => (
-				<a href={`/blog/${post.id}/`} class="popular-post">
-					<span class="post-number">{index + 1}</span>
-					<div class="post-info">
-						<h4>{post.data.title}</h4>
-						<span class="post-date">{post.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-					</div>
-				</a>
-			))}
+			{
+				popularPosts.map((post, index) => (
+					<a href={`/blog/${post.id}/`} class="popular-post">
+						<span class="post-number">{index + 1}</span>
+						<div class="post-info">
+							<h4>{post.data.title}</h4>
+							<span class="post-date">
+								{post.data.pubDate.toLocaleDateString("en-US", {
+									month: "short",
+									day: "numeric",
+									year: "numeric",
+								})}
+							</span>
+						</div>
+					</a>
+				))
+			}
 		</div>
 	</div>
 
-	<!-- Categories -->
-	{categoryCounts.length > 0 && (
-		<div class="sidebar-section">
-			<h3 class="sidebar-title">Topics</h3>
-			<div class="categories">
-				{categoryCounts.map((category) => (
-					<a href={`/blog`} class="category-link">
-						{category.name} <span class="count">({category.count})</span>
-					</a>
-				))}
+	<!-- Topics -->
+	{
+		tagCounts.length > 0 && (
+			<div class="sidebar-section tag-cloud">
+				<h3 class="sidebar-title">Topics</h3>
+				<div class="cloud">
+					{tagCounts.map((tag) => (
+						<a
+							href={`/blog/tag/${tag.name}`}
+							class="cloud-item"
+							style={`--size:${Math.min(2.5, 0.8 + Math.log(tag.count) / Math.log(2))}rem`}
+						>
+							{tag.name}
+						</a>
+					))}
+				</div>
 			</div>
-		</div>
-	)}
+		)
+	}
 
 	<!-- About Author -->
 	<div class="sidebar-section">
@@ -57,9 +72,30 @@ const categoryCounts = allCategories.map(category => ({
 				<h4>{AUTHOR.name}</h4>
 				<p>{AUTHOR.bio}</p>
 				<div class="author-links">
-					{AUTHOR.social.medium && <a href={AUTHOR.social.medium} target="_blank" rel="noopener" class="author-link">Medium</a>}
-					{AUTHOR.social.twitter && <a href={AUTHOR.social.twitter} target="_blank" rel="noopener" class="author-link">Twitter</a>}
-					{AUTHOR.social.github && <a href={AUTHOR.social.github} target="_blank" rel="noopener" class="author-link">GitHub</a>}
+					{
+						AUTHOR.social.medium && (
+							<a
+								href={AUTHOR.social.medium}
+								target="_blank"
+								rel="noopener"
+								class="author-link"
+							>
+								Medium
+							</a>
+						)
+					}
+					{
+						AUTHOR.social.github && (
+							<a
+								href={AUTHOR.social.github}
+								target="_blank"
+								rel="noopener"
+								class="author-link"
+							>
+								GitHub
+							</a>
+						)
+					}
 				</div>
 			</div>
 		</div>
@@ -89,33 +125,11 @@ const categoryCounts = allCategories.map(category => ({
 		border-bottom: 1px solid var(--border-light);
 	}
 
-	/* Popular Posts */
-	.popular-posts {
-		display: flex;
-		flex-direction: column;
-		gap: 16px;
-	}
-
-	.popular-post {
-		display: flex;
-		align-items: flex-start;
-		gap: 12px;
-		text-decoration: none;
-		color: inherit;
-		padding: 12px;
-		border-radius: 6px;
-		transition: background 0.2s ease;
-	}
-
-	.popular-post:hover {
-		background: var(--background-alt);
-	}
-
-	.post-number {
-		background: var(--accent);
-		color: white;
-		width: 24px;
-		height: 24px;
+	/* Popular/*
+  The original category list has been replaced by a tag‑cloud.
+  The following CSS rules are no longer needed and have been removed:
+    .categories, .category-link, .count
+*/	height: 24px;
 		border-radius: 50%;
 		display: flex;
 		align-items: center;
@@ -138,37 +152,51 @@ const categoryCounts = allCategories.map(category => ({
 		color: var(--text-muted);
 	}
 
-	/* Categories */
-	.categories {
+	/* Tag cloud */
+	.cloud {
 		display: flex;
-		flex-direction: column;
-		gap: 8px;
+		flex-wrap: wrap;
+		gap: 0.6rem 0.8rem;
+		margin-top: 0.8rem;
 	}
 
-	.category-link {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 8px 12px;
-		text-decoration: none;
-		color: var(--secondary);
-		font-size: 14px;
+	.cloud-item {
+		font-size: var(--size);
 		font-weight: 500;
-		border-radius: 6px;
-		transition: all 0.2s ease;
-	}
-
-	.category-link:hover {
-		background: var(--background-alt);
 		color: var(--primary);
+		text-decoration: none;
+		position: relative;
+		transition:
+			color 0.2s ease,
+			transform 0.15s ease;
 	}
 
-	.count {
-		font-size: 12px;
-		color: var(--text-muted);
-		font-weight: 400;
+	.cloud-item:hover,
+	.cloud-item:focus-visible {
+		color: var(--accent);
+		transform: scale(1.08);
 	}
 
+	.cloud-item::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		border-radius: 4px;
+		background: rgba(var(--primary), 0.07);
+		opacity: 0;
+		transition: opacity 0.2s ease;
+	}
+
+	.cloud-item:hover::after,
+	.cloud-item:focus-visible::after {
+		opacity: 1;
+	}
+
+	@media (max-width: 480px) {
+		.tag-cloud .cloud {
+			justify-content: flex-start;
+		}
+	}
 	/* Author Bio */
 	.author-bio {
 		text-align: center;
