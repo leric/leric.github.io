@@ -3,7 +3,7 @@ title: "Domain-Driven Design: Streamlining AI-Powered Software Development"
 description: "How Domain-Driven Design provides a strategic framework for tackling complex, domain-heavy software projects with AI assistance."
 pubDate: "Aug 02 2025"
 heroImage: "../../assets/blog-placeholder-3.jpg"
-category: "Domain-Driven Design"
+category: "Software Engineering"
 tags: ["DDD", "AI", "Software Architecture", "Best Practices"]
 ---
 
