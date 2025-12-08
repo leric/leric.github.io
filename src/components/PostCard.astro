@@ -47,19 +47,41 @@ const { title, description, pubDate, heroImage, slug, featured = false, category
 		border: 1px solid var(--border);
 		border-radius: var(--card-radius);
 		overflow: hidden;
-		transition: all 0.2s ease;
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 		margin-bottom: 24px;
+		position: relative;
 	}
-	
+
 	.post-card:hover {
-		box-shadow: var(--shadow-md);
-		transform: translateY(-2px);
-		border-color: var(--accent);
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+		transform: translateY(-4px);
+		border-color: rgba(0, 0, 0, 0.08);
 	}
-	
+
 	.post-card.featured {
-		border: 2px solid var(--accent);
-		background: linear-gradient(135deg, rgba(0, 102, 204, 0.02) 0%, rgba(0, 102, 204, 0.05) 100%);
+		background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+		border: 1px solid transparent;
+		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06),
+		            0 0 0 1px rgba(0, 0, 0, 0.04),
+		            inset 0 1px 0 rgba(255, 255, 255, 0.5);
+	}
+
+	.post-card.featured::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 3px;
+		background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+		border-radius: var(--card-radius) var(--card-radius) 0 0;
+	}
+
+	.post-card.featured:hover {
+		box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1),
+		            0 4px 12px rgba(0, 0, 0, 0.06),
+		            0 0 0 1px rgba(0, 0, 0, 0.04);
+		transform: translateY(-4px);
 	}
 	
 	.post-link {
