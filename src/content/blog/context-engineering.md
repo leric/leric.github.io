@@ -1,8 +1,8 @@
 ---
 title: "Context Engineering in Software Engineering"
 description: "How the principles of software engineering become even more critical in the age of AI, with a focus on interfaces and SOLID principles as context management tools."
-pubDate: "Nov 01 2025"
-heroImage: "../../assets/blog-placeholder-5.jpg"
+pubDate: "Nov 01 2024"
+heroImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1920&q=80"
 category: "Software Engineering"
 tags: ["SOLID", "Interfaces", "AI", "Design Principles"]
 ---

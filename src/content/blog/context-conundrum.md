@@ -1,9 +1,9 @@
 ---
 title: "The Context Conundrum: A Shared Limit for Humans and AI"
 description: "Exploring how abstraction, functional programming, and Clean Architecture help both humans and AI manage context complexity in software development."
-pubDate: "Aug 02 2025"
-heroImage: "../../assets/blog-placeholder-2.jpg"
-category: "Software Engineering"
+pubDate: "Aug 02 2024"
+heroImage: "https://images.unsplash.com/photo-1506953823976-52e1fdc0149a?w=1920&q=80"
+category: "Software Architecture"
 tags: ["Architecture", "AI", "Clean Code", "Design Patterns"]
 ---
 
