@@ -1,175 +1,169 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import PostCard from '../components/PostCard.astro';
-import Sidebar from '../components/Sidebar.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
-import { getCollection } from 'astro:content';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Sidebar from "../components/Sidebar.astro";
+import PostCard from "../components/PostCard.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+import { getCollection } from "astro:content";
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+const posts = (await getCollection("blog")).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
-const featuredPost = posts.find(p => p.data.featured) || posts[0];
-const recentPosts = posts.filter(p => p.id !== featuredPost.id).slice(0, 6);
+const featuredPost = posts.find((p) => p.data.featured) || posts[0];
+const recentPosts = posts.filter((p) => p.id !== featuredPost.id).slice(0, 6);
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<!-- Blog Header -->
-			<section class="blog-header">
-				<h1 class="blog-title">{SITE_TITLE}</h1>
-				<p class="blog-intro">{SITE_DESCRIPTION}</p>
-			</section>
+<BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+    <!-- Blog Header -->
+    <section class="blog-header">
+        <h1 class="blog-title">{SITE_TITLE}</h1>
+        <p class="blog-intro">{SITE_DESCRIPTION}</p>
+    </section>
 
-			<div class="content-layout">
-				<div class="main-content">
-					<!-- Featured Post -->
-					{featuredPost && (
-						<section class="blog-section">
-							<div class="section-header">
-								<h2 class="section-title">Featured Post</h2>
-							</div>
-							<PostCard
-								title={featuredPost.data.title}
-								description={featuredPost.data.description}
-								pubDate={featuredPost.data.pubDate}
-								heroImage={featuredPost.data.heroImage}
-								slug={featuredPost.id}
-								featured={true}
-								category={featuredPost.data.category}
-							/>
-						</section>
-					)}
+    <div class="content-layout">
+        <div class="main-content">
+            <!-- Featured Post -->
+            {
+                featuredPost && (
+                    <section class="blog-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Featured Post</h2>
+                        </div>
+                        <PostCard
+                            title={featuredPost.data.title}
+                            description={featuredPost.data.description}
+                            pubDate={featuredPost.data.pubDate}
+                            heroImage={featuredPost.data.heroImage}
+                            slug={featuredPost.id}
+                            featured={true}
+                            category={featuredPost.data.category}
+                        />
+                    </section>
+                )
+            }
 
-					<!-- Recent Posts -->
-					<section class="blog-section">
-						<div class="section-header">
-							<h2 class="section-title">Recent Posts</h2>
-						</div>
-						<div class="posts-grid">
-							{recentPosts.map((post) => (
-								<PostCard
-									title={post.data.title}
-									description={post.data.description}
-									pubDate={post.data.pubDate}
-									heroImage={post.data.heroImage}
-									slug={post.id}
-									category={post.data.category}
-								/>
-							))}
-						</div>
-						<div class="view-archive">
-							<a href="/blog" class="btn btn-outline">View Full Archive →</a>
-						</div>
-					</section>
-				</div>
+            <!-- Recent Posts -->
+            <section class="blog-section">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Posts</h2>
+                </div>
+                <div class="posts-grid">
+                    {
+                        recentPosts.map((post) => (
+                            <PostCard
+                                title={post.data.title}
+                                description={post.data.description}
+                                pubDate={post.data.pubDate}
+                                heroImage={post.data.heroImage}
+                                slug={post.id}
+                                category={post.data.category}
+                            />
+                        ))
+                    }
+                </div>
+                <div class="view-archive">
+                    <a href="/blog" class="btn btn-outline"
+                        >View Full Archive →</a
+                    >
+                </div>
+            </section>
+        </div>
 
-				<Sidebar />
-			</div>
-		</main>
-		<Footer />
-	</body>
-</html>
+        <Sidebar />
+    </div>
+</BaseLayout>
 
 <style>
-	/* Blog Header */
-	.blog-header {
-		text-align: center;
-		padding: 40px 0 48px;
-		border-bottom: 1px solid var(--border);
-		margin-bottom: 48px;
-	}
+    /* Blog Header */
+    .blog-header {
+        text-align: center;
+        padding: 40px 0 48px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 48px;
+    }
 
-	.blog-title {
-		font-size: clamp(32px, 5vw, 48px);
-		font-weight: 800;
-		color: var(--primary);
-		margin-bottom: 16px;
-		letter-spacing: -0.03em;
-		line-height: 1.2;
-	}
+    .blog-title {
+        font-size: clamp(32px, 5vw, 48px);
+        font-weight: 800;
+        color: var(--primary);
+        margin-bottom: 16px;
+        letter-spacing: -0.03em;
+        line-height: 1.2;
+    }
 
-	.blog-intro {
-		font-size: 18px;
-		line-height: 1.6;
-		color: var(--secondary);
-		max-width: 700px;
-		margin: 0 auto;
-	}
-	
-	/* Content Layout */
-	.content-layout {
-		display: grid;
-		grid-template-columns: 1fr 320px;
-		gap: 48px;
-		align-items: start;
-	}
-	
-	.main-content {
-		min-width: 0;
-	}
-	
-	/* Posts Grid */
-	.posts-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-		gap: 24px;
-		margin-bottom: 32px;
-	}
-	
-	.view-archive {
-		text-align: center;
-	}
+    .blog-intro {
+        font-size: 18px;
+        line-height: 1.6;
+        color: var(--secondary);
+        max-width: 700px;
+        margin: 0 auto;
+    }
 
-	.section-header {
-		margin-bottom: 24px;
-	}
+    /* Content Layout */
+    .content-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 48px;
+        align-items: start;
+    }
 
-	.section-title {
-		font-size: 24px;
-		font-weight: 700;
-		color: var(--primary);
-		margin-bottom: 8px;
-	}
-	
-	/* Responsive Design */
-	@media (max-width: 1024px) {
-		.content-layout {
-			grid-template-columns: 1fr;
-			gap: 32px;
-		}
-	}
-	
-	@media (max-width: 768px) {
-		.blog-header {
-			padding: 32px 0 32px;
-			margin-bottom: 32px;
-		}
+    .main-content {
+        min-width: 0;
+    }
 
-		.blog-intro {
-			font-size: 16px;
-		}
+    /* Posts Grid */
+    .posts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+    }
 
-		.posts-grid {
-			grid-template-columns: 1fr;
-		}
+    .view-archive {
+        text-align: center;
+    }
 
-		.content-layout {
-			gap: 24px;
-		}
-	}
+    .section-header {
+        margin-bottom: 24px;
+    }
 
-	@media (max-width: 480px) {
-		.blog-header {
-			padding: 24px 0 24px;
-		}
-	}
+    .section-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 8px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .content-layout {
+            grid-template-columns: 1fr;
+            gap: 32px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .blog-header {
+            padding: 32px 0 32px;
+            margin-bottom: 32px;
+        }
+
+        .blog-intro {
+            font-size: 16px;
+        }
+
+        .posts-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .content-layout {
+            gap: 24px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .blog-header {
+            padding: 24px 0 24px;
+        }
+    }
 </style>

@@ -1,0 +1,84 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import Sidebar from "../components/Sidebar.astro";
+
+interface Props {
+	title: string;
+	description: string;
+	image?: string;
+	headerTitle?: string;
+	headerSubtitle?: string;
+}
+
+const { title, description, image, headerTitle, headerSubtitle } = Astro.props;
+---
+
+<BaseLayout title={title} description={description} image={image}>
+	<div class="archive-header">
+		<h1>{headerTitle}</h1>
+		<p>{headerSubtitle}</p>
+	</div>
+
+	<div class="content-layout">
+		<div class="main-content">
+			<slot />
+		</div>
+
+		<Sidebar />
+	</div>
+</BaseLayout>
+
+<style>
+	.archive-header {
+		text-align: center;
+		padding: 40px 0 48px;
+		border-bottom: 1px solid var(--border);
+		margin-bottom: 48px;
+	}
+
+	.archive-header h1 {
+		font-size: clamp(28px, 4vw, 36px);
+		font-weight: 800;
+		color: var(--primary);
+		margin-bottom: 12px;
+		letter-spacing: -0.02em;
+		text-transform: capitalize;
+	}
+
+	.archive-header p {
+		font-size: 16px;
+		color: var(--secondary);
+		max-width: 500px;
+		margin: 0 auto;
+		line-height: 1.5;
+	}
+
+	.content-layout {
+		display: grid;
+		grid-template-columns: 1fr 320px;
+		gap: 48px;
+		align-items: start;
+	}
+
+	.main-content {
+		min-width: 0;
+	}
+
+	@media (max-width: 1024px) {
+		.content-layout {
+			grid-template-columns: 1fr;
+			gap: 32px;
+		}
+	}
+
+	@media (max-width: 768px) {
+		.archive-header {
+			padding: 32px 0 32px;
+			margin-bottom: 32px;
+		}
+
+		.content-layout {
+			gap: 24px;
+		}
+	}
+</style>
