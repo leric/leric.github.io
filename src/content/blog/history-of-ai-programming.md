@@ -5,7 +5,6 @@ pubDate: "Dec 05 2024"
 heroImage: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=1920&q=80"
 category: "Software Engineering"
 tags: ["AI", "Agile", "SOLID"]
-featured: true
 ---
 
 *History doesn't repeat itself, but it often rhymes.*
