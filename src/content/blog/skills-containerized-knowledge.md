@@ -20,9 +20,9 @@ I think they're both betting on the same answer to a problem that's been bugging
 
 ## Why Documents? Why Markdown?
 
-When I first saw Anthropic package Skills as Markdown files, my reaction was: **they're betting on the same thesis I built Airic around.**
+When I first saw Anthropic package Skills as Markdown files, my reaction was: **they're betting on the same thesis I built Airic around.** [^1]
 
-Airic is a framework I've been designing this year for document-driven agents. It started as my answer to the question: what would it take to make AI agents reliable enough for real production work?
+Airic[^2] is a framework I've been designing this year for document-driven agents. It started as my answer to the question: what would it take to make AI agents reliable enough for real production work?
 
 The core thesis:
 
@@ -137,3 +137,7 @@ You write an SOP in plain language, annotate edge cases, include examples. Maybe
 We've been encoding knowledge in documents for millennia. Now, for the first time, those documents can *run*. That changes everything.
 
 Skills are just the beginning.
+
+---
+[^1]: https://github.com/leric/metadoc/tree/main/docs
+[^2]: https://github.com/AiricDev/airic-spec
