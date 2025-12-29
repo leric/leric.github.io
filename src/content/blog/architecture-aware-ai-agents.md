@@ -1,7 +1,7 @@
 ---
 title: "Architecture-Aware AI Agents: Principles for Coherent Collaboration in Domain-Heavy Software"
 description: "Twelve principles for designing AI agents that maintain architectural coherence while collaborating on complex software projects."
-pubDate: "Aug 26 2024"
+pubDate: "Aug 26 2025"
 heroImage: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=1920&q=80"
 category: "AI Agents"
 tags: ["AI Agents", "Architecture", "Collaboration", "Best Practices"]

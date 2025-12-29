@@ -1,7 +1,7 @@
 ---
 title: "Beyond Vibe Coding: Why AI Won't Replace Software Engineers"
 description: "An exploration of why AI coding tools excel at simple tasks but struggle with complex, domain-heavy software engineering challenges."
-pubDate: "Jul 14 2024"
+pubDate: "Jul 14 2025"
 heroImage: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1920&q=80"
 category: "AI & Software Engineering"
 tags: ["AI", "Software Engineering", "Complexity", "Development"]

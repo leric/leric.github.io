@@ -1,7 +1,7 @@
 ---
 title: "The Missing Click"
 description: "Exploring the subtle UX mistake of missing click targets and how to fix them."
-pubDate: "Nov 21 2024"
+pubDate: "Nov 21 2025"
 heroImage: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=1920&q=80"
 category: "LLM"
 tags: ["AI", "LLM"]

@@ -1,7 +1,7 @@
 ---
 title: "AI Programming: Replaying 50 Years of Software Engineering in 2 Years"
 description: "AI coding has replayed decades of software engineering in fast-forward — from vibe coding chaos, to spec-first echoes of waterfall, to agile design that makes systems changeable. Here's how to steer it."
-pubDate: "Dec 05 2024"
+pubDate: "Dec 05 2025"
 heroImage: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=1920&q=80"
 category: "Software Engineering"
 tags: ["AI", "Agile", "SOLID"]
