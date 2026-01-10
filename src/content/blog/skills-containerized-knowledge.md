@@ -5,7 +5,6 @@ pubDate: "Dec 23 2025"
 heroImage: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1920&q=80"
 category: "AI Agents"
 tags: ["AI Skills", "Document-Driven Design", "AI Agents", "Knowledge Systems", "Claude", "OpenAI"]
-featured: true
 ---
 
 ## Something Interesting Just Happened

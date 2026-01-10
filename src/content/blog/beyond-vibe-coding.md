@@ -5,7 +5,6 @@ pubDate: "Jul 14 2025"
 heroImage: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1920&q=80"
 category: "AI & Software Engineering"
 tags: ["AI", "Software Engineering", "Complexity", "Development"]
-featured: true
 ---
 
 **Will AI replace software engineers?** The question is everywhere — on LinkedIn feeds, Reddit threads, and even late-night dev chats. We've all seen the demos: AI whipping up a full web app from a single prompt, or generating code snippets faster than you can type. It's exhilarating, terrifying, and utterly viral. Headlines scream, "The End of Coding as We Know It!" And with tools like Claude Code or OpenAI Codex turning novices into "programmers" overnight, it's easy to buy into the hype.
