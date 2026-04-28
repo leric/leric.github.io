@@ -4,6 +4,7 @@ import Sidebar from "../components/Sidebar.astro";
 import PostCard from "../components/PostCard.astro";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 import { getCollection } from "astro:content";
+import { featuredProjects } from "../data/projects";
 
 const posts = (await getCollection("blog")).sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
@@ -41,6 +42,34 @@ const recentPosts = posts.filter((p) => p.id !== featuredPost.id).slice(0, 6);
                     </section>
                 )
             }
+
+            <!-- Projects -->
+            <section class="blog-section">
+                <div class="section-header section-header-row">
+                    <div>
+                        <h2 class="section-title">Open Source Projects</h2>
+                        <p class="section-subtitle">
+                            Research ideas, tools, and agent systems I am building in public.
+                        </p>
+                    </div>
+                    <a href="/projects" class="section-link">View projects →</a>
+                </div>
+                <div class="projects-grid">
+                    {
+                        featuredProjects.map((project) => (
+                            <a href={`/projects/${project.slug}`} class="project-tile">
+                                <div class="project-tile-meta">{project.kicker}</div>
+                                <h3>{project.name}</h3>
+                                <p>{project.summary}</p>
+                                <div class="project-tile-footer">
+                                    <span>{project.status}</span>
+                                    <span>Explore →</span>
+                                </div>
+                            </a>
+                        ))
+                    }
+                </div>
+            </section>
 
             <!-- Recent Posts -->
             <section class="blog-section">
@@ -134,6 +163,78 @@ const recentPosts = posts.filter((p) => p.id !== featuredPost.id).slice(0, 6);
         margin-bottom: 8px;
     }
 
+    .section-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 16px;
+    }
+
+    .section-subtitle {
+        color: var(--secondary);
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .section-link {
+        flex-shrink: 0;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .projects-grid {
+        display: grid;
+        gap: 16px;
+    }
+
+    .project-tile {
+        display: block;
+        border: 1px solid var(--border);
+        border-radius: var(--card-radius);
+        background: white;
+        padding: 22px;
+        color: var(--primary);
+        text-decoration: none;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .project-tile:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        text-decoration: none;
+    }
+
+    .project-tile-meta {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 10px;
+    }
+
+    .project-tile h3 {
+        font-size: 20px;
+        font-weight: 800;
+        margin: 0 0 8px;
+    }
+
+    .project-tile p {
+        color: var(--secondary);
+        font-size: 14px;
+        line-height: 1.65;
+        margin-bottom: 16px;
+    }
+
+    .project-tile-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--secondary);
+        font-size: 13px;
+        font-weight: 700;
+    }
+
     /* Responsive Design */
     @media (max-width: 1024px) {
         .content-layout {
@@ -158,6 +259,11 @@ const recentPosts = posts.filter((p) => p.id !== featuredPost.id).slice(0, 6);
 
         .content-layout {
             gap: 24px;
+        }
+
+        .section-header-row {
+            align-items: flex-start;
+            flex-direction: column;
         }
     }
 

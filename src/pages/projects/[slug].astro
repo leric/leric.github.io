@@ -1,0 +1,305 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { publicProjects, type Project } from "../../data/projects";
+
+export function getStaticPaths() {
+	return publicProjects.map((project) => ({
+		params: { slug: project.slug },
+		props: { project },
+	}));
+}
+
+const { project } = Astro.props as { project: Project };
+const pageTitle = `${project.name} — Projects`;
+const pageDescription = project.summary;
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+	<article class="project-detail">
+		<header class="detail-hero">
+			<a href="/projects" class="back-link">← Projects</a>
+			<div class="hero-meta">
+				<span>{project.kicker}</span>
+				<span>{project.status}</span>
+				<span>{project.stage}</span>
+			</div>
+			<h1>{project.name}</h1>
+			<p>{project.description}</p>
+			<div class="hero-actions">
+				{
+					project.primaryAction && (
+						<a
+							href={project.primaryAction.href}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="btn"
+						>
+							{project.primaryAction.label} ↗
+						</a>
+					)
+				}
+				<a href="/blog" class="btn btn-outline">Related writing</a>
+			</div>
+		</header>
+
+		<section class="detail-section">
+			<div class="section-heading">
+				<div class="section-label">Why it matters</div>
+				<h2>What this project is for</h2>
+			</div>
+			<div class="section-body">
+				<ul class="check-list">
+					{project.highlights.map((item) => <li>{item}</li>)}
+				</ul>
+			</div>
+		</section>
+
+		<section class="detail-section">
+			<div class="section-heading">
+				<div class="section-label">Use cases</div>
+				<h2>Where it fits</h2>
+			</div>
+			<div class="section-body">
+				<div class="panel-grid">
+					{project.useCases.map((item) => <div class="panel">{item}</div>)}
+				</div>
+			</div>
+		</section>
+
+		<section class="detail-section">
+			<div class="section-heading">
+				<div class="section-label">Shape</div>
+				<h2>Architecture notes</h2>
+			</div>
+			<div class="section-body">
+				<ul class="line-list">
+					{project.architecture.map((item) => <li>{item}</li>)}
+				</ul>
+			</div>
+		</section>
+
+		{
+			project.commands && (
+				<section class="detail-section">
+					<div class="section-heading">
+						<div class="section-label">CLI</div>
+						<h2>Commands</h2>
+					</div>
+					<div class="section-body">
+						<div class="command-grid">
+							{project.commands.map((command) => (
+								<div class="command-block">
+									<div class="command-label">{command.label}</div>
+									<pre><code>{command.code}</code></pre>
+								</div>
+							))}
+						</div>
+					</div>
+				</section>
+			)
+		}
+
+		<section class="tag-section" aria-label="Project tags">
+			{project.tags.map((tag) => <span>{tag}</span>)}
+		</section>
+	</article>
+</BaseLayout>
+
+<style>
+	.project-detail {
+		padding-bottom: 72px;
+	}
+
+	.detail-hero {
+		padding: 48px 0 52px;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.back-link {
+		display: inline-flex;
+		margin-bottom: 28px;
+		font-size: 14px;
+		color: var(--secondary);
+	}
+
+	.hero-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-bottom: 18px;
+	}
+
+	.hero-meta span,
+	.tag-section span {
+		display: inline-flex;
+		align-items: center;
+		min-height: 28px;
+		border: 1px solid var(--border-light);
+		border-radius: 999px;
+		background: var(--background-alt);
+		color: var(--secondary);
+		font-size: 12px;
+		font-weight: 700;
+		padding: 4px 10px;
+	}
+
+	.detail-hero h1 {
+		max-width: 800px;
+		font-size: clamp(32px, 5vw, 54px);
+		letter-spacing: -0.03em;
+		margin-bottom: 18px;
+	}
+
+	.detail-hero p {
+		max-width: 760px;
+		color: var(--secondary);
+		font-size: 18px;
+		line-height: 1.75;
+		margin-bottom: 28px;
+	}
+
+	.hero-actions {
+		display: flex;
+		gap: 12px;
+		flex-wrap: wrap;
+	}
+
+	.detail-section {
+		display: grid;
+		grid-template-columns: 260px minmax(0, 1fr);
+		gap: 48px;
+		padding: 44px 0;
+		border-bottom: 1px solid var(--border-light);
+	}
+
+	.section-label {
+		font-size: 12px;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--accent);
+		margin-bottom: 10px;
+	}
+
+	.section-heading h2 {
+		font-size: 22px;
+		margin: 0;
+	}
+
+	.check-list,
+	.line-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.check-list li,
+	.line-list li {
+		position: relative;
+		margin-bottom: 14px;
+		padding-left: 22px;
+		color: var(--primary);
+		line-height: 1.65;
+	}
+
+	.check-list li::before {
+		content: "✓";
+		position: absolute;
+		left: 0;
+		color: var(--success);
+		font-weight: 800;
+	}
+
+	.line-list li::before {
+		content: "—";
+		position: absolute;
+		left: 0;
+		color: var(--text-muted);
+	}
+
+	.panel-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 16px;
+	}
+
+	.panel {
+		border: 1px solid var(--border);
+		border-radius: var(--card-radius);
+		background: white;
+		padding: 18px;
+		color: var(--secondary);
+		font-size: 14px;
+		line-height: 1.6;
+		box-shadow: var(--shadow-sm);
+	}
+
+	.command-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 16px;
+	}
+
+	.command-block {
+		border: 1px solid var(--border);
+		border-radius: var(--card-radius);
+		background: white;
+		padding: 16px;
+	}
+
+	.command-label {
+		color: var(--secondary);
+		font-size: 12px;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		margin-bottom: 8px;
+	}
+
+	.command-block pre {
+		margin: 0;
+		padding: 12px 14px;
+		background: #0d1117;
+		border: none;
+		border-radius: 6px;
+	}
+
+	.command-block code {
+		background: none;
+		border: none;
+		color: #79c0ff;
+		padding: 0;
+		white-space: pre-wrap;
+		word-break: break-word;
+	}
+
+	.tag-section {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		padding-top: 32px;
+	}
+
+	@media (max-width: 820px) {
+		.detail-section {
+			grid-template-columns: 1fr;
+			gap: 20px;
+			padding: 34px 0;
+		}
+
+		.panel-grid,
+		.command-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	@media (max-width: 560px) {
+		.detail-hero {
+			padding: 36px 0 38px;
+		}
+
+		.project-detail {
+			padding-bottom: 48px;
+		}
+	}
+</style>
