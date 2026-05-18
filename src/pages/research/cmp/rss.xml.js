@@ -3,13 +3,13 @@ import { getCollection } from 'astro:content';
 import {
 	cmpChapterPath,
 	getCmpChapters,
-	isCmpChapterRenderable,
+	isCmpChapterPublished,
 	parseCmpEntryId,
 } from '../../../lib/research-cmp';
 
 export async function GET(context) {
 	const all = await getCollection('research');
-	const items = getCmpChapters(all).filter((e) => isCmpChapterRenderable(e.data.status));
+	const items = getCmpChapters(all).filter((e) => isCmpChapterPublished(e.data.status));
 	items.sort(
 		(a, b) =>
 			(b.data.updatedDate ?? b.data.pubDate).valueOf() -

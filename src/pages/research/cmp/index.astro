@@ -1,22 +1,10 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { AUTHOR, CMP_SOURCE_REPO, SITE_TITLE } from '../../../consts';
-import { getCollection } from 'astro:content';
-import {
-	CMP_PART_LABELS,
-	CMP_PART_ORDER,
-	cmpChapterPath,
-	getCmpChapters,
-	isCmpChapterRenderable,
-	parseCmpEntryId,
-} from '../../../lib/research-cmp';
-
-const all = await getCollection('research');
-const chapters = getCmpChapters(all);
 
 const pageTitle = `Context Minimization Principle (CMP) — Research — ${SITE_TITLE}`;
 const pageDescription =
-	'Online book: a theory of context cost for correct modification, software design trade-offs, and AI coding agents.';
+	'A living research book on context cost, correct modification, and AI-era software design.';
 const canonicalHref = new URL('/research/cmp/', Astro.site).href;
 
 const coverImage = 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80';
@@ -29,12 +17,11 @@ const bookJsonLd = {
 	url: canonicalHref,
 	author: {
 		'@type': 'Person',
-		name: AUTHOR.name,
+		name: 'Lianghui Zhang',
 		url: AUTHOR.social.github,
 	},
 	inLanguage: 'en',
 	bookFormat: 'https://schema.org/EBook',
-	numberOfPages: chapters.length,
 };
 
 const bibtex = `@book{zhang2026cmp,
@@ -56,9 +43,11 @@ const bibtex = `@book{zhang2026cmp,
 	<section class="cmp-hero">
 		<p class="kicker">Online book · Living · v0.1</p>
 		<h1>Context Minimization Principle</h1>
-		<p class="subtitle">A theory of context cost for correct modification.</p>
+		<p class="subtitle">
+			A living research book on context cost, correct modification, and AI-era software design.
+		</p>
 		<div class="hero-meta">
-			<span>{AUTHOR.name}</span>
+			<span>Lianghui Zhang</span>
 			<span>·</span>
 			<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="license noopener noreferrer"
 				>License: CC BY 4.0</a
@@ -71,52 +60,68 @@ const bibtex = `@book{zhang2026cmp,
 	<section class="cmp-section">
 		<h2>Who is this for?</h2>
 		<p>
-			This book is for software architects and senior engineers asking how software should be designed when AI
-			programmers become regular modifiers of the codebase. The central question is not whether agents can produce
-			code, but whether the system makes the required context for correct modification reachable to them.
+			This book is for software architects, senior engineers, AI coding tool builders, and researchers asking a
+			shared question: what makes a codebase easier for humans and AI agents to modify correctly?
+		</p>
+		<p>
+			The central problem is not whether AI can generate code. The harder problem is whether a system makes the
+			required context for a correct modification discoverable, bounded, and trustworthy.
 		</p>
 		<p>
 			CMP gives this problem a vocabulary: context cost, sufficient context, depth, breadth, modification closure,
-			and context operators. It is a framework for people who care about architecture as the discipline of making
-			future human and AI programmers cheaper, safer, and more reliable modifiers of a living system.
+			and context operators. It treats software design as the discipline of making future modification cheaper,
+			safer, and more reliable.
 		</p>
 	</section>
 
 	<section class="cmp-section">
-		<h2>Full table of contents</h2>
-		<p class="muted">Draft chapters appear as <em>Coming soon</em> in the sidebar; they are not published as pages yet.</p>
-		<div class="toc-wrap">
-			{
-				CMP_PART_ORDER.map((partId) => {
-					const items = chapters.filter((c) => c.data.part === partId);
-					if (items.length === 0) return null;
-					return (
-						<div class="toc-part">
-							<h3 class="toc-part-title">{CMP_PART_LABELS[partId]}</h3>
-							<ol class="toc-list">
-								{items.map((ch) => {
-									const ids = parseCmpEntryId(ch.id);
-									const ready = ids && isCmpChapterRenderable(ch.data.status);
-									const href = ids ? cmpChapterPath(ids.part, ids.slug) : '#';
-									return (
-										<li>
-											{ready ? (
-												<a href={href}>{ch.data.title}</a>
-											) : (
-												<span class="soon">
-													{ch.data.title}
-													<span class="pill">Coming soon</span>
-												</span>
-											)}
-										</li>
-									);
-								})}
-							</ol>
-						</div>
-					);
-				})
-			}
-		</div>
+		<h2>Start here</h2>
+		<p>
+			Begin with the root essay. It explains why AI coding agents make software design more important, not less.
+		</p>
+		<p>
+			<a href="/research/cmp/foundations/why-ai-agents/"
+				>Why AI Agents Force a New Theory of Software Design →</a
+			>
+		</p>
+	</section>
+
+	<section class="cmp-section">
+		<h2>Coming next</h2>
+		<ol class="toc-list">
+			<li>The Long Context Fallacy</li>
+			<li>Future AI Design Still Optimizes Context</li>
+			<li>Software Design Is for Modification</li>
+			<li>Correct Modification Requires Sufficient Context</li>
+		</ol>
+	</section>
+
+	<section class="cmp-section">
+		<h2>Research map</h2>
+		<p class="muted">
+			CMP is published as a living research book. The structure will evolve as the theory becomes clearer.
+		</p>
+		<ul class="two-col">
+			<li>
+				<strong>The AI moment:</strong> why agents expose context acquisition as the real bottleneck.
+			</li>
+			<li>
+				<strong>The core theory:</strong> modification, sufficient context, and context cost.
+			</li>
+			<li>
+				<strong>The shape of context cost:</strong> depth, breadth, and modification closure.
+			</li>
+			<li>
+				<strong>Design vocabulary:</strong> principles, boundaries, tests, languages, and architecture as context
+				operators.
+			</li>
+			<li>
+				<strong>Agent operability:</strong> designing codebases that AI agents can modify reliably.
+			</li>
+			<li>
+				<strong>Measurement:</strong> Context-Footprint, agent traces, and empirical studies.
+			</li>
+		</ul>
 	</section>
 
 	<section class="cmp-section">
@@ -132,7 +137,7 @@ const bibtex = `@book{zhang2026cmp,
 	<section class="cmp-section">
 		<h2>License</h2>
 		<p>
-			Unless otherwise noted, <em>Context Minimization Principle</em> by {AUTHOR.name} is licensed under
+			Unless otherwise noted, <em>Context Minimization Principle</em> by Lianghui Zhang is licensed under
 			<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="license noopener noreferrer"
 				>Creative Commons Attribution 4.0 International</a
 			>.
@@ -203,20 +208,12 @@ const bibtex = `@book{zhang2026cmp,
 		font-size: 15px;
 	}
 	.two-col {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+		gap: 14px 28px;
 		margin: 0;
 		padding-left: 20px;
 		line-height: 1.7;
-	}
-	.toc-wrap {
-		display: flex;
-		flex-direction: column;
-		gap: 28px;
-		margin-top: 16px;
-	}
-	.toc-part-title {
-		font-size: 16px;
-		margin: 0 0 10px;
-		color: var(--primary);
 	}
 	.toc-list {
 		margin: 0;
@@ -225,23 +222,6 @@ const bibtex = `@book{zhang2026cmp,
 	}
 	.toc-list li {
 		margin-bottom: 8px;
-	}
-	.soon {
-		color: var(--text-muted);
-		display: inline-flex;
-		align-items: center;
-		gap: 10px;
-		flex-wrap: wrap;
-	}
-	.pill {
-		font-size: 10px;
-		font-weight: 800;
-		text-transform: uppercase;
-		letter-spacing: 0.06em;
-		border: 1px solid var(--border);
-		border-radius: 999px;
-		padding: 2px 8px;
-		color: var(--secondary);
 	}
 	.cite-block {
 		margin: 12px 0 20px;

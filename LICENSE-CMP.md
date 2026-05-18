@@ -1,6 +1,6 @@
 # Context Minimization Principle License
 
-Unless otherwise noted, the **Context Minimization Principle** online book content by **Leric Zhang** is licensed under the Creative Commons Attribution 4.0 International License.
+Unless otherwise noted, the **Context Minimization Principle** online book content by **Lianghui Zhang** is licensed under the Creative Commons Attribution 4.0 International License.
 
 License: https://creativecommons.org/licenses/by/4.0/
 
@@ -17,4 +17,4 @@ This license does not apply to:
 
 For attribution, use:
 
-> Leric Zhang, *Context Minimization Principle*, https://www.airic.dev/research/cmp/, licensed under CC BY 4.0.
+> Lianghui Zhang, *Context Minimization Principle*, https://www.airic.dev/research/cmp/, licensed under CC BY 4.0.

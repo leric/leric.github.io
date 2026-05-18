@@ -3,28 +3,12 @@ import type { CollectionEntry } from 'astro:content';
 export const CMP_BOOK_SLUG = 'cmp' as const;
 
 /** URL segment order for Parts (TOC + prev/next). */
-export const CMP_PART_ORDER = [
-	'foundations',
-	'two-shapes',
-	'design',
-	'mechanical-indexes',
-	'uncertainty',
-	'measuring',
-	'agents',
-	'appendix',
-] as const;
+export const CMP_PART_ORDER = ['foundations'] as const;
 
 export type CmpPartId = (typeof CMP_PART_ORDER)[number];
 
 export const CMP_PART_LABELS: Record<CmpPartId, string> = {
 	foundations: 'Part I — Foundations',
-	'two-shapes': 'Part II — Two Shapes',
-	design: 'Part III — Design',
-	'mechanical-indexes': 'Part IV — Mechanical Indexes',
-	uncertainty: 'Part V — Uncertainty',
-	measuring: 'Part VI — Measuring',
-	agents: 'Part VII — Agents',
-	appendix: 'Appendix',
 };
 
 export function cmpChapterPath(part: string, slug: string) {
@@ -40,6 +24,10 @@ export function parseCmpEntryId(id: string): { part: string; slug: string } | nu
 	const m = id.match(/^cmp\/([^/]+)\/(.+)$/);
 	if (!m) return null;
 	return { part: m[1], slug: m[2] };
+}
+
+export function isCmpChapterPublished(status: 'draft' | 'published' | 'wip') {
+	return status === 'published';
 }
 
 export function isCmpChapterRenderable(status: 'draft' | 'published' | 'wip') {
