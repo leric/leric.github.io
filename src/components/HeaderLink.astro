@@ -6,7 +6,13 @@ type Props = HTMLAttributes<'a'>;
 const { href, class: className, ...props } = Astro.props;
 const pathname = Astro.url.pathname.replace(import.meta.env.BASE_URL, '');
 const subpath = pathname.match(/[^\/]+/g);
-const isActive = href === pathname || href === '/' + (subpath?.[0] || '');
+const isCmpPath = pathname.startsWith('/cmp') || pathname.startsWith('/research/cmp');
+const isEssayPath = pathname.startsWith('/blog');
+const isActive =
+	href === pathname ||
+	href === '/' + (subpath?.[0] || '') ||
+	(href === '/cmp' && isCmpPath) ||
+	(href === '/blog' && isEssayPath);
 ---
 
 <a href={href} class:list={['nav-link', className, { active: isActive }]} {...props}>
@@ -16,14 +22,14 @@ const isActive = href === pathname || href === '/' + (subpath?.[0] || '');
 <style>
 	.nav-link {
 		font-family: var(--font-primary);
-		font-size: 15px;
+		font-size: 14px;
 		font-weight: 500;
-		color: var(--secondary);
+		color: var(--text-muted);
 		text-decoration: none;
 		padding: 8px 0;
 		position: relative;
 		transition: color 0.2s ease;
-		letter-spacing: -0.01em;
+		letter-spacing: 0;
 	}
 	
 	.nav-link:hover {
@@ -32,17 +38,17 @@ const isActive = href === pathname || href === '/' + (subpath?.[0] || '');
 	
 	.nav-link.active {
 		color: var(--primary);
-		font-weight: 600;
+		font-weight: 500;
 	}
 	
 	.nav-link.active::after {
 		content: '';
 		position: absolute;
-		bottom: -12px;
+		bottom: -10px;
 		left: 50%;
 		transform: translateX(-50%);
-		width: 4px;
-		height: 4px;
+		width: 3px;
+		height: 3px;
 		background: var(--accent);
 		border-radius: 50%;
 	}

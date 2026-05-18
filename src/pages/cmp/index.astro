@@ -1,0 +1,136 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { SITE_TITLE } from "../../consts";
+
+const pageTitle = `Context Minimization Principle — ${SITE_TITLE}`;
+const pageDescription =
+	"CMP is a long-term writing series on software design, context cost, and correct modification.";
+
+const readingPath = [
+	{
+		title: "The Root Essay",
+		description: "Why software design should be evaluated by the cost of acquiring sufficient context.",
+		href: "/research/cmp/foundations/why-ai-agents/",
+		available: true,
+	},
+	{
+		title: "Depth and Breadth",
+		description: "How context distance and context surface area shape modification difficulty.",
+		available: false,
+	},
+	{
+		title: "Design Principles as Context Operators",
+		description: "Reframing design principles as operators that reduce context acquisition cost.",
+		available: false,
+	},
+	{
+		title: "AI Agents and Observable Context",
+		description: "What AI-assisted engineering reveals about hidden context and system legibility.",
+		available: false,
+	},
+	{
+		title: "Context Footprint",
+		description: "Toward practical measurement for modification context in real codebases.",
+		available: false,
+	},
+];
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+	<section class="cmp-page">
+		<header>
+			<h1>Context Minimization Principle</h1>
+			<p class="lead">Software design is for modification.</p>
+			<p class="lead">Correct modification requires sufficient context.</p>
+			<p class="lead">Good design makes that context cheaper to acquire.</p>
+		</header>
+
+		<section class="path">
+			<h2>Start here</h2>
+			<ol>
+				{readingPath.map((item) => (
+					<li>
+						{item.available && item.href ? <a href={item.href}>{item.title}</a> : <span>{item.title}</span>}
+						<p>{item.description}</p>
+						{!item.available && <small>Planned</small>}
+					</li>
+				))}
+			</ol>
+		</section>
+	</section>
+</BaseLayout>
+
+<style>
+	.cmp-page {
+		max-width: 860px;
+		padding: 56px 0 8px;
+	}
+
+	.cmp-page header {
+		padding-bottom: 18px;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.cmp-page h1 {
+		margin-bottom: 16px;
+	}
+
+	.cmp-page .lead {
+		font-size: 20px;
+		line-height: 1.6;
+		margin-bottom: 6px;
+	}
+
+	.path {
+		padding-top: 28px;
+	}
+
+	.path h2 {
+		font-size: 22px;
+		margin: 0 0 12px;
+	}
+
+	.path ol {
+		margin: 0;
+		padding-left: 22px;
+	}
+
+	.path li {
+		margin-bottom: 14px;
+	}
+
+	.path li a,
+	.path li span {
+		font-size: 18px;
+		font-weight: 500;
+	}
+
+	.path li span {
+		color: var(--secondary);
+	}
+
+	.path li p {
+		margin: 6px 0 2px;
+		color: var(--secondary);
+	}
+
+	.path li small {
+		color: var(--text-muted);
+		font-size: 12px;
+	}
+
+	@media (max-width: 700px) {
+		.cmp-page {
+			padding-top: 40px;
+		}
+
+		.cmp-page .lead {
+			font-size: 18px;
+		}
+
+		.path li a,
+		.path li span {
+			font-size: 17px;
+		}
+	}
+</style>

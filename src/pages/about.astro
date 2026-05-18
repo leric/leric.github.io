@@ -1,47 +1,79 @@
 ---
-import Layout from '../layouts/BlogPost.astro';
-import { AUTHOR } from '../consts';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { AUTHOR } from "../consts";
 ---
 
-<Layout
-	title="About"
-	description={AUTHOR.bio}
-	pubDate={new Date('Nov 01 2024')}
-	heroImage="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1920&q=80"
->
-	<h2>Hi, I'm {AUTHOR.name}</h2>
+<BaseLayout title="About — Leric Zhang" description="About Leric Zhang and the CMP research agenda.">
+	<section class="about">
+		<h1>About</h1>
+		<p>I am Leric Zhang, a software architect and independent researcher.</p>
+		<p>
+			My work focuses on how software systems can remain understandable and modifiable as they grow, especially in
+			the age of AI-assisted programming.
+		</p>
+		<p>
+			The current center of this work is the Context Minimization Principle, a way to reason about software design
+			through the cost of acquiring sufficient context for correct modification.
+		</p>
 
-	<p>
-		I'm a software architect passionate about exploring how AI and human expertise can work together to build better software systems. Through this blog, I share insights on software engineering, AI-powered development, and building maintainable systems through proper architecture and design.
-	</p>
+		<section>
+			<h2>Links</h2>
+			<ul>
+				{AUTHOR.social.github && (
+					<li>
+						<a href={AUTHOR.social.github} target="_blank" rel="noopener">GitHub</a>
+					</li>
+				)}
+				{AUTHOR.social.medium && (
+					<li>
+						<a href={AUTHOR.social.medium} target="_blank" rel="noopener">Medium</a>
+					</li>
+				)}
+				<li><a href="/rss.xml">RSS</a></li>
+				{AUTHOR.social.email && (
+					<li>
+						<a href={AUTHOR.social.email}>Email</a>
+					</li>
+				)}
+			</ul>
+		</section>
 
-	<h2>What I Write About</h2>
+		<section>
+			<h2>Selected Writing</h2>
+			<ul>
+				<li><a href="/cmp">Context Minimization Principle</a></li>
+				<li><a href="/blog">Essays</a></li>
+			</ul>
+		</section>
 
-	<p>
-		My writing focuses on the intersection of AI and software engineering, particularly:
-	</p>
+		<section>
+			<h2>Current Research Agenda</h2>
+			<p>Leric Zhang → Context Minimization Principle → context cost → software design for modification.</p>
+		</section>
+	</section>
+</BaseLayout>
 
-	<ul>
-		<li><strong>AI-Powered Development:</strong> How AI coding tools can enhance (not replace) software engineering workflows</li>
-		<li><strong>Software Architecture:</strong> Clean Architecture, Domain-Driven Design, and SOLID principles in the AI era</li>
-		<li><strong>Context Management:</strong> Managing complexity for both humans and AI agents</li>
-		<li><strong>Architecture-Aware AI Agents:</strong> Designing AI collaborators that maintain system coherence</li>
-	</ul>
+<style>
+	.about {
+		max-width: var(--reading-width);
+		padding: 52px 0 12px;
+	}
 
-	<h2>My Philosophy</h2>
+	.about section {
+		padding-top: 18px;
+	}
 
-	<p>
-		I believe that the smartest people solve complex problems in the simplest way. As AI tools become more powerful, the need for solid architectural foundations and design principles becomes even more critical. My goal is to help developers navigate this new landscape by applying timeless software engineering practices in innovative ways.
-	</p>
+	.about ul {
+		margin: 12px 0 0;
+	}
 
-	<h2>Get in Touch</h2>
+	.about li {
+		margin-bottom: 6px;
+	}
 
-	<p>
-		I'm always interested in connecting with fellow developers and architects. You can find me on:
-	</p>
-
-	<ul>
-		{AUTHOR.social.medium && <li><a href={AUTHOR.social.medium} target="_blank" rel="noopener">Medium</a> - where I also publish my articles</li>}
-		{AUTHOR.social.github && <li><a href={AUTHOR.social.github} target="_blank" rel="noopener">GitHub</a> - check out my code and projects</li>}
-	</ul>
-</Layout>
+	@media (max-width: 700px) {
+		.about {
+			padding-top: 40px;
+		}
+	}
+</style>

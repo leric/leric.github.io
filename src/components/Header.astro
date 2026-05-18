@@ -1,6 +1,6 @@
 ---
 import HeaderLink from './HeaderLink.astro';
-import { SITE_TITLE, SITE_DESCRIPTION, AUTHOR } from '../consts';
+import { SITE_TITLE, AUTHOR } from '../consts';
 ---
 
 <header class="site-header">
@@ -8,14 +8,14 @@ import { SITE_TITLE, SITE_DESCRIPTION, AUTHOR } from '../consts';
 		<div class="header-brand">
 			<a href="/" class="brand-link">
 				<span class="brand-title">{SITE_TITLE}</span>
-				<span class="brand-tagline">{SITE_DESCRIPTION}</span>
+				<span class="brand-tagline">Context cost and software design</span>
 			</a>
 		</div>
 		<nav class="header-nav" aria-label="Primary">
 			<HeaderLink href="/">Home</HeaderLink>
-			<HeaderLink href="/research/cmp/">CMP</HeaderLink>
+			<HeaderLink href="/cmp">CMP</HeaderLink>
+			<HeaderLink href="/blog">Essays</HeaderLink>
 			<HeaderLink href="/projects">Projects</HeaderLink>
-			<HeaderLink href="/blog">Blog</HeaderLink>
 			<HeaderLink href="/about">About</HeaderLink>
 		</nav>
 		<div class="header-actions">
@@ -43,12 +43,11 @@ import { SITE_TITLE, SITE_DESCRIPTION, AUTHOR } from '../consts';
 
 <style>
 	.site-header {
-		background: white;
+		background: var(--background);
 		border-bottom: 1px solid var(--border);
 		position: sticky;
 		top: 0;
-		z-index: 100;
-		backdrop-filter: blur(10px);
+		z-index: 30;
 	}
 
 	.header-container {
@@ -59,7 +58,7 @@ import { SITE_TITLE, SITE_DESCRIPTION, AUTHOR } from '../consts';
 		align-items: center;
 		justify-content: space-between;
 		gap: 16px;
-		min-height: 72px;
+		min-height: 68px;
 	}
 
 	.header-brand {
@@ -74,16 +73,16 @@ import { SITE_TITLE, SITE_DESCRIPTION, AUTHOR } from '../consts';
 
 	.brand-title {
 		font-family: var(--font-primary);
-		font-size: 20px;
-		font-weight: 800;
-		letter-spacing: -0.02em;
+		font-size: 18px;
+		font-weight: 600;
+		letter-spacing: -0.01em;
 		display: block;
 		line-height: 1.2;
 	}
 
 	.brand-tagline {
-		font-size: 12px;
-		color: var(--secondary);
+		font-size: 11px;
+		color: var(--text-muted);
 		font-weight: 400;
 		margin-top: 2px;
 		display: block;
@@ -93,7 +92,7 @@ import { SITE_TITLE, SITE_DESCRIPTION, AUTHOR } from '../consts';
 	.header-nav {
 		display: flex;
 		align-items: center;
-		gap: 28px;
+		gap: 20px;
 		flex: 1;
 		justify-content: center;
 	}
@@ -111,18 +110,15 @@ import { SITE_TITLE, SITE_DESCRIPTION, AUTHOR } from '../consts';
 		justify-content: center;
 		color: var(--secondary);
 		text-decoration: none;
-		font-size: 13px;
-		font-weight: 700;
-		padding: 6px 8px;
-		border-radius: 6px;
+		font-size: 12px;
+		font-weight: 500;
+		padding: 4px 6px;
 		transition:
-			color 0.15s ease,
-			background 0.15s ease;
+			color 0.15s ease;
 	}
 
 	.icon-link:hover {
 		color: var(--accent);
-		background: var(--background-alt);
 	}
 
 	.rss-link {
@@ -131,7 +127,7 @@ import { SITE_TITLE, SITE_DESCRIPTION, AUTHOR } from '../consts';
 
 	@media (max-width: 768px) {
 		.header-container {
-			min-height: 64px;
+			min-height: 62px;
 			flex-wrap: wrap;
 		}
 
@@ -144,7 +140,7 @@ import { SITE_TITLE, SITE_DESCRIPTION, AUTHOR } from '../consts';
 		}
 
 		.brand-title {
-			font-size: 18px;
+			font-size: 17px;
 		}
 
 		.brand-tagline {

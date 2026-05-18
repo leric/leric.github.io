@@ -1,124 +1,112 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { publicProjects } from "../../data/projects";
 
-const pageTitle = "Projects — Airic";
-const pageDescription =
-	"Open-source projects and research artifacts around context cost, modification workflows, AI agents, and architecture-aware software engineering.";
-
-function projectUrl(project: (typeof publicProjects)[number]) {
-	return project.primaryAction?.href || project.repo || "#";
-}
+const projects = [
+	{
+		name: "Context Footprint",
+		summary: "A prototype for estimating context acquisition cost in real codebases.",
+		status: "experimental",
+		linkLabel: "GitHub",
+		linkHref: "https://github.com/airicdev/context-footprint",
+	},
+	{
+		name: "Airic Agent",
+		summary: "Agent workflow experiments for architecture-aware software modification.",
+		status: "in progress",
+		linkLabel: "GitHub",
+		linkHref: "https://github.com/leric",
+	},
+	{
+		name: "Other experiments",
+		summary: "Small tools and notes that test parts of the CMP research agenda.",
+		status: "planned",
+	},
+];
 ---
 
-<BaseLayout title={pageTitle} description={pageDescription}>
-	<section class="project-list" aria-label="Projects">
-		{
-			publicProjects.map((project) => (
-				<article class="project-card">
-					<div>
-						<h2>
-							<a href={projectUrl(project)} target="_blank" rel="noopener noreferrer">
-								{project.name}
-							</a>
-						</h2>
-						<p>{project.summary}</p>
-						<div class="tag-row">
-							{project.tags.slice(0, 5).map((tag) => (
-								<span>{tag}</span>
-							))}
-						</div>
+<BaseLayout title="Projects — Leric Zhang" description="Tools and prototypes related to CMP and context cost research.">
+	<section class="projects">
+		<header>
+			<h1>Projects</h1>
+			<p>Operational work around CMP. Secondary to the research writing, but built to test it in practice.</p>
+		</header>
+
+		<ul class="project-list">
+			{projects.map((project) => (
+				<li>
+					<h2>{project.name}</h2>
+					<p>{project.summary}</p>
+					<div class="meta">
+						<span class="status">{project.status}</span>
+						{project.linkHref && project.linkLabel && (
+							<>
+								<span class="dot">·</span>
+								<a href={project.linkHref} target="_blank" rel="noopener noreferrer">{project.linkLabel}</a>
+							</>
+						)}
 					</div>
-					<a class="project-link" href={projectUrl(project)} target="_blank" rel="noopener noreferrer">
-						GitHub ↗
-					</a>
-				</article>
-			))
-		}
+				</li>
+			))}
+		</ul>
 	</section>
 </BaseLayout>
 
 <style>
+	.projects {
+		max-width: 860px;
+		padding: 52px 0 12px;
+	}
+
+	.projects header p {
+		color: var(--secondary);
+		max-width: 760px;
+	}
+
 	.project-list {
-		padding: 32px 0 72px;
-		display: grid;
-		gap: 16px;
+		list-style: none;
+		padding: 0;
+		margin: 0;
 	}
 
-	.project-card {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) auto;
-		gap: 24px;
-		align-items: start;
-		border: 1px solid var(--border);
-		border-radius: var(--card-radius);
-		background: white;
-		padding: 24px;
-		box-shadow: var(--shadow-sm);
+	.project-list li {
+		padding: 18px 0;
+		border-top: 1px solid var(--border-light);
 	}
 
-	.project-card h2 {
+	.project-list li:last-child {
+		border-bottom: 1px solid var(--border-light);
+	}
+
+	.project-list h2 {
 		font-size: 24px;
-		margin: 0 0 10px;
+		margin: 0 0 8px;
 	}
 
-	.project-card h2 a {
-		color: var(--primary);
-		text-decoration: none;
-	}
-
-	.project-card h2 a:hover {
-		color: var(--accent);
-	}
-
-	.project-card p {
+	.project-list p {
+		margin: 0 0 6px;
 		color: var(--secondary);
-		font-size: 15px;
-		line-height: 1.65;
-		max-width: 720px;
-		margin: 0 0 16px;
 	}
 
-	.tag-row {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 8px;
+	.meta {
+		font-size: 13px;
+		color: var(--text-muted);
 	}
 
-	.tag-row span {
-		display: inline-flex;
-		align-items: center;
-		min-height: 26px;
-		border: 1px solid var(--border-light);
-		border-radius: 999px;
-		background: var(--background-alt);
-		color: var(--secondary);
-		font-size: 11px;
-		font-weight: 600;
-		padding: 3px 9px;
+	.status {
+		text-transform: lowercase;
 	}
 
-	.project-link {
-		color: var(--accent);
-		font-size: 14px;
-		font-weight: 800;
-		white-space: nowrap;
-		text-decoration: none;
+	.dot {
+		margin: 0 6px;
 	}
 
-	.project-link:hover {
-		text-decoration: underline;
-	}
-
-	@media (max-width: 760px) {
-		.project-list {
-			padding: 28px 0 48px;
+	@media (max-width: 700px) {
+		.projects {
+			padding-top: 40px;
 		}
 
-		.project-card {
-			grid-template-columns: 1fr;
-			gap: 16px;
-			padding: 20px;
+		.project-list h2 {
+			font-size: 21px;
 		}
 	}
 </style>
