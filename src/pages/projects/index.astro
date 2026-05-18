@@ -5,58 +5,33 @@ import { publicProjects } from "../../data/projects";
 const pageTitle = "Projects — Airic";
 const pageDescription =
 	"Open-source projects and research artifacts around agent systems, context minimization, and architecture-aware software engineering.";
+
+function projectUrl(project: (typeof publicProjects)[number]) {
+	return project.primaryAction?.href || project.repo || "#";
+}
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
-	<section class="projects-hero">
-		<div class="section-label">Open Source</div>
-		<h1>Projects that turn architecture ideas into tools.</h1>
-		<p>
-			A small portfolio of research, prototypes, and working systems around agent collaboration,
-			context management, and software design.
-		</p>
-	</section>
-
 	<section class="project-list" aria-label="Projects">
 		{
 			publicProjects.map((project) => (
 				<article class="project-card">
-					<div class="project-card-main">
-						<div class="project-meta">
-							<span>{project.kicker}</span>
-							<span>{project.status}</span>
-						</div>
+					<div>
 						<h2>
-							<a href={`/projects/${project.slug}`}>{project.name}</a>
+							<a href={projectUrl(project)} target="_blank" rel="noopener noreferrer">
+								{project.name}
+							</a>
 						</h2>
 						<p>{project.summary}</p>
 						<div class="tag-row">
-							{project.tags.slice(0, 4).map((tag) => (
+							{project.tags.slice(0, 5).map((tag) => (
 								<span>{tag}</span>
 							))}
 						</div>
 					</div>
-					<div class="project-card-side">
-						<div>
-							<div class="side-label">Stage</div>
-							<div class="side-value">{project.stage}</div>
-						</div>
-						<div class="project-actions">
-							<a href={`/projects/${project.slug}`} class="btn">Explore</a>
-							{
-								project.primaryAction && (
-									<a
-										href={project.primaryAction.href}
-										target="_blank"
-										rel="noopener noreferrer"
-										class="btn btn-outline"
-									>
-										GitHub ↗
-									</a>
-								)
-							}
-						</div>
-					</div>
+					<a class="project-link" href={projectUrl(project)} target="_blank" rel="noopener noreferrer">
+						GitHub ↗
+					</a>
 				</article>
 			))
 		}
@@ -64,56 +39,27 @@ const pageDescription =
 </BaseLayout>
 
 <style>
-	.projects-hero {
-		padding: 64px 0 48px;
-		border-bottom: 1px solid var(--border);
-	}
-
-	.section-label {
-		font-size: 12px;
-		font-weight: 700;
-		letter-spacing: 0.1em;
-		text-transform: uppercase;
-		color: var(--accent);
-		margin-bottom: 12px;
-	}
-
-	.projects-hero h1 {
-		max-width: 760px;
-		font-size: clamp(30px, 4.5vw, 48px);
-		letter-spacing: -0.03em;
-		margin-bottom: 18px;
-	}
-
-	.projects-hero p {
-		max-width: 660px;
-		color: var(--secondary);
-		font-size: 18px;
-		line-height: 1.7;
-		margin: 0;
-	}
-
 	.project-list {
-		padding: 40px 0 72px;
+		padding: 32px 0 72px;
 		display: grid;
-		gap: 20px;
+		gap: 16px;
 	}
 
 	.project-card {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) 220px;
-		gap: 32px;
-		align-items: stretch;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: 24px;
+		align-items: start;
 		border: 1px solid var(--border);
 		border-radius: var(--card-radius);
 		background: white;
-		padding: 28px;
+		padding: 24px;
 		box-shadow: var(--shadow-sm);
 	}
 
 	.project-card h2 {
-		font-size: clamp(22px, 3vw, 30px);
-		margin: 8px 0 12px;
+		font-size: 24px;
+		margin: 0 0 10px;
 	}
 
 	.project-card h2 a {
@@ -127,30 +73,10 @@ const pageDescription =
 
 	.project-card p {
 		color: var(--secondary);
-		font-size: 16px;
-		line-height: 1.7;
-		max-width: 680px;
-		margin-bottom: 20px;
-	}
-
-	.project-meta {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 8px;
-	}
-
-	.project-meta span,
-	.tag-row span {
-		display: inline-flex;
-		align-items: center;
-		min-height: 28px;
-		border: 1px solid var(--border-light);
-		border-radius: 999px;
-		background: var(--background-alt);
-		color: var(--secondary);
-		font-size: 12px;
-		font-weight: 600;
-		padding: 4px 10px;
+		font-size: 15px;
+		line-height: 1.65;
+		max-width: 720px;
+		margin: 0 0 16px;
 	}
 
 	.tag-row {
@@ -159,67 +85,40 @@ const pageDescription =
 		gap: 8px;
 	}
 
-	.project-card-side {
-		border-left: 1px solid var(--border-light);
-		padding-left: 28px;
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		gap: 24px;
+	.tag-row span {
+		display: inline-flex;
+		align-items: center;
+		min-height: 26px;
+		border: 1px solid var(--border-light);
+		border-radius: 999px;
+		background: var(--background-alt);
+		color: var(--secondary);
+		font-size: 11px;
+		font-weight: 600;
+		padding: 3px 9px;
 	}
 
-	.side-label {
-		color: var(--text-muted);
-		font-size: 12px;
-		font-weight: 700;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		margin-bottom: 6px;
+	.project-link {
+		color: var(--accent);
+		font-size: 14px;
+		font-weight: 800;
+		white-space: nowrap;
+		text-decoration: none;
 	}
 
-	.side-value {
-		font-size: 15px;
-		font-weight: 700;
-		color: var(--primary);
-		line-height: 1.4;
-	}
-
-	.project-actions {
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-		align-items: stretch;
-	}
-
-	.project-actions .btn {
-		justify-content: center;
+	.project-link:hover {
+		text-decoration: underline;
 	}
 
 	@media (max-width: 760px) {
-		.projects-hero {
-			padding: 44px 0 32px;
-		}
-
 		.project-list {
 			padding: 28px 0 48px;
 		}
 
 		.project-card {
 			grid-template-columns: 1fr;
-			gap: 24px;
-			padding: 22px;
-		}
-
-		.project-card-side {
-			border-left: 0;
-			border-top: 1px solid var(--border-light);
-			padding-left: 0;
-			padding-top: 22px;
-		}
-
-		.project-actions {
-			flex-direction: row;
-			flex-wrap: wrap;
+			gap: 16px;
+			padding: 20px;
 		}
 	}
 </style>

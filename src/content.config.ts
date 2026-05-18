@@ -19,4 +19,28 @@ const blog = defineCollection({
 	}),
 });
 
-export const collections = { blog };
+const research = defineCollection({
+	loader: glob({ base: './src/content/research', pattern: '**/*.{md,mdx}' }),
+	schema: z.object({
+		title: z.string(),
+		description: z.string(),
+		book: z.literal('cmp'),
+		part: z.string(),
+		order: z.number().int(),
+		status: z.enum(['draft', 'published', 'wip']),
+		version: z.string(),
+		pubDate: z.coerce.date(),
+		updatedDate: z.coerce.date().optional(),
+		canonicalUrl: z.string().url(),
+		tags: z.array(z.string()).optional(),
+		lang: z.string().default('en'),
+		standalone: z
+			.object({
+				isArticle: z.boolean().optional(),
+				ogImage: z.string().optional(),
+			})
+			.optional(),
+	}),
+});
+
+export const collections = { blog, research };

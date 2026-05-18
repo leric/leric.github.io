@@ -139,3 +139,8 @@ https://images.unsplash.com/photo-{photo-id}?w=1920&q=80
 - `balastro-architecture.md` - 包含完整的 frontmatter 示例
 - `skills-containerized-knowledge.md` - 包含分类和标签示例
 - `beyond-vibe-coding.md` - 包含 featured 字段示例
+
+## Research / CMP 书稿（补充）
+
+- 研究章节位于 `src/content/research/`（见 `src/content.config.ts` 中 `research` collection）。
+- **图表**：不在仓库中引入 Mermaid 等重型运行时依赖；流程图、架构图等请在外部生成后，在正文中用 Markdown 图片（可配说明文字）插入。

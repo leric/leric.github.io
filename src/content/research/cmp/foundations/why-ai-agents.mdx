@@ -1,0 +1,53 @@
+---
+title: "Why AI Agents Are Going to Force a Theory of Software Design"
+description: "Manifesto placeholder: why comprehension cost becomes the bottleneck when machines read and change code at scale."
+book: cmp
+part: foundations
+order: 1
+status: published
+version: "0.1"
+pubDate: May 18 2026
+updatedDate: May 18 2026
+canonicalUrl: "https://www.airic.dev/research/cmp/foundations/why-ai-agents/"
+tags: ["CMP", "software-design"]
+lang: en
+---
+
+This page is a **Phase 0 manifesto container**. The full argument will ship incrementally as the surrounding book parts move from `draft` to `published`.
+
+## A tiny sketch of the claim
+
+When change is cheap, the bottleneck stops being “typing speed” and starts being **how much code you must load to know whether a change is safe**. Call that load *context*—files, types, docs, runtime behavior, and organizational folklore that must be in working memory before you can commit.[^load]
+
+If agents widen the funnel of attempted edits without widening comprehension, failures migrate from syntax errors to *semantic* and *systemic* ones. That is not an argument against agents; it is an argument for a **theory of software design** that treats context minimization as a first-class design objective.
+
+### Diagrams as figures
+
+Graphs and architecture pictures are authored **outside** this repo (no Mermaid runtime here) and embedded as images so builds stay lean. The figure below is a stand-in for a diagram you might export from Excalidraw, OmniGraffle, or similar.
+
+<figure>
+  <img
+    src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=1200&q=80"
+    alt="Placeholder diagram: city blueprint metaphor for software structure"
+    width="800"
+    height="500"
+    loading="lazy"
+  />
+  <figcaption>Placeholder figure — replace with your exported diagram when ready.</figcaption>
+</figure>
+
+## Math as notation (not a claim of precision)
+
+Let $C$ be a crude stand-in for “context mass” and $Q$ the question you are trying to answer about a change. CMP-style thinking cares about how design rules reshape the relationship between $Q$ and $C$—not about pretending $C$ is an exact scalar.[^notation]
+
+$$
+\mathbb{E}[\text{mistakes} \mid C \text{ large}] \geq \mathbb{E}[\text{mistakes} \mid C \text{ small}]
+$$
+
+The inequality is deliberately cartoonish: it is a mnemonic, not a theorem. The book chapters will replace slogans with definitions, measurement hooks, and falsifiable predictions.
+
+> **Note:** **How to read this chapter.** Treat it as a bookmark for the roadmap: it exists so URLs, RSS, SEO, and the book shell can stabilize while the real text is written.
+
+[^load]: “Context” is used informally here; later chapters separate *domain* context (necessary complexity) from *accidental* context (coupling, leaks, poor boundaries).
+
+[^notation]: Notation preview only; Part VI will discuss measurement without overclaiming precision.

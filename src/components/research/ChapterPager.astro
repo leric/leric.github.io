@@ -1,0 +1,102 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { cmpChapterPath, parseCmpEntryId } from '../../lib/research-cmp';
+
+interface Props {
+	prev?: CollectionEntry<'research'>;
+	next?: CollectionEntry<'research'>;
+}
+
+const { prev, next } = Astro.props;
+
+function hrefFor(entry: CollectionEntry<'research'>) {
+	const p = parseCmpEntryId(entry.id);
+	if (!p) return '#';
+	return cmpChapterPath(p.part, p.slug);
+}
+---
+
+<nav class="chapter-pager" aria-label="Chapter navigation">
+	<div class="pager-inner">
+		{
+			prev ? (
+				<a class="pager-btn prev" href={hrefFor(prev)}>
+					<span class="pager-label">Previous</span>
+					<span class="pager-title">{prev.data.title}</span>
+				</a>
+			) : (
+				<span class="pager-placeholder" />
+			)
+		}
+		{
+			next ? (
+				<a class="pager-btn next" href={hrefFor(next)}>
+					<span class="pager-label">Next</span>
+					<span class="pager-title">{next.data.title}</span>
+				</a>
+			) : (
+				<span class="pager-placeholder" />
+			)
+		}
+	</div>
+</nav>
+
+<style>
+	.chapter-pager {
+		margin-top: 40px;
+		padding-top: 28px;
+		border-top: 1px solid var(--border);
+	}
+	.pager-inner {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 16px;
+	}
+	.pager-btn {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		padding: 14px 16px;
+		border: 1px solid var(--border);
+		border-radius: var(--card-radius);
+		background: white;
+		text-decoration: none;
+		color: var(--primary);
+		transition: box-shadow 0.15s ease, border-color 0.15s ease;
+		min-height: 72px;
+	}
+	.pager-btn:hover {
+		border-color: var(--accent);
+		box-shadow: var(--shadow-sm);
+	}
+	.pager-btn.next {
+		align-items: flex-end;
+		text-align: right;
+	}
+	.pager-label {
+		font-size: 11px;
+		font-weight: 800;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--accent);
+		margin-bottom: 6px;
+	}
+	.pager-title {
+		font-size: 14px;
+		font-weight: 600;
+		line-height: 1.35;
+		color: var(--primary);
+	}
+	.pager-placeholder {
+		min-height: 1px;
+	}
+	@media (max-width: 640px) {
+		.pager-inner {
+			grid-template-columns: 1fr;
+		}
+		.pager-btn.next {
+			align-items: flex-start;
+			text-align: left;
+		}
+	}
+</style>

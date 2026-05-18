@@ -1,275 +1,498 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
-import Sidebar from "../components/Sidebar.astro";
-import PostCard from "../components/PostCard.astro";
-import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PostCard from "../components/PostCard.astro";
+import { AUTHOR, CMP_RSS_PATH } from "../consts";
 import { featuredProjects } from "../data/projects";
+import {
+	cmpChapterPath,
+	getCmpChapters,
+	isCmpChapterRenderable,
+	parseCmpEntryId,
+} from "../lib/research-cmp";
 
 const posts = (await getCollection("blog")).sort(
-    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
+const allResearch = await getCollection("research");
+const cmpChapters = getCmpChapters(allResearch);
+const readableCmpChapters = cmpChapters.filter((chapter) => isCmpChapterRenderable(chapter.data.status));
+const firstCmpChapter = readableCmpChapters[0];
+const firstCmpIds = firstCmpChapter ? parseCmpEntryId(firstCmpChapter.id) : null;
+const firstCmpHref = firstCmpIds ? cmpChapterPath(firstCmpIds.part, firstCmpIds.slug) : "/research/cmp/";
+
 const featuredPost = posts.find((p) => p.data.featured) || posts[0];
-const recentPosts = posts.filter((p) => p.id !== featuredPost.id).slice(0, 6);
+const recentPosts = posts.filter((p) => p.id !== featuredPost?.id).slice(0, 4);
+const homepageProjects = featuredProjects.slice(0, 2);
+
+const pageTitle = `${AUTHOR.name} — Research, Writing, and Software Architecture`;
+const pageDescription =
+	"Personal site for Leric Zhang: research on the Context Minimization Principle, essays on AI-era software architecture, and engineering projects.";
+const heroImage = "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=1920&q=80";
+
+function projectHref(project: (typeof homepageProjects)[number]) {
+	return project.primaryAction?.href || project.repo || "/projects/";
+}
 ---
 
-<BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
-    <!-- Blog Header -->
-    <section class="blog-header">
-        <h1 class="blog-title">{SITE_TITLE}</h1>
-        <p class="blog-intro">{SITE_DESCRIPTION}</p>
-    </section>
+<BaseLayout title={pageTitle} description={pageDescription}>
+	<section class="home-hero">
+		<img src={heroImage} alt="" loading="eager" decoding="async" />
+		<div class="hero-shade"></div>
+		<div class="hero-copy">
+			<p class="hero-kicker">Research · Writing · Software Architecture</p>
+			<h1>Software architecture for the agentic era.</h1>
+			<p>
+				Research and essays on context minimization, AI coding agents, and systems that remain understandable
+				while they grow.
+			</p>
+		</div>
+	</section>
 
-    <div class="content-layout">
-        <div class="main-content">
-            <!-- Featured Post -->
-            {
-                featuredPost && (
-                    <section class="blog-section">
-                        <div class="section-header">
-                            <h2 class="section-title">Featured Post</h2>
-                        </div>
-                        <PostCard
-                            title={featuredPost.data.title}
-                            description={featuredPost.data.description}
-                            pubDate={featuredPost.data.pubDate}
-                            heroImage={featuredPost.data.heroImage}
-                            slug={featuredPost.id}
-                            featured={true}
-                            category={featuredPost.data.category}
-                        />
-                    </section>
-                )
-            }
+	<section class="portal-grid" aria-label="Main site sections">
+		<a class="portal-card primary" href="/research/cmp/">
+			<span>Research / 研究</span>
+			<h2>Context Minimization Principle</h2>
+			<p>Long-form theory and chapters on comprehension cost, software design, and AI coding agents.</p>
+		</a>
+		<a class="portal-card" href="/blog/">
+			<span>Writing / 文章</span>
+			<h2>Essays</h2>
+			<p>Shorter arguments about architecture, context engineering, DDD, multi-agent systems, and AI development.</p>
+		</a>
+		<a class="portal-card" href="/projects/">
+			<span>Projects / 项目</span>
+			<h2>Working Systems</h2>
+			<p>Research prototypes and engineering tools that turn the ideas into measurable workflows.</p>
+		</a>
+	</section>
 
-            <!-- Projects -->
-            <section class="blog-section">
-                <div class="section-header section-header-row">
-                    <div>
-                        <h2 class="section-title">Open Source Projects</h2>
-                        <p class="section-subtitle">
-                            Research ideas, tools, and agent systems I am building in public.
-                        </p>
-                    </div>
-                    <a href="/projects" class="section-link">View projects →</a>
-                </div>
-                <div class="projects-grid">
-                    {
-                        featuredProjects.map((project) => (
-                            <a href={`/projects/${project.slug}`} class="project-tile">
-                                <div class="project-tile-meta">{project.kicker}</div>
-                                <h3>{project.name}</h3>
-                                <p>{project.summary}</p>
-                                <div class="project-tile-footer">
-                                    <span>{project.status}</span>
-                                    <span>Explore →</span>
-                                </div>
-                            </a>
-                        ))
-                    }
-                </div>
-            </section>
+	<section class="cmp-feature">
+		<div class="section-copy">
+			<p class="kicker">Online book · Living · v0.1</p>
+			<h2>Start with CMP</h2>
+			<p>
+				CMP reframes architecture quality around context load: the irrelevant code, concepts, and assumptions a
+				reader must pull in before a local change is safe.
+			</p>
+			<p class="zh-note">如果你只从一个地方开始，就从 CMP 在线书开始。</p>
+		</div>
+		<div class="cmp-actions">
+			<a href={firstCmpHref}>
+				<strong>Start from Part I</strong>
+				<span>Begin with the first available chapter</span>
+			</a>
+			<a href="/research/cmp/">
+				<strong>Open full TOC</strong>
+				<span>Browse all parts and draft structure</span>
+			</a>
+			<a href={CMP_RSS_PATH}>
+				<strong>CMP RSS</strong>
+				<span>Subscribe to research chapter updates</span>
+			</a>
+		</div>
+	</section>
 
-            <!-- Recent Posts -->
-            <section class="blog-section">
-                <div class="section-header">
-                    <h2 class="section-title">Recent Posts</h2>
-                </div>
-                <div class="posts-grid">
-                    {
-                        recentPosts.map((post) => (
-                            <PostCard
-                                title={post.data.title}
-                                description={post.data.description}
-                                pubDate={post.data.pubDate}
-                                heroImage={post.data.heroImage}
-                                slug={post.id}
-                                category={post.data.category}
-                            />
-                        ))
-                    }
-                </div>
-                <div class="view-archive">
-                    <a href="/blog" class="btn btn-outline"
-                        >View Full Archive →</a
-                    >
-                </div>
-            </section>
-        </div>
+	<section class="content-band">
+		<div class="section-header">
+			<div>
+				<p class="kicker">Recent Essays / 最近文章</p>
+				<h2>Writing around the research</h2>
+			</div>
+			<a class="text-link" href="/blog/">View archive</a>
+		</div>
 
-        <Sidebar />
-    </div>
+		{
+			featuredPost && (
+				<div class="essay-layout">
+					<PostCard
+						title={featuredPost.data.title}
+						description={featuredPost.data.description}
+						pubDate={featuredPost.data.pubDate}
+						heroImage={featuredPost.data.heroImage}
+						slug={featuredPost.id}
+						category={featuredPost.data.category}
+					/>
+					<div class="essay-list">
+						{recentPosts.map((post) => (
+							<a class="essay-row" href={`/blog/${post.id}/`}>
+								<span>{post.data.category || "Essay"}</span>
+								<h3>{post.data.title}</h3>
+								<p>{post.data.description}</p>
+							</a>
+						))}
+					</div>
+				</div>
+			)
+		}
+	</section>
+
+	<section class="content-band projects-band">
+		<div class="section-header">
+			<div>
+				<p class="kicker">Projects / 项目</p>
+				<h2>Research made operational</h2>
+			</div>
+			<a class="text-link" href="/projects/">All projects</a>
+		</div>
+		<div class="project-grid">
+			{
+				homepageProjects.map((project) => (
+					<a class="project-card" href={projectHref(project)} target="_blank" rel="noopener noreferrer">
+						<h3>{project.name}</h3>
+						<p>{project.summary}</p>
+						<div class="project-tags">
+							{project.tags.slice(0, 3).map((tag) => (
+								<span>{tag}</span>
+							))}
+						</div>
+					</a>
+				))
+			}
+		</div>
+	</section>
 </BaseLayout>
 
 <style>
-    /* Blog Header */
-    .blog-header {
-        text-align: center;
-        padding: 40px 0 48px;
-        border-bottom: 1px solid var(--border);
-        margin-bottom: 48px;
-    }
+	.home-hero {
+		position: relative;
+		min-height: clamp(420px, 58vw, 620px);
+		margin: 32px 0;
+		border-radius: var(--card-radius);
+		overflow: hidden;
+		background: var(--primary);
+	}
 
-    .blog-title {
-        font-size: clamp(32px, 5vw, 48px);
-        font-weight: 800;
-        color: var(--primary);
-        margin-bottom: 16px;
-        letter-spacing: -0.03em;
-        line-height: 1.2;
-    }
+	.home-hero img {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		margin: 0;
+		border-radius: 0;
+	}
 
-    .blog-intro {
-        font-size: 18px;
-        line-height: 1.6;
-        color: var(--secondary);
-        max-width: 700px;
-        margin: 0 auto;
-    }
+	.hero-shade {
+		position: absolute;
+		inset: 0;
+		background:
+			linear-gradient(90deg, rgba(0, 0, 0, 0.76) 0%, rgba(0, 0, 0, 0.42) 48%, rgba(0, 0, 0, 0.12) 100%),
+			linear-gradient(180deg, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0.42) 100%);
+	}
 
-    /* Content Layout */
-    .content-layout {
-        display: grid;
-        grid-template-columns: 1fr 320px;
-        gap: 48px;
-        align-items: start;
-    }
+	.hero-copy {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		min-height: inherit;
+		max-width: 760px;
+		padding: clamp(28px, 5vw, 56px);
+	}
 
-    .main-content {
-        min-width: 0;
-    }
+	.kicker {
+		font-size: 12px;
+		font-weight: 800;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--accent);
+		margin: 0 0 12px;
+	}
 
-    /* Posts Grid */
-    .posts-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 24px;
-        margin-bottom: 32px;
-    }
+	.hero-kicker {
+		color: rgba(255, 255, 255, 0.78);
+		font-size: 12px;
+		font-weight: 800;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		margin: 0 0 14px;
+	}
 
-    .view-archive {
-        text-align: center;
-    }
+	.home-hero h1 {
+		color: white;
+		font-size: clamp(36px, 5.4vw, 58px);
+		line-height: 1.05;
+		letter-spacing: -0.04em;
+		margin: 0 0 18px;
+		max-width: 720px;
+	}
 
-    .section-header {
-        margin-bottom: 24px;
-    }
+	.hero-copy p {
+		color: rgba(255, 255, 255, 0.86);
+		font-size: 18px;
+		line-height: 1.65;
+		max-width: 620px;
+		margin: 0 0 12px;
+	}
 
-    .section-title {
-        font-size: 24px;
-        font-weight: 700;
-        color: var(--primary);
-        margin-bottom: 8px;
-    }
+	.text-link {
+		display: inline-flex;
+		align-items: center;
+		color: var(--accent);
+		font-size: 14px;
+		font-weight: 700;
+		text-decoration: none;
+	}
 
-    .section-header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        gap: 16px;
-    }
+	.text-link:hover {
+		text-decoration: underline;
+	}
 
-    .section-subtitle {
-        color: var(--secondary);
-        font-size: 14px;
-        margin: 0;
-    }
+	.portal-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 16px;
+		padding: 32px 0;
+	}
 
-    .section-link {
-        flex-shrink: 0;
-        font-size: 14px;
-        font-weight: 700;
-    }
+	.portal-card {
+		border: 1px solid var(--border);
+		border-radius: var(--card-radius);
+		padding: 22px;
+		color: var(--primary);
+		text-decoration: none;
+		background: white;
+		min-height: 210px;
+		transition:
+			border-color 0.2s ease,
+			box-shadow 0.2s ease,
+			transform 0.2s ease;
+	}
 
-    .projects-grid {
-        display: grid;
-        gap: 16px;
-    }
+	.portal-card:hover,
+	.project-card:hover,
+	.essay-row:hover,
+	.cmp-actions a:hover {
+		border-color: rgba(0, 102, 204, 0.35);
+		box-shadow: var(--shadow-md);
+		transform: translateY(-2px);
+		text-decoration: none;
+	}
 
-    .project-tile {
-        display: block;
-        border: 1px solid var(--border);
-        border-radius: var(--card-radius);
-        background: white;
-        padding: 22px;
-        color: var(--primary);
-        text-decoration: none;
-        box-shadow: var(--shadow-sm);
-    }
+	.portal-card span,
+	.essay-row span {
+		display: block;
+		color: var(--text-muted);
+		font-size: 11px;
+		font-weight: 800;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		margin-bottom: 12px;
+	}
 
-    .project-tile:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-        text-decoration: none;
-    }
+	.portal-card h2 {
+		font-size: 21px;
+		margin: 0 0 12px;
+	}
 
-    .project-tile-meta {
-        font-size: 12px;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--accent);
-        margin-bottom: 10px;
-    }
+	.portal-card p {
+		color: var(--secondary);
+		font-size: 14px;
+		line-height: 1.6;
+		margin: 0;
+	}
 
-    .project-tile h3 {
-        font-size: 20px;
-        font-weight: 800;
-        margin: 0 0 8px;
-    }
+	.portal-card.primary {
+		background: #f7fbff;
+		border-color: rgba(0, 102, 204, 0.22);
+	}
 
-    .project-tile p {
-        color: var(--secondary);
-        font-size: 14px;
-        line-height: 1.65;
-        margin-bottom: 16px;
-    }
+	.cmp-feature,
+	.content-band {
+		border-top: 1px solid var(--border);
+		padding: 40px 0;
+	}
 
-    .project-tile-footer {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        color: var(--secondary);
-        font-size: 13px;
-        font-weight: 700;
-    }
+	.cmp-feature {
+		display: grid;
+		grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
+		gap: 36px;
+		align-items: start;
+	}
 
-    /* Responsive Design */
-    @media (max-width: 1024px) {
-        .content-layout {
-            grid-template-columns: 1fr;
-            gap: 32px;
-        }
-    }
+	.section-copy h2,
+	.section-header h2 {
+		font-size: clamp(24px, 3.5vw, 32px);
+		margin: 0 0 14px;
+	}
 
-    @media (max-width: 768px) {
-        .blog-header {
-            padding: 32px 0 32px;
-            margin-bottom: 32px;
-        }
+	.section-copy p {
+		color: var(--secondary);
+		line-height: 1.7;
+		margin: 0 0 12px;
+	}
 
-        .blog-intro {
-            font-size: 16px;
-        }
+	.cmp-actions {
+		display: grid;
+		gap: 12px;
+	}
 
-        .posts-grid {
-            grid-template-columns: 1fr;
-        }
+	.cmp-actions a,
+	.essay-row,
+	.project-card {
+		border: 1px solid var(--border);
+		border-radius: var(--card-radius);
+		background: white;
+		color: var(--primary);
+		text-decoration: none;
+		transition:
+			border-color 0.2s ease,
+			box-shadow 0.2s ease,
+			transform 0.2s ease;
+	}
 
-        .content-layout {
-            gap: 24px;
-        }
+	.cmp-actions a {
+		padding: 18px 20px;
+	}
 
-        .section-header-row {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-    }
+	.cmp-actions strong,
+	.cmp-actions span {
+		display: block;
+	}
 
-    @media (max-width: 480px) {
-        .blog-header {
-            padding: 24px 0 24px;
-        }
-    }
+	.cmp-actions strong {
+		font-size: 16px;
+		margin-bottom: 4px;
+	}
+
+	.cmp-actions span {
+		color: var(--secondary);
+		font-size: 13px;
+		line-height: 1.45;
+	}
+
+	.section-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: end;
+		gap: 24px;
+		margin-bottom: 24px;
+	}
+
+	.essay-layout {
+		display: grid;
+		grid-template-columns: minmax(280px, 0.95fr) minmax(0, 1.05fr);
+		gap: 24px;
+		align-items: start;
+	}
+
+	.essay-list {
+		display: grid;
+		gap: 12px;
+	}
+
+	.essay-row {
+		display: block;
+		padding: 18px;
+	}
+
+	.essay-row h3 {
+		font-size: 17px;
+		line-height: 1.35;
+		margin: 0 0 8px;
+	}
+
+	.essay-row p {
+		color: var(--secondary);
+		font-size: 13px;
+		line-height: 1.5;
+		margin: 0;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.projects-band {
+		padding-bottom: 72px;
+	}
+
+	.project-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 16px;
+	}
+
+	.project-card {
+		display: flex;
+		flex-direction: column;
+		min-height: 260px;
+		padding: 22px;
+	}
+
+	.project-card h3 {
+		font-size: 21px;
+		margin: 0 0 12px;
+	}
+
+	.project-card p {
+		color: var(--secondary);
+		font-size: 14px;
+		line-height: 1.6;
+		margin: 0 0 20px;
+	}
+
+	.project-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-top: auto;
+	}
+
+	.project-tags span {
+		border: 1px solid var(--border);
+		border-radius: 999px;
+		color: var(--secondary);
+		font-size: 12px;
+		font-weight: 700;
+		line-height: 1;
+		padding: 7px 10px;
+	}
+
+	@media (max-width: 900px) {
+		.cmp-feature,
+		.essay-layout {
+			grid-template-columns: 1fr;
+		}
+
+		.portal-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.portal-card {
+			min-height: auto;
+		}
+	}
+
+	@media (max-width: 640px) {
+		.home-hero {
+			min-height: 540px;
+			margin: 20px 0 28px;
+		}
+
+		.home-hero h1 {
+			font-size: 38px;
+		}
+
+		.hero-copy p {
+			font-size: 16px;
+		}
+
+		.section-header {
+			align-items: stretch;
+			flex-direction: column;
+		}
+
+		.portal-card,
+		.project-card {
+			padding: 20px;
+		}
+
+		.project-grid {
+			grid-template-columns: 1fr;
+		}
+	}
 </style>

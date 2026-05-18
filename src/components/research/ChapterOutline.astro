@@ -1,0 +1,78 @@
+---
+---
+
+<aside class="chapter-outline" aria-label="On this page">
+	<p class="outline-heading">On this page</p>
+	<nav id="chapter-outline-nav" class="outline-nav"></nav>
+</aside>
+
+<script>
+	function buildOutline() {
+		const root = document.querySelector('.research-chapter-prose');
+		const nav = document.getElementById('chapter-outline-nav');
+		if (!root || !nav) return;
+		const headings = root.querySelectorAll('h2, h3');
+		nav.innerHTML = '';
+		const frag = document.createDocumentFragment();
+		headings.forEach((el) => {
+			if (!(el instanceof HTMLElement)) return;
+			let id = el.id;
+			if (!id) {
+				id = el.textContent?.trim().toLowerCase().replace(/\s+/g, '-').slice(0, 64) ?? 'section';
+				el.id = id;
+			}
+			const a = document.createElement('a');
+			a.href = `#${id}`;
+			a.textContent = el.textContent ?? '';
+			a.className = el.tagName === 'H3' ? 'outline-link depth-3' : 'outline-link';
+			frag.appendChild(a);
+		});
+		nav.appendChild(frag);
+	}
+	buildOutline();
+	document.addEventListener('astro:page-load', buildOutline);
+</script>
+
+<style>
+	.chapter-outline {
+		position: sticky;
+		top: 88px;
+		font-size: 13px;
+		max-height: calc(100vh - 120px);
+		overflow: auto;
+	}
+	.outline-heading {
+		font-size: 11px;
+		font-weight: 800;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+		margin: 0 0 12px;
+	}
+	.outline-nav {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+	.outline-link {
+		color: var(--secondary);
+		text-decoration: none;
+		line-height: 1.35;
+		padding: 2px 0;
+		border-left: 2px solid transparent;
+		padding-left: 10px;
+		margin-left: -2px;
+	}
+	.outline-link:hover {
+		color: var(--accent);
+	}
+	.outline-link.depth-3 {
+		padding-left: 18px;
+		font-size: 12px;
+	}
+	@media (max-width: 1080px) {
+		.chapter-outline {
+			display: none;
+		}
+	}
+</style>

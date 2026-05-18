@@ -11,20 +11,27 @@ interface Props {
 }
 
 const { title, description, image, headerTitle, headerSubtitle } = Astro.props;
+const showHeader = Boolean(headerTitle || headerSubtitle);
 ---
 
 <BaseLayout title={title} description={description} image={image}>
-	<div class="archive-header">
-		<h1>{headerTitle}</h1>
-		<p>{headerSubtitle}</p>
-	</div>
+	{
+		showHeader && (
+			<div class="archive-header">
+				{headerTitle && <h1>{headerTitle}</h1>}
+				{headerSubtitle && <p>{headerSubtitle}</p>}
+			</div>
+		)
+	}
 
-	<div class="content-layout">
-		<div class="main-content">
-			<slot />
+	<div class={showHeader ? '' : 'layout-spacer'}>
+		<div class={`content-layout ${showHeader ? '' : 'content-layout-no-header'}`}>
+			<div class="main-content">
+				<slot />
+			</div>
+
+			<Sidebar />
 		</div>
-
-		<Sidebar />
 	</div>
 </BaseLayout>
 
@@ -60,6 +67,14 @@ const { title, description, image, headerTitle, headerSubtitle } = Astro.props;
 		align-items: start;
 	}
 
+	.layout-spacer {
+		padding-top: 56px;
+	}
+
+	.content-layout-no-header {
+		padding-top: 0;
+	}
+
 	.main-content {
 		min-width: 0;
 	}
@@ -79,6 +94,10 @@ const { title, description, image, headerTitle, headerSubtitle } = Astro.props;
 
 		.content-layout {
 			gap: 24px;
+		}
+
+		.layout-spacer {
+			padding-top: 36px;
 		}
 	}
 </style>

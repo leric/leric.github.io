@@ -1,0 +1,58 @@
+---
+type Variant = 'note' | 'tip' | 'caution' | 'danger';
+
+interface Props {
+	type?: Variant;
+	title?: string;
+}
+
+const { type = 'note', title } = Astro.props;
+
+const labels: Record<Variant, string> = {
+	note: 'Note',
+	tip: 'Tip',
+	caution: 'Caution',
+	danger: 'Danger',
+};
+const label = title ?? labels[type];
+---
+
+<aside class:list={['callout', type]} aria-label={label}>
+	<div class="callout-title">{label}</div>
+	<div class="callout-body">
+		<slot />
+	</div>
+</aside>
+
+<style>
+	.callout {
+		border: 1px solid var(--border);
+		border-radius: var(--card-radius);
+		padding: 16px 18px;
+		margin: 24px 0;
+		background: var(--background-alt);
+	}
+	.callout-title {
+		font-size: 12px;
+		font-weight: 800;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--secondary);
+		margin-bottom: 8px;
+	}
+	.callout-body :global(p:last-child) {
+		margin-bottom: 0;
+	}
+	.callout.note {
+		border-left: 4px solid var(--accent);
+	}
+	.callout.tip {
+		border-left: 4px solid var(--success);
+	}
+	.callout.caution {
+		border-left: 4px solid var(--warning);
+	}
+	.callout.danger {
+		border-left: 4px solid #c62828;
+	}
+</style>

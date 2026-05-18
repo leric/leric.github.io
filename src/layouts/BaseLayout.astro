@@ -8,15 +8,25 @@ interface Props {
 	title: string;
 	description: string;
 	image?: string;
+	canonicalHref?: string;
+	ogType?: 'website' | 'article';
+	jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
-const { title, description, image } = Astro.props;
+const { title, description, image, canonicalHref, ogType, jsonLd } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={title} description={description} image={image} />
+		<BaseHead
+			title={title}
+			description={description}
+			image={image}
+			canonicalHref={canonicalHref}
+			ogType={ogType}
+			jsonLd={jsonLd}
+		/>
 		<PostHog />
 	</head>
 	<body>

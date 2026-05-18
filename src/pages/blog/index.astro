@@ -12,8 +12,6 @@ const posts = (await getCollection("blog")).sort(
 <SidebarLayout
     title={`Archive - ${SITE_TITLE}`}
     description={SITE_DESCRIPTION}
-    headerTitle="Complete Archive"
-    headerSubtitle={`All ${posts.length} articles on software engineering, AI, and system architecture.`}
 >
     <div class="posts-archive">
         {

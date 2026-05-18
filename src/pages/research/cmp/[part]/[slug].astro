@@ -1,0 +1,69 @@
+---
+import { getCollection, render } from 'astro:content';
+import ResearchChapterLayout from '../../../../layouts/ResearchChapterLayout.astro';
+import {
+	getCmpChapters,
+	getAdjacentChapters,
+	isCmpChapterRenderable,
+	parseCmpEntryId,
+} from '../../../../lib/research-cmp';
+import { AUTHOR } from '../../../../consts';
+
+export async function getStaticPaths() {
+	const all = await getCollection('research');
+	const paths = [];
+	for (const entry of all) {
+		if (!isCmpChapterRenderable(entry.data.status)) continue;
+		const p = parseCmpEntryId(entry.id);
+		if (!p) continue;
+		paths.push({ params: { part: p.part, slug: p.slug }, props: { entry } });
+	}
+	return paths;
+}
+
+const { entry } = Astro.props;
+
+const all = await getCollection('research');
+const cmpChapters = getCmpChapters(all);
+const renderable = cmpChapters.filter((c) => isCmpChapterRenderable(c.data.status));
+const { prev, next } = getAdjacentChapters(renderable, entry.id);
+
+const { Content } = await render(entry);
+
+const pageTitle = `${entry.data.title} · CMP · Airic`;
+const ogImage = entry.data.standalone?.ogImage;
+
+const jsonLd = {
+	'@context': 'https://schema.org',
+	'@type': 'TechArticle',
+	headline: entry.data.title,
+	description: entry.data.description,
+	datePublished: entry.data.pubDate.toISOString(),
+	dateModified: (entry.data.updatedDate ?? entry.data.pubDate).toISOString(),
+	url: entry.data.canonicalUrl,
+	author: {
+		'@type': 'Person',
+		name: AUTHOR.name,
+		url: AUTHOR.social.github,
+	},
+	isPartOf: {
+		'@type': 'Book',
+		name: 'Context Minimization Principle',
+		url: new URL('/research/cmp/', Astro.site).href,
+	},
+};
+---
+
+<ResearchChapterLayout
+	entry={entry}
+	title={pageTitle}
+	description={entry.data.description}
+	canonicalUrl={entry.data.canonicalUrl}
+	image={ogImage}
+	jsonLd={jsonLd}
+	allChapters={cmpChapters}
+	prev={prev}
+	next={next}
+>
+	<Content />
+</ResearchChapterLayout>
