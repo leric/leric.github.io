@@ -16,7 +16,7 @@ const chapters = getCmpChapters(all);
 
 const pageTitle = `Context Minimization Principle (CMP) — Research — ${SITE_TITLE}`;
 const pageDescription =
-	'Online book: a design theory for comprehension cost, agents, and software architecture — published incrementally in public.';
+	'Online book: a theory of context cost for correct modification, software design trade-offs, and AI coding agents.';
 const canonicalHref = new URL('/research/cmp/', Astro.site).href;
 
 const coverImage = 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80';
@@ -39,7 +39,7 @@ const bookJsonLd = {
 
 const bibtex = `@book{zhang2026cmp,
   title = {Context Minimization Principle},
-  author = {Zhang, Leric},
+  author = {Lianghui Zhang},
   year = {2026},
   url = {${canonicalHref}},
   note = {Living book, version 0.1}
@@ -56,41 +56,30 @@ const bibtex = `@book{zhang2026cmp,
 	<section class="cmp-hero">
 		<p class="kicker">Online book · Living · v0.1</p>
 		<h1>Context Minimization Principle</h1>
-		<p class="subtitle">A design theory for comprehension cost in the era of AI coding agents.</p>
+		<p class="subtitle">A theory of context cost for correct modification.</p>
 		<div class="hero-meta">
 			<span>{AUTHOR.name}</span>
 			<span>·</span>
-			<span>License: site default (see repository)</span>
+			<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="license noopener noreferrer"
+				>License: CC BY 4.0</a
+			>
 			<span>·</span>
 			<a href={CMP_SOURCE_REPO} target="_blank" rel="noopener noreferrer">Paper repo ↗</a>
 		</div>
 	</section>
 
 	<section class="cmp-section">
-		<h2>Why read this</h2>
+		<h2>Who is this for?</h2>
 		<p>
-			Most teams now face a split workflow: humans and agents both propose changes faster than ever. When the cost
-			of verifying a change stays high, “fast edits” become “fast incidents.” CMP is a research agenda that asks a
-			boring-sounding question with sharp teeth: <strong>how much context must you load before you can safely
-				change the system?</strong>
+			This book is for software architects and senior engineers asking how software should be designed when AI
+			programmers become regular modifiers of the codebase. The central question is not whether agents can produce
+			code, but whether the system makes the required context for correct modification reachable to them.
 		</p>
 		<p>
-			This site ships the book as HTML first—so each chapter can be linked, cited, and subscribed to—while the
-			argument hardens over time.
+			CMP gives this problem a vocabulary: context cost, sufficient context, depth, breadth, modification closure,
+			and context operators. It is a framework for people who care about architecture as the discipline of making
+			future human and AI programmers cheaper, safer, and more reliable modifiers of a living system.
 		</p>
-	</section>
-
-	<section class="cmp-section">
-		<h2>How to read</h2>
-		<ul class="two-col">
-			<li>
-				<strong>Linear:</strong> follow Parts I → VII, then Appendix. Best if you want the full narrative arc.
-			</li>
-			<li>
-				<strong>Jump in:</strong> start at <a href="/research/cmp/foundations/why-ai-agents/">Part I · Chapter 1</a> for
-				the manifesto sketch, then jump to Agents (Part VII) if that is your entry point.
-			</li>
-		</ul>
 	</section>
 
 	<section class="cmp-section">
@@ -134,10 +123,23 @@ const bibtex = `@book{zhang2026cmp,
 		<h2>Cite this book</h2>
 		<p class="muted">Suggested plain citation:</p>
 		<blockquote class="cite-block">
-			Leric Zhang, <em>Context Minimization Principle</em> (living online book), 2026. {canonicalHref}
+			Lianghui Zhang, <em>Context Minimization Principle</em> (living online book), 2026. {canonicalHref}
 		</blockquote>
 		<p class="muted">BibTeX:</p>
 		<pre class="bib"><code>{bibtex}</code></pre>
+	</section>
+
+	<section class="cmp-section">
+		<h2>License</h2>
+		<p>
+			Unless otherwise noted, <em>Context Minimization Principle</em> by {AUTHOR.name} is licensed under
+			<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="license noopener noreferrer"
+				>Creative Commons Attribution 4.0 International</a
+			>.
+		</p>
+		<p class="muted">
+			This license applies to the CMP online book content, not to the website source code or third-party assets.
+		</p>
 	</section>
 
 	<section class="cmp-section subscribe">

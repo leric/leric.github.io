@@ -22,18 +22,6 @@ export const projects: Project[] = [
 		tags: ["Notion", "Agent Coordinator", "GTD", "Attention Cycle", "Local-first"],
 	},
 	{
-		slug: "cmp",
-		name: "Context Minimization Principle",
-		repo: "https://github.com/leric/cmp",
-		primaryAction: {
-			label: "Read the source",
-			href: "https://github.com/leric/cmp",
-		},
-		summary:
-			"A software design principle for asking a concrete question: how much context must a human or AI load before it can make a reliable change?",
-		tags: ["Software Design", "AI Coding", "Architecture", "Research", "Quarto"],
-	},
-	{
 		slug: "context-footprint",
 		name: "Context Footprint",
 		repo: "https://github.com/airicdev/context-footprint",
@@ -42,7 +30,7 @@ export const projects: Project[] = [
 			href: "https://github.com/airicdev/context-footprint",
 		},
 		summary:
-			"A static analysis prototype that estimates how much code context is pulled into scope when you need to reason about a function or type.",
+			"A static analysis prototype exploring proxies for context acquisition cost across dependency traversal and modification reachability.",
 		tags: ["Static Analysis", "Rust", "Python", "Architecture Metrics", "Semantic Graph"],
 	},
 	{

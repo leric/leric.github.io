@@ -28,7 +28,7 @@ const homepageProjects = featuredProjects.slice(0, 2);
 
 const pageTitle = `${AUTHOR.name} — Research, Writing, and Software Architecture`;
 const pageDescription =
-	"Personal site for Leric Zhang: research on the Context Minimization Principle, essays on AI-era software architecture, and engineering projects.";
+	"Personal site for Leric Zhang: research on the Context Minimization Principle, context cost, correct modification, and AI-era software design.";
 const heroImage = "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=1920&q=80";
 
 function projectHref(project: (typeof homepageProjects)[number]) {
@@ -44,8 +44,8 @@ function projectHref(project: (typeof homepageProjects)[number]) {
 			<p class="hero-kicker">Research · Writing · Software Architecture</p>
 			<h1>Software architecture for the agentic era.</h1>
 			<p>
-				Research and essays on context minimization, AI coding agents, and systems that remain understandable
-				while they grow.
+				Research and essays on context cost, correct modification, AI coding agents, and systems whose required
+				context stays reachable as they grow.
 			</p>
 		</div>
 	</section>
@@ -54,17 +54,17 @@ function projectHref(project: (typeof homepageProjects)[number]) {
 		<a class="portal-card primary" href="/research/cmp/">
 			<span>Research / 研究</span>
 			<h2>Context Minimization Principle</h2>
-			<p>Long-form theory and chapters on comprehension cost, software design, and AI coding agents.</p>
+			<p>A living book on making sufficient context for realistic modifications cheaper to acquire.</p>
 		</a>
 		<a class="portal-card" href="/blog/">
 			<span>Writing / 文章</span>
 			<h2>Essays</h2>
-			<p>Shorter arguments about architecture, context engineering, DDD, multi-agent systems, and AI development.</p>
+			<p>Shorter arguments about architecture, context operators, agents, and software design under change.</p>
 		</a>
 		<a class="portal-card" href="/projects/">
 			<span>Projects / 项目</span>
 			<h2>Working Systems</h2>
-			<p>Research prototypes and engineering tools that turn the ideas into measurable workflows.</p>
+			<p>Research artifacts and tools around context acquisition, agent workflows, and design analysis.</p>
 		</a>
 	</section>
 
@@ -73,10 +73,9 @@ function projectHref(project: (typeof homepageProjects)[number]) {
 			<p class="kicker">Online book · Living · v0.1</p>
 			<h2>Start with CMP</h2>
 			<p>
-				CMP reframes architecture quality around context load: the irrelevant code, concepts, and assumptions a
-				reader must pull in before a local change is safe.
+				CMP proposes context cost as the currency of software design: for the modifications a system must
+				realistically support, better designs make sufficient context for correct modification cheaper to acquire.
 			</p>
-			<p class="zh-note">如果你只从一个地方开始，就从 CMP 在线书开始。</p>
 		</div>
 		<div class="cmp-actions">
 			<a href={firstCmpHref}>

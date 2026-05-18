@@ -78,6 +78,14 @@ const updated = entry.data.updatedDate ?? entry.data.pubDate;
 							<span class="footer-muted">Last updated</span>
 							<FormattedDate date={updated} />
 						</div>
+						<p class="license-note">
+							Unless otherwise noted, this CMP chapter is licensed under
+							<a
+								href="https://creativecommons.org/licenses/by/4.0/"
+								target="_blank"
+								rel="license noopener noreferrer">CC BY 4.0</a
+							>.
+						</p>
 						<div class="footer-links">
 							<a href={githubEditUrl(editPath)} target="_blank" rel="noopener noreferrer"
 								>Edit on GitHub</a
@@ -211,6 +219,11 @@ const updated = entry.data.updatedDate ?? entry.data.pubDate;
 				flex-wrap: wrap;
 				gap: 8px;
 				margin-bottom: 10px;
+			}
+			.license-note {
+				color: var(--secondary);
+				line-height: 1.5;
+				margin: 0 0 10px;
 			}
 			.footer-muted {
 				color: var(--text-muted);

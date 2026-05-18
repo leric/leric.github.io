@@ -1,6 +1,6 @@
 ---
 title: "Why AI Agents Are Going to Force a Theory of Software Design"
-description: "Manifesto placeholder: why comprehension cost becomes the bottleneck when machines read and change code at scale."
+description: "Manifesto placeholder: why context acquisition cost becomes visible when machines read and change code at scale."
 book: cmp
 part: foundations
 order: 1
@@ -17,9 +17,9 @@ This page is a **Phase 0 manifesto container**. The full argument will ship incr
 
 ## A tiny sketch of the claim
 
-When change is cheap, the bottleneck stops being “typing speed” and starts being **how much code you must load to know whether a change is safe**. Call that load *context*—files, types, docs, runtime behavior, and organizational folklore that must be in working memory before you can commit.[^load]
+When attempted change is cheap, the bottleneck stops being “typing speed” and becomes the cost of acquiring enough context to modify the system correctly. CMP calls that burden **context cost**: the cost of acquiring sufficient context for correct modification.[^load]
 
-If agents widen the funnel of attempted edits without widening comprehension, failures migrate from syntax errors to *semantic* and *systemic* ones. That is not an argument against agents; it is an argument for a **theory of software design** that treats context minimization as a first-class design objective.
+If agents widen the funnel of attempted edits without making required context cheaper to acquire, failures migrate from syntax errors to *semantic* and *systemic* ones. That is not an argument against agents; it is an argument for a **theory of software design** that treats context cost as a first-class design concern.
 
 ### Diagrams as figures
 
@@ -38,7 +38,7 @@ Graphs and architecture pictures are authored **outside** this repo (no Mermaid 
 
 ## Math as notation (not a claim of precision)
 
-Let $C$ be a crude stand-in for “context mass” and $Q$ the question you are trying to answer about a change. CMP-style thinking cares about how design rules reshape the relationship between $Q$ and $C$—not about pretending $C$ is an exact scalar.[^notation]
+Let $C$ be a crude stand-in for the context acquisition cost of a modification, and $M$ the realistic modification being attempted. CMP-style thinking asks how design rules reshape the cost of acquiring sufficient context for $M$—not whether $C$ is already an exact scalar.[^notation]
 
 $$
 \mathbb{E}[\text{mistakes} \mid C \text{ large}] \geq \mathbb{E}[\text{mistakes} \mid C \text{ small}]
@@ -48,6 +48,6 @@ The inequality is deliberately cartoonish: it is a mnemonic, not a theorem. The 
 
 > **Note:** **How to read this chapter.** Treat it as a bookmark for the roadmap: it exists so URLs, RSS, SEO, and the book shell can stabilize while the real text is written.
 
-[^load]: “Context” is used informally here; later chapters separate *domain* context (necessary complexity) from *accidental* context (coupling, leaks, poor boundaries).
+[^load]: “Context” is used informally here; later chapters define required context, sufficient context, explicit context, implicit context, depth, and breadth.
 
 [^notation]: Notation preview only; Part VI will discuss measurement without overclaiming precision.
