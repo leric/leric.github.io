@@ -1,6 +1,6 @@
 ---
 import HeaderLink from './HeaderLink.astro';
-import { SITE_TITLE, AUTHOR } from '../consts';
+import { SITE_TITLE, SITE_DESCRIPTION, AUTHOR } from '../consts';
 ---
 
 <header class="site-header">
@@ -8,7 +8,7 @@ import { SITE_TITLE, AUTHOR } from '../consts';
 		<div class="header-brand">
 			<a href="/" class="brand-link">
 				<span class="brand-title">{SITE_TITLE}</span>
-				<span class="brand-tagline">Context cost and software design</span>
+				<span class="brand-tagline">{SITE_DESCRIPTION}</span>
 			</a>
 		</div>
 		<nav class="header-nav" aria-label="Primary">

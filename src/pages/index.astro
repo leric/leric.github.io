@@ -9,26 +9,26 @@ const posts = (await getCollection("blog")).sort(
 );
 const recentEssays = posts.slice(0, 3);
 
-const pageTitle = `${AUTHOR.name} — Software Design Research`;
+const pageTitle = "Context Cost";
 const pageDescription =
-	"Personal site for Leric Zhang: research on the Context Minimization Principle, context cost, correct modification, and AI-era software design.";
+	"Essays on software design, context cost, and AI-assisted engineering.";
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
 	<section class="intro">
-		<h1>Leric Zhang</h1>
-		<p class="subtitle">Software design, context cost, and AI-assisted engineering.</p>
+		<h1>Context Cost</h1>
+		<p class="subtitle">Insights on software engineering in the AI era.</p>
 		<p class="lead">
-			I write about software design as the practice of making future modification cheaper, safer, and more
-			reliable. My current work centers on the Context Minimization Principle: good design reduces the cost of
-			acquiring sufficient context for correct modification.
+			Essays on software design, context cost, and AI-assisted engineering.
+			<br />
+			By {AUTHOR.name}.
 		</p>
 	</section>
 
 	<section class="primary-links" aria-label="Primary site entry points">
 		<article>
 			<h2><a href="/cmp">Context Minimization Principle</a></h2>
-			<p>The central research agenda.</p>
+			<p>The core theory in the Context Cost research program.</p>
 			<a class="text-link" href="/cmp">Start with CMP</a>
 		</article>
 		<article>
@@ -38,10 +38,12 @@ const pageDescription =
 		</article>
 		<article>
 			<h2><a href="/projects">Projects</a></h2>
-			<p>Tools and prototypes that make the theory operational.</p>
+			<p>Context Footprint and related prototypes that operationalize the theory.</p>
 			<a class="text-link" href="/projects">See the projects</a>
 		</article>
 	</section>
+
+	<p class="brand-chain">Context Cost → CMP → Context Footprint → AI-assisted software engineering.</p>
 
 	<section class="recent-essays">
 		<div class="section-head">
@@ -116,6 +118,12 @@ const pageDescription =
 		font-size: 14px;
 		font-weight: 500;
 		text-decoration: none;
+	}
+
+	.brand-chain {
+		margin: 20px 0 0;
+		font-size: 14px;
+		color: var(--text-muted);
 	}
 
 	.recent-essays {

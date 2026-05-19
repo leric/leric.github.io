@@ -1,8 +1,8 @@
 // Place any global data in this file.
 // You can import this data from anywhere in your site by using the `import` keyword.
 
-export const SITE_TITLE = "Leric Zhang";
-export const SITE_DESCRIPTION = "Software design, context cost, and AI-assisted engineering.";
+export const SITE_TITLE = "Context Cost";
+export const SITE_DESCRIPTION = "Insights on software engineering in the AI era.";
 
 export const AUTHOR = {
 	name: 'Leric Zhang',

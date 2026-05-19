@@ -6,7 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 const baseDir = path.join(root, "src/content/research/cmp");
 
-const SITE = "https://www.airic.dev";
+const SITE = "https://www.contextcost.dev";
 
 /** @type {{ part: string, order: number, slug: string, status: string, title: string, description: string }[]} */
 const chapters = [

@@ -1,21 +1,16 @@
 ---
-import { AUTHOR, SITE_TITLE } from "../consts";
-const today = new Date();
+import { AUTHOR } from "../consts";
 ---
 
 <footer class="site-footer">
 	<div class="footer-container">
-		<div class="footer-main">
-			<p class="footer-name">{SITE_TITLE}</p>
-			<p class="footer-bio">{AUTHOR.bio}</p>
-			<nav class="footer-links" aria-label="Footer links">
-				{AUTHOR.social.github && <a href={AUTHOR.social.github} target="_blank" rel="noopener">GitHub</a>}
-				{AUTHOR.social.medium && <a href={AUTHOR.social.medium} target="_blank" rel="noopener">Medium</a>}
-				<a href="/rss.xml">RSS</a>
-				{AUTHOR.social.email && <a href={AUTHOR.social.email}>Email</a>}
-			</nav>
-		</div>
-		<p class="footer-bottom">&copy; {today.getFullYear()} {SITE_TITLE}</p>
+		<nav class="footer-links" aria-label="Footer links">
+			{AUTHOR.social.github && <a href={AUTHOR.social.github} target="_blank" rel="noopener">GitHub</a>}
+			{AUTHOR.social.medium && <a href={AUTHOR.social.medium} target="_blank" rel="noopener">Medium</a>}
+			<a href="/rss.xml">RSS</a>
+			{AUTHOR.social.email && <a href={AUTHOR.social.email}>Email</a>}
+		</nav>
+		<p class="footer-bottom">&copy; Leric Zhang · contextcost.dev</p>
 	</div>
 </footer>
 
@@ -29,25 +24,6 @@ const today = new Date();
 		max-width: var(--max-width);
 		margin: 0 auto;
 		padding: 28px var(--content-padding);
-	}
-
-	.footer-main {
-		display: grid;
-		gap: 10px;
-	}
-
-	.footer-name {
-		font-size: 14px;
-		font-weight: 600;
-		margin: 0;
-	}
-
-	.footer-bio {
-		color: var(--text-muted);
-		font-size: 14px;
-		line-height: 1.6;
-		margin: 0;
-		max-width: 720px;
 	}
 
 	.footer-links {

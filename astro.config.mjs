@@ -12,7 +12,7 @@ const rehypePlugins = [rehypeSlug, rehypeKatex];
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://www.airic.dev",
+  site: "https://www.contextcost.dev",
   base: "/",
   output: "static",
   markdown: {

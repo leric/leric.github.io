@@ -17,4 +17,4 @@ This license does not apply to:
 
 For attribution, use:
 
-> Lianghui Zhang, *Context Minimization Principle*, https://www.airic.dev/research/cmp/, licensed under CC BY 4.0.
+> Lianghui Zhang, *Context Minimization Principle*, https://www.contextcost.dev/cmp/, licensed under CC BY 4.0.
