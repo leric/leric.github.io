@@ -16,9 +16,9 @@ const chapters = [
 		order: 1,
 		slug: "why-ai-agents",
 		status: "published",
-		title: "Why AI Agents Are Going to Force a Theory of Software Design",
+		title: "AI Makes Code Cheap. Context Is Still Expensive.",
 		description:
-			"Manifesto placeholder: why comprehension cost becomes the bottleneck when machines read and change code at scale.",
+			"The hidden tax every programmer pays, and why software design still matters in the age of AI",
 	},
 	{
 		part: "foundations",
@@ -320,6 +320,8 @@ for (const ch of chapters) {
 	const dir = path.join(baseDir, ch.part);
 	fs.mkdirSync(dir, { recursive: true });
 	const file = path.join(dir, `${ch.slug}.mdx`);
+	// Chapter 1 is hand-maintained; do not overwrite on regenerate.
+	if (ch.slug === "why-ai-agents" && fs.existsSync(file)) continue;
 	const body = ch.slug === "why-ai-agents" && ch.status === "published" ? publishedBody : draftBody;
 	fs.writeFileSync(file, fm(ch) + body.trim() + "\n", "utf8");
 }

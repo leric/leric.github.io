@@ -1,227 +1,132 @@
 ---
-title: "Why AI Agents Force a New Theory of Software Design"
-description: "AI coding does not make software design obsolete. It makes context acquisition cost visible."
+title: "AI Makes Code Cheap. Context Is Still Expensive."
+description: "The hidden tax every programmer pays, and why software design still matters in the age of AI"
 book: cmp
 part: foundations
 order: 1
 status: published
 version: "0.1"
 pubDate: May 18 2026
-updatedDate: May 18 2026
+updatedDate: May 19 2026
 canonicalUrl: "https://www.contextcost.dev/research/cmp/foundations/why-ai-agents/"
-tags: ["CMP", "software-design", "AI-coding"]
+tags: ["CMP", "software-design", "AI-coding", "context-cost"]
 lang: en
 ---
 
-AI coding has created a strange anxiety among experienced software engineers.
+A programmer picks up a bug. The actual fix is small: maybe two lines, one condition, a missing field in a serializer, a wrong assumption in a background job, or an edge case in a permission check. But the patch does not take two minutes. It takes three days.
 
-If machines can write code, does software design still matter? Do architecture, boundaries, tests, types, naming, cohesion, and modularity still matter? Or are they artifacts of a human-limited era, soon to be bypassed by models that can read and generate code at superhuman scale?
+The first day is spent reconstructing how the system is supposed to behave and confirming that the bug is really a bug. The second is spent following the call chain, reading tests, checking old pull requests, and asking why the logic exists in three different places. The third is spent building enough confidence that the change is complete and will not break something somewhere else. When the commit finally lands, the diff looks almost trivial. The work was not.
 
-The answer from real codebases is becoming clearer:
+> **This gap has a name: context cost.**
 
-**software design matters more, not less.**
+Context cost is the cost of acquiring enough context to modify a system correctly. Writing the patch itself — editing files, changing tests, committing the diff — is the small, visible part. The rest is context cost: understanding what behavior is intended, where the relevant decisions live, which assumptions must be preserved, which other places must change together, and where the boundaries of the change actually are. In mature codebases, this is usually most of the work.
 
-AI agents are impressive when the task is isolated, the context is small, and the expected change is local. They can generate functions, fix obvious bugs, write boilerplate, and explore APIs quickly. But the same agents often struggle in mature codebases, where a correct modification depends on scattered business rules, hidden invariants, implicit conventions, weak boundaries, missing tests, and architectural decisions that live only in human memory.
+Experienced programmers feel this tax even without naming it. They call it onboarding cost, ramp-up time, system familiarity, legacy complexity, technical debt, tribal knowledge. Each phrase captures part of the pain, but none of them names the underlying cost directly. The hidden tax is context cost.
 
-This failure is easy to misread. It is tempting to say the model is not smart enough yet. Sometimes that is true. But there is a deeper pattern:
+For decades, human programmers have paid this tax so routinely that we stopped seeing it. We call it experience. We call it seniority. We call it knowing the codebase. A senior engineer can often make a change safely not because the system is simple, but because years of accumulated modification context have been cached in their head.
 
-**many agent failures are context acquisition failures.**
+Then AI coding agents arrived, and context cost became visible.
 
-The agent does not merely need to write code. It needs to know what to change, what to preserve, which decisions are related, where the relevant constraints live, which boundaries can be trusted, and how to verify that the result is correct.
+## Agents make the bill visible
 
-In other words, the agent needs sufficient context for correct modification.
+An AI coding agent does not experience a codebase the way a long-tenured human engineer does. It does not remember the hallway conversation from two years ago. It does not know that the billing job is special because a large customer depends on an undocumented export format. It does not remember the incident that made the team afraid to touch a certain module. It does not infer, from organizational memory, that two similar-looking code paths must never be merged.
 
-That is the problem CMP tries to name.
+An agent can search, read, call tools, run tests, and generate patches very quickly. But what it knows must be supplied, retrieved, or encoded in explicit artifacts. What is not reachable is, for practical purposes, absent.
 
-## The bottleneck is no longer typing
+This is why agentic programming produces such a strange mix of power and fragility. The agent can write competent code: implement a function, update an API, generate tests, or refactor a file faster than most humans. But in a real codebase, it may still miss the one place where the same decision is duplicated. It may trust a boundary that is nominal but not meaningful. It may update the obvious test while missing the invariant that was never written down.
 
-For most of software history, programming was expensive partly because writing code was expensive. Human developers had to type, search, remember APIs, wire systems together, and manually express every implementation detail.
+When this happens, the easy explanation is that the model is not smart enough. That explanation is too shallow.
 
-AI changes that cost structure. It makes attempted change cheap. A developer can now ask an agent to implement a feature, refactor a module, generate tests, migrate an API, or inspect a bug in minutes.
+Current agents have many limitations, and future agents will become much stronger. Context windows will grow. Retrieval will improve. Tool use will become more reliable. Agents will learn better strategies for navigating repositories, interpreting tests, and asking for missing information. But the underlying problem will not disappear, because correct modification still requires sufficient context.
 
-But cheap attempted change is not the same as cheap correct modification.
+A larger context window changes how much information can be carried; it does not automatically decide which information is relevant, trustworthy, complete, or sufficient. A smarter agent can search better, but it still needs something to search through. It can reason more deeply, but it still needs reliable signals from the system.
 
-When code generation becomes faster, the bottleneck moves. The hard part is no longer producing a plausible patch. The hard part is acquiring enough context to know whether the patch is complete, safe, and aligned with the system's intent.
+> **A more capable AI does not abolish context cost. It raises the level at which context cost must be managed.**
 
-This is why AI coding often feels powerful and fragile at the same time. It increases the volume of possible edits, but it does not automatically make the system easier to understand.
+This is the real significance of AI coding agents. They are not important to software design merely because they can write code. They are important because they turn an indirect tax into a direct one — a cost that human teams have always paid quietly is now charged in plain sight.
 
-If agents widen the funnel of attempted edits without making required context cheaper to acquire, failures migrate from syntax errors to semantic and systemic ones.
+We can now see which files an agent retrieved, where it searched, which tests failed, which edits it missed, and how many attempts it needed before the patch became correct. These traces are not a perfect measurement of design quality. They depend on the agent, the prompt, the tools, and the task. But they reveal something that used to be hidden inside human cognition: how much context a correct modification actually requires, and how hard that context is to acquire. The agent is not failing at coding. It is failing at context acquisition.
 
-The code compiles, but the business rule is wrong.
+When an agent fails this way, it is often showing us the same tax human engineers have been paying all along.
 
-The local test passes, but an analytics job breaks.
+## This is not an AI problem
 
-The API is updated, but a hidden consumer is missed.
+It is tempting to treat agent failures as a temporary weakness of today's models. That would miss the deeper lesson.
 
-The implementation looks reasonable, but it violates an invariant that was never written down.
+When an agent modifies one field but misses the schema migration, the validator, the UI form, the analytics query, and the test fixture, the problem is not only that the agent failed to search widely enough. The system encoded one decision across multiple places without making the relationship reliably discoverable.
 
-These are not typing failures. They are context failures.
+When an agent reads an interface but still has to inspect three implementations to understand what the method really means, the problem is not only that the agent lacks judgment. The boundary did not express a trustworthy contract.
 
-## Software design has always been about context
+When an agent breaks behavior because the key invariant existed only in a senior engineer's memory, the problem is not only that the agent lacked access to that memory. The system depended on implicit context to preserve correctness.
 
-This reveals something software engineers have practiced for decades but rarely name precisely.
+Humans suffer from the same conditions, but they have one form of access agents typically lack: information that was never written down. A human engineer can ask the teammate who built the system, remember a hallway conversation about why a job is special, or recall the incident that made the team quietly stop touching a module. The durable asymmetry is access to context that lives only in heads and conversations, not in files.
 
-Good software design is not about elegance for its own sake. It is not about adding layers, patterns, interfaces, or abstractions because they look professional. It is not even primarily about making code "clean" in an aesthetic sense.
+This compensation is powerful, but it has a cost. It makes onboarding slow. It makes refactoring frightening. It makes review depend on the right person noticing the right omission. It makes teams afraid to change old modules. It makes "simple" tasks expand into days of investigation. It makes productivity uneven, concentrated in the few people who have cached enough context in their heads.
 
-Good design makes future modifications cheaper and safer.
+For humans, the pain is diffuse. It appears as hesitation, fatigue, long ramp-up, vague risk, and a general sense that the system is hard to change. Agents make the pain sharper. They turn invisible context cost into visible failure.
 
-To modify a system correctly, a human or AI modifier must acquire a sufficient set of information:
+> **AI did not create the context problem. It made the bill impossible to ignore.**
 
-- what behavior is intended;
-- where the relevant decisions live;
-- which artifacts must change together;
-- which invariants must be preserved;
-- which tests, types, contracts, or runtime signals can verify the change;
-- where the search for relevant context can safely stop.
+## Software is made of modifications
 
-This sufficient information set is the required context of a modification.
+To understand why this matters, we need to step back from AI. Software engineering is often pictured as two phases — development, where the system is built, and maintenance, where it is changed — as if writing new code and modifying existing code were different jobs. The split is a fiction. From the second commit onward, every change lands on a system that already exists. Modification is not what happens after development; it is development itself.
 
-The cost of acquiring it is context cost.
+Adding a feature modifies the current system. Fixing a bug modifies behavior. Refactoring modifies structure while trying to preserve behavior. Reviewing a pull request evaluates whether a modification is safe. Testing checks whether a modification preserved the intended constraints. Useful software is not written once. It lives by changing.
 
-The Context Minimization Principle can be stated simply:
+If every change is a modification, and every modification has a context cost, then naturally we want that cost to be smaller. Where decisions live, which boundaries can be trusted, what is written down and what is left implicit — all of these shape how expensive the next modification will be. Software design is the name for the choices behind them.
 
-> For the modifications a system must realistically support, a design is better when the sufficient context required for correct modification is cheaper to acquire.
+We usually describe good design with words like *beautiful*, *elegant*, or *clean*. These words point at something real — well-designed systems do feel different to work with — but they are aesthetic reactions, not explanations. The underlying factor they gesture at, without ever naming, is how cheaply the next modification can acquire the context it needs.
 
-This does not mean good design always reduces the amount of information in the system. Sometimes it adds an interface, a type, a test, a registry, a schema, or an architectural rule. But it does so to make the relevant context easier to find, easier to trust, easier to verify, or easier to ignore safely.
+A design is good when it makes realistic future modifications easier, safer, and more reliable. A design is bad when it forces the modifier to search too widely, follow too many unreliable paths, or depend too heavily on implicit knowledge before making a correct change.
 
-Good design does not merely reduce context. It structures context.
+A small module can be hard to modify if its behavior hides in configuration and framework magic; a large system can be easy if its decisions are well bounded and its tests make the important assumptions executable. The difficulty of changing a codebase is not set by how much code it has, but by how expensive it is to acquire enough context to change it correctly.
 
-## Why agents make the problem visible
+## The Context Minimization Principle
 
-Human developers often hide context cost from themselves.
+This is the idea behind the Context Minimization Principle, or CMP.
 
-A senior engineer may know where the rule lives because they wrote it two years ago. They may remember why the interface is shaped that way. They may know which test is misleading, which service owns the real behavior, and which module violates the architecture but should not be touched before a release.
+> **For the modifications a system must realistically support, a design is better when the sufficient context required for correct modification is cheaper to acquire.**
 
-That knowledge is valuable, but it is also invisible. It lives in memory, habit, review culture, team convention, and operational folklore.
+CMP is not a new aesthetic. It is a way to name the trade-off software engineers have always been making. A boundary is useful when it lets us stop reading. A test is useful when it preserves a behavioral fact we should not have to remember. An architecture is useful when it tells us where a decision should live. A convention is useful when it turns search into navigation.
 
-AI agents do not get that for free.
+These practices look different on the surface, but underneath they do the same kind of work: they make the context required for future modification cheaper to acquire.
 
-They rely more directly on explicit artifacts: source code, tests, types, schemas, documentation, dependency graphs, file names, commit history, tool output, and runtime traces. If the required context is not present in those artifacts, or if it is scattered without reliable paths, the agent must infer it from weak signals.
+This also explains why they fail. A boundary that cannot be trusted adds indirection without reducing understanding. An architecture that no longer predicts where decisions live becomes ceremony. An abstraction built for a future that never arrives becomes over-engineering. A convention that exists only in someone's head becomes tribal knowledge.
 
-This makes agents a kind of diagnostic instrument.
+CMP does not remove judgment. It sharpens the question. Instead of asking whether code is clean, simple, or elegant in the abstract, we can ask whether this design makes the context required for realistic modifications cheaper to acquire.
 
-They expose where a codebase depends on unwritten knowledge. They reveal where boundaries are nominal but not trustworthy. They struggle where modification closures are distributed but unindexed. They over-read when abstractions do not provide reliable stopping points. They under-read when related decisions are hidden across files, layers, services, or teams.
+That question is small enough to use in practice and large enough to connect many old debates. It is also enough for a first principle. The point of CMP is not that every design decision can already be measured with a perfect number. The point is that software design has always lacked a shared currency for its trade-offs. Context cost is that currency.
 
-AI-assisted engineering therefore does not replace software design. It makes the cost of design failures observable.
+## The work that does not get cheaper
 
-## Two ways context becomes expensive
+AI will write most of the code. That part is no longer a question — it is already happening on routine changes and will spread to harder ones. Whether the timeline is two years or ten does not change the direction. The cost of producing code is collapsing.
 
-CMP uses two basic shapes to reason about context cost: depth and breadth.
+The new question is how to turn that cheapness into reliable systems quickly. Producing code is not the same thing as building a system — each batch of cheap code still has to land on a codebase that can absorb it without losing coherence. Which decisions a change must touch, which assumptions it preserves, which boundaries hold, which tests carry the important constraints — all of these decide whether AI's speed becomes reliable systems or a faster mess. The faster code production gets, the more design skill matters.
 
-Depth is the cost of traversing behind a focal point until behavior is sufficiently understood.
+Software design has always been valuable, but it has been hard to argue for. *Beautiful*, *elegant*, *clean*, *simple* — these are aesthetic claims, and aesthetic claims tend to lose in rooms where shipping is on the other side. CMP changes that. It replaces the aesthetic question with one a team can actually argue about: does this design make context cheaper for the modifications the system will have to support? That question is small enough to apply to a single pull request, large enough to defend an architectural call, and grounded enough that it does not dissolve into preference.
 
-A function call may look simple, but the real behavior may be hidden behind a service, an interface, a dependency injection container, a runtime strategy, a configuration file, a feature flag, and a remote service. Each step may be justified. But each step also asks the modifier to decide whether it can stop or must continue.
+> **CMP gives design a question that has an answer.**
 
-A good boundary lets the modifier stop. A bad boundary only adds another layer to penetrate.
+That answer is rarely a precise number. But it is concrete enough to evaluate against and to lose a debate to. Design stops being something senior engineers gesture at and becomes something teams can reason about.
 
-Breadth is the cost of acquiring the complete set of artifacts that must be considered together for a modification to be correct.
+For individual programmers, this changes what is worth practicing. The established design principles and patterns — SOLID, DDD, clean architecture, etc. — do not become less valuable; each of them is a tested answer to manage context cost. Beyond the principles, one habit compounds: notice the context you are silently carrying while you make a change — the assumption you held in your head, the dependency you remembered, the prior decision you trusted without re-deriving — and push as much of it as possible into the artifact, so the next modifier does not have to rediscover what you already worked out. It is a small habit, but over time it is how good design stops being an abstract discipline and becomes a daily reflex.
 
-A business rule may appear in a database schema, a backend validator, a frontend form, an API response, a background job, an analytics query, and a test fixture. None of these artifacts need to look textually similar. But if changing the rule requires considering all of them, they belong to the same modification closure.
+## The future does not bypass context
 
-Depth fails by exhaustion: the modifier eventually understands the behavior, but only after too much traversal.
+One possible objection is that future AI may solve this problem automatically. Perhaps agents will become so capable that they can read the whole codebase, infer the architecture, reconstruct the missing decisions, and make correct changes without humans designing for context.
 
-Breadth fails by omission: the modifier misses part of the closure and ships an incomplete change.
+Perhaps they will. But that would not make CMP irrelevant. It would mean the agent has learned to perform context acquisition more effectively. More intelligence does not remove the need for context management. It changes the form of context management.
 
-For AI agents, breadth is especially dangerous. The agent can search, retrieve, and patch many files, but it may still not know whether the closure is complete. It does not know what it has not found.
+A future AI might invent better ways to organize software than the patterns we use today. It might generate new indexes, maintain living documentation, derive tests from observed behavior, or continuously map decision relationships across a codebase. It might make context acquisition cheaper in ways we have not yet imagined. But whatever those mechanisms turn out to be, the software they produce will still be beautiful, clean, and elegant in a way we can now explain rather than just feel: organized so that whoever reads it next — a programmer or an agent — needs less context to understand it and to change it correctly.
 
-## The long context fallacy
+## The bill is on the table
 
-A common objection is that this is only a temporary problem. Future models will have million-token or ten-million-token context windows. They may be able to load the whole repository. If the agent can see all the code, perhaps software design becomes less important.
+Programmers have always known that some systems are easier to change than others. We know the feeling of a codebase where the next step is obvious: the boundary is clear, the test tells us what matters, the naming leads us to the right place, and the architecture narrows the search.
 
-This confuses context capacity with context quality.
+We also know the opposite feeling: every change opens another file, every rule has another exception, every abstraction leaks, every test is either brittle or irrelevant, and no one is sure where the real decision lives.
 
-A larger context window makes more artifacts available. It does not decide which artifacts are relevant, which relationships define the modification closure, which boundaries are trustworthy, which tests encode intended behavior, or when enough context has been acquired.
+That difference is not a matter of taste. It is the central economic fact of software work: software must change, and every correct change requires sufficient context.
 
-Loading the whole repository is the bubble sort of context acquisition.
+> **Good software design is the discipline of making future modification context cheaper to acquire.**
 
-It may work better as machines get faster, but it does not change the structure of the problem. Good design changes the search problem itself. It turns global scanning into directed acquisition. It gives the modifier names, boundaries, tests, types, schemas, registries, architectural rules, and other indexes that make relevant context reachable.
-
-Long context reduces scarcity. It does not remove the need for structure.
-
-In fact, larger context windows may make CMP more important. When agents can access more information, the bottleneck shifts from context availability to context organization. The problem becomes separating signal from noise across a much larger field.
-
-Bad design will not disappear. It will fail differently: the agent will see too much, trust the wrong things, miss the true closure, or mistake accidental similarity for shared intent.
-
-## Future AI may invent better design
-
-A second objection is deeper.
-
-Perhaps future AI will not merely read our codebases better. Perhaps it will invent better ways to organize software entirely. Maybe future systems will not look like today's files, modules, packages, services, or repositories. Maybe code will become a generated artifact, while the real source of truth becomes a specification graph, a semantic dependency graph, a runtime trace graph, or a proof-carrying modification system.
-
-This is possible. It may even be likely.
-
-But it does not refute CMP.
-
-CMP is not a defense of today's software design practices. It is a hypothesis about the invariant behind them.
-
-Human design principles such as modularity, information hiding, cohesion, tests, types, and architecture are historical attempts to reduce the cost of acquiring sufficient context for correct modification. Future AI systems may invent better attempts. They may create stronger indexes, better representations, self-maintaining context graphs, executable specifications, or agent-native software structures that human programmers would not have designed.
-
-But if those structures make software easier to modify correctly, they are still reducing context acquisition cost.
-
-Future AI may discover better context operators than humans currently use. It may not bypass CMP. It may implement CMP at a higher level.
-
-Better intelligence changes the method of context management. It does not abolish the context problem.
-
-## From human readability to agent operability
-
-For decades, software design has been justified through human-centered terms: readability, maintainability, understandability, testability, and evolvability.
-
-Those terms still matter. But AI adds a new target:
-
-**agent operability.**
-
-A codebase is agent-operable when AI agents can reliably acquire the context required for realistic modifications, make bounded changes, and verify their results without depending on hidden human memory.
-
-This does not mean optimizing code for machines instead of humans. The overlap is large. Humans and agents both benefit from clear boundaries, localized decisions, explicit contracts, trustworthy tests, predictable architecture, and mechanically checkable constraints.
-
-The difference is that agents make the implicit parts harder to ignore.
-
-A codebase that requires tribal knowledge is not merely hard for new team members. It is hard for agents.
-
-A codebase whose architecture no longer predicts where decisions live is not merely messy. It destroys context routing.
-
-A codebase with duplicated business decisions is not merely repetitive. It creates modification closures that future modifiers may fail to acquire.
-
-A codebase without executable tests is not merely risky. It withholds a major source of verification context.
-
-In the AI era, software design becomes context infrastructure.
-
-## What CMP is trying to do
-
-CMP is not a new design pattern. It is not a new architecture style. It does not say that every system should use more abstraction, more types, more tests, more layers, or more documentation.
-
-It asks a more basic question:
-
-> For the modifications this system must realistically support, how costly is it to acquire enough context to modify it correctly?
-
-This question turns many familiar design debates into context trade-offs.
-
-An abstraction is good when it lets modifiers stop at a trustworthy boundary. It is bad when it adds depth without hiding meaningful context.
-
-Duplication is acceptable when the duplicated parts do not represent the same decision, or when their relationship is obvious and local. It is dangerous when a future modification must update all copies but nothing reliably reveals the closure.
-
-Architecture is valuable when it routes context acquisition. It becomes expensive ceremony when its placement rules stop predicting where decisions actually live.
-
-Tests are valuable when they make required behavioral context executable. They become costly when they mirror implementation details or fail to check the constraints that matter.
-
-Programming languages are valuable when they mechanically index important closures. They become burdensome when they impose universal surface area for closures the system rarely faces.
-
-CMP gives these trade-offs a shared currency: context cost.
-
-## The research program
-
-This book develops CMP as a living research program.
-
-The first goal is conceptual: to explain why software design remains central in the age of AI coding agents.
-
-The second goal is analytical: to reinterpret classical design principles as context operators — ways of reducing, relocating, indexing, or checking required context.
-
-The third goal is empirical: to explore whether context acquisition cost can be observed through static structure, agent traces, retrieved files, failed localization attempts, test failures, review corrections, patch spread, and modification history.
-
-The fourth goal is practical: to help engineers design systems where both humans and AI agents can make correct modifications with less uncertainty.
-
-The thesis is simple:
-
-**AI coding does not make software design obsolete. It makes the cost of bad design visible.**
-
-And if software must continue to change, then design will continue to matter — not as a ritual inherited from the pre-AI era, but as the discipline of making correct modification possible.
+The hidden tax has always been there. AI did not invent it. AI exposed it. Now that the bill is on the table, we can start designing against it — and software design stops being a sensibility a few engineers happen to have, and starts being a discipline a team can build.
