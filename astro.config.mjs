@@ -16,7 +16,8 @@ export default defineConfig({
   base: "/",
   output: "static",
   redirects: {
-    "/research/cmp/foundations/why-ai-agents": "/research/cmp/start/why-ai-agents/",
+    "/research/cmp": "/cmp/",
+    "/research/cmp/": "/cmp/",
   },
   markdown: {
     remarkPlugins,

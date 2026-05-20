@@ -28,7 +28,7 @@ const manifesto: Chapter = {
 	description:
 		"The manifesto for CMP: the hidden tax every programmer pays, why AI agents make context cost visible, and why software design still matters when code generation becomes cheap.",
 	status: "published",
-	href: "/research/cmp/start/why-ai-agents/",
+	href: "/research/cmp/start/ai-makes-code-cheap/",
 };
 
 const parts: RoadmapPart[] = [
@@ -235,11 +235,19 @@ const parts: RoadmapPart[] = [
 			}
 		</nav>
 
-		<p class="roadmap-footer">
-			<a href="/research/cmp/">Full research index</a>
-			·
-			<a href="/research/cmp/rss.xml">RSS</a>
-		</p>
+		<section class="citation" aria-labelledby="citation-heading">
+			<h2 id="citation-heading">Citation</h2>
+			<p>If you reference this work in academic or technical writing, please cite:</p>
+			<pre class="citation-bibtex" aria-label="BibTeX entry"><code>{`@online{zhang2026cmp,
+  author  = {Zhang, Lianghui},
+  title   = {Context Minimization Principle},
+  year    = {2026},
+  url     = {https://www.contextcost.dev/cmp/},
+}`}</code></pre>
+			<p class="citation-note">
+				<a href="/research/cmp/rss.xml">RSS feed</a>
+			</p>
+		</section>
 	</section>
 </BaseLayout>
 
@@ -333,15 +341,48 @@ const parts: RoadmapPart[] = [
 		letter-spacing: 0.04em;
 	}
 
-	.roadmap-footer {
-		margin-top: 8px;
-		padding-top: 20px;
+	.citation {
+		margin-top: 40px;
+		padding-top: 28px;
 		border-top: 1px solid var(--border);
-		font-size: 14px;
+	}
+
+	.citation h2 {
+		font-size: 18px;
+		margin: 0 0 10px;
+	}
+
+	.citation > p {
+		margin: 0 0 12px;
+		color: var(--secondary);
+		font-size: 15px;
+		line-height: 1.55;
+	}
+
+	.citation-bibtex {
+		margin: 0;
+		padding: 14px 16px;
+		border: 1px solid var(--border-light);
+		border-radius: 8px;
+		background: var(--bg-subtle, #f8f9fa);
+		overflow-x: auto;
+		font-size: 13px;
+		line-height: 1.55;
+	}
+
+	.citation-bibtex code {
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+		color: var(--secondary);
+		white-space: pre;
+	}
+
+	.citation-note {
+		margin: 12px 0 0;
+		font-size: 13px;
 		color: var(--text-muted);
 	}
 
-	.roadmap-footer a {
+	.citation-note a {
 		color: var(--secondary);
 	}
 

@@ -14,7 +14,7 @@ const chapters = [
 	{
 		part: "foundations",
 		order: 1,
-		slug: "why-ai-agents",
+		slug: "ai-makes-code-cheap",
 		status: "published",
 		title: "AI Makes Code Cheap. Context Is Still Expensive.",
 		description:
@@ -321,8 +321,8 @@ for (const ch of chapters) {
 	fs.mkdirSync(dir, { recursive: true });
 	const file = path.join(dir, `${ch.slug}.mdx`);
 	// Chapter 1 is hand-maintained; do not overwrite on regenerate.
-	if (ch.slug === "why-ai-agents" && fs.existsSync(file)) continue;
-	const body = ch.slug === "why-ai-agents" && ch.status === "published" ? publishedBody : draftBody;
+	if (ch.slug === "ai-makes-code-cheap" && fs.existsSync(file)) continue;
+	const body = ch.slug === "ai-makes-code-cheap" && ch.status === "published" ? publishedBody : draftBody;
 	fs.writeFileSync(file, fm(ch) + body.trim() + "\n", "utf8");
 }
 

@@ -22,7 +22,7 @@ export async function GET(context) {
 		site: context.site,
 		items: items.map((entry) => {
 			const p = parseCmpEntryId(entry.id);
-			const link = p ? cmpChapterPath(p.part, p.slug) : '/research/cmp/';
+			const link = p ? cmpChapterPath(p.part, p.slug) : '/cmp/';
 			return {
 				title: entry.data.title,
 				description: entry.data.description,
