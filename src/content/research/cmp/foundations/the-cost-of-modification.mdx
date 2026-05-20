@@ -1,0 +1,41 @@
+---
+title: "The Cost of Modification"
+description: "Required context, explicit and implicit knowledge, and why context cost is the shared currency of software engineering."
+book: cmp
+part: foundations
+order: 2
+status: published
+version: "0.1"
+pubDate: May 19 2026
+updatedDate: May 19 2026
+canonicalUrl: "https://www.contextcost.dev/research/cmp/foundations/the-cost-of-modification/"
+tags: ["CMP", "software-design", "context-cost", "required-context"]
+lang: en
+---
+
+The software industry has long championed "maintainability" and "readability" as primary design goals. Yet neither is an end in itself. We maintain and read code for one operational purpose: to modify it. A developer does not study a codebase for passive comprehension; they read to make decisions about what to alter, what to preserve, and how to safely navigate constraints. Even debugging, reviewing, and testing are not distinct disciplines, but supporting operations within this broader modification pipeline. They exist to establish whether a change can be safely made, where it belongs, and whether it was executed correctly.
+
+## Information Completeness
+
+To execute a modification correctly, a developer or AI agent must achieve information completeness. They cannot change a system reliably while guessing its constraints. They must acquire a sufficient set of facts to perform the change and preserve intended behavior. We call this sufficient information set the **required context** of a modification.
+
+Context is the sum of all knowledge required to execute a change. This knowledge fundamentally takes two forms: explicit and implicit.
+
+- **Explicit context** is information formally encoded in written artifacts—the source code itself, schemas, tests, and documentation.
+- **Implicit context** is the unwritten information a developer must hold in their head—runtime behaviors, hidden global states, historical decisions, tribal knowledge, or the invisible side effects of a framework.
+
+## Defining Context Cost
+
+Acquiring this required context is the central operational burden of modification. Recall the four steps of modification from the previous chapter: find where to change, understand what to preserve, decide what to edit, and confirm the change was correct. The effort spent moving through these steps is not determined merely by the sheer amount of information you need to read. It is determined by the cost of acquiring that information with enough confidence that your context is complete.
+
+This includes the size of the context, the spread of the context, the traversal needed to reach it, and the reliability of the paths by which it can be found. The anxiety developers feel in poorly designed systems comes from the lack of a reliable stopping point—you can never be entirely sure you have found all the constraints or ripple effects; you just stop when you run out of time or patience, and hope the test suite catches what you missed.
+
+We call this operational burden **Context Cost**: the cost of acquiring sufficient context for correct modification. Context cost includes not only the size of the required context, but also how that context is reached, how widely it is spread, and how reliably the modifier can know that the acquired context is complete.
+
+## The Currency of Design
+
+If software development is a continuous stream of modifications, and every modification requires acquiring sufficient context, then the cost of that acquisition is the shared currency of software engineering.
+
+The purpose of software design becomes very concrete: **good design minimizes context cost.** It is not about adhering to abstract aesthetics, following principles to the letter, or pursuing "cleanliness" for its own sake. It is about making the required context for a realistic modification cheaper, safer, and more reliable to acquire.
+
+When we stop arguing about whether a design is "elegant" and start asking how much context a future modifier will need to carry, design debates lose their dogma. We stop judging code by how it looks, and start judging it by the operational burden it imposes on the next person who has to change it.

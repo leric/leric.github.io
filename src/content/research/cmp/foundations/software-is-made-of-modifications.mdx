@@ -1,0 +1,70 @@
+---
+title: "Software Is Made of Modifications"
+description: "Why software development is better understood as continuous modification rather than one-time creation."
+book: cmp
+part: foundations
+order: 1
+status: published
+version: "0.1"
+pubDate: May 19 2026
+updatedDate: May 19 2026
+canonicalUrl: "https://www.contextcost.dev/research/cmp/foundations/software-is-made-of-modifications/"
+tags: ["CMP", "software-design", "modification"]
+lang: en
+---
+
+Pick any software team on any ordinary day, and watch what they are actually doing.
+
+Alice is adding an "export to CSV" button. She opens the controller, the service layer, the Excel builder, the permission checker, and three i18n files. Each file already exists; her work is to thread a new path through them without breaking the existing ones.
+
+Bob is fixing a production bug. A discount calculated wrong for customers in a specific region. He traces the logic backward through a PricingService, a DiscountPolicy interface, a strategy factory, and a feature-flag check, until he finds a three-year-old workaround that no one remembers writing. He changes one condition and runs the test suite, hoping nothing else depended on the old behavior.
+
+Claire is reviewing a pull request. The diff touches fourteen files, but she notices that every change is the same thing: a field renamed from `clientId` to `customerId`. The author did a find-and-replace. She approves, but makes a mental note: *this field is now scattered across the codebase in a way that no single abstraction owns.*
+
+Dave is refactoring the payment module. He extracts a shared validator, inlines a one-caller abstraction, and splits a 400-line service into three focused units. Every commit must be behavior-preserving, so he runs the same test suite after each step, watching for any assertion that breaks.
+
+Different people. Different tasks. Same underlying activity: **modification.**
+
+---
+
+## The Fiction of Development vs. Maintenance
+
+The traditional distinction between software "development" and "maintenance" is a project-management fiction. It may help with budgeting, but it obscures the essential fact of programming work: once a codebase exists, almost every subsequent engineering act is an act of modification.
+
+This fiction causes two concrete harms.
+
+The first is **resource misallocation.** When "development" is treated as a one-time capital expenditure, teams are incentivized to ship fast and defer structural concerns. Design debt accumulates not because engineers are careless, but because the accounting framework tells them that "maintenance" is a future phase with a future budget. The code shipped in "development" becomes the code modified in "maintenance" — and the design decisions made under ship-fast pressure become the context tax paid by every future modifier.
+
+The second is **cognitive fragmentation.** The industry trains engineers to see feature work as creation, bug fixes as repair, and refactoring as cleanup — three different activities requiring three different mindsets. But the structure underlying all three is identical. A feature adds behavior by modifying existing code. A bug fix corrects behavior by modifying existing code. A refactor preserves behavior by modifying existing code. The surface differences are real — intent, urgency, scope — but the engine is the same: find where to change, understand what to preserve, decide what to edit, confirm the change was correct. When we treat these as separate disciplines, we lose the ability to see their shared cost structure.
+
+In practice, the first public release is treated as the boundary between development and maintenance, and not without reason. Release is a real event: users depend on the system, data accumulates, integrations form around existing behavior, and operational guarantees begin to matter. But these changes do not turn creation into a different activity called upkeep. They add constraints — user data, backward compatibility, migrations, deprecation cycles, operational risk — to the same modification stream. Every such constraint is more context a modifier must acquire to be confident the change is safe. Release does not change what modification is; it increases the context cost of doing it correctly.
+
+---
+
+## Extension Is Still Modification
+
+At this point, an objection is likely to surface. The Open/Closed Principle — one of the most enduring ideas in software design — explicitly tells us that modules should be *open for extension, but closed for modification.* If the industry's own design canon treats extension and modification as distinct, isn't the claim that "everything is modification" flattening a distinction that matters?
+
+It is not. OCP draws a line between two *strategies for making a change*, not between two *kinds of activity.* When you add a new payment method by implementing a `PaymentStrategy` interface and registering it, you have not avoided modifying the system. The system's behavior before that change and after it are different. An invoice that would have been paid one way is now paid another. You have modified the system — you have just done so by adding code in a new location rather than rewriting code in an existing one.
+
+This is not a semantic trick. It is the entire point of OCP. The principle does not claim that extension is not modification. It claims that, for certain classes of change, a design that lets the modifier *add* rather than *rewrite* makes the modification cheaper. The modifier does not have to understand the internals of the existing payment pipeline to extend it. The existing code is not touched, so the modifier does not have to verify that existing behavior was preserved — the mechanism of extension preserves it by construction. The context required for the change is smaller.
+
+Read this way, OCP is not evidence that extension is different from modification. It is evidence that **good design reduces the cost of modification — and one of the most effective ways to do that is to make certain modifications expressible as additions rather than rewrites.** The goal is still modification. The strategy has just been optimized.
+
+---
+
+## Software Evolves Through a Stream of Modifications
+
+Software is not produced as a single uninterrupted act of creation. It accretes through a sequence of changes to a partial system. And the expectations those changes must satisfy are themselves constantly shifting.
+
+The reasons are familiar enough: requirements shift, domains evolve, integrations change, and usage reveals assumptions that were wrong.
+
+A living system is never designed for one isolated future. It must survive a stream of modifications whose exact direction, frequency, and shape remain uncertain. This is not a failure of requirements gathering. It is the normal condition of software that remains useful: it must keep adapting to change.
+
+---
+
+## Design's True Purpose
+
+Because change is the defining condition of useful software, modifiability is not merely one quality attribute among many. It is the problem software design exists to address.
+
+Design, as a discipline distinct from making code execute, is the practice of making future modifications simpler, safer, and more reliable. The design principles that have survived decades of practice — information hiding, DRY, SOLID, testing — all earn their keep on this single standard. The payoff of good design is not deferred to a mythical maintenance phase; it accelerates the very next modification, by ensuring the modifier has exactly the context they need to make the change safely.

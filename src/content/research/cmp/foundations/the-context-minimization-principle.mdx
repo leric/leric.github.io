@@ -1,0 +1,50 @@
+---
+title: "The Context Minimization Principle"
+description: "The formal statement of CMP and the four constraints that turn it from a slogan into a comparative frame for software design."
+book: cmp
+part: foundations
+order: 3
+status: published
+version: "0.1"
+pubDate: May 19 2026
+updatedDate: May 19 2026
+canonicalUrl: "https://www.contextcost.dev/research/cmp/foundations/the-context-minimization-principle/"
+tags: ["CMP", "software-design", "context-cost"]
+lang: en
+---
+
+If software development is a continuous stream of modifications, and good design minimizes the cost of acquiring sufficient context for those modifications, then this intuition deserves a name. We call it the **Context Minimization Principle** (CMP). Made precise, it becomes a principle one can argue with:
+
+> **For the modifications a system must realistically support, a design is better when the sufficient context required for correct modification is cheaper to acquire.**
+
+Four constraints do the real work.
+
+## Realistically Support
+
+CMP does not rank designs in the abstract. It evaluates them against the plausible stream of future modifications a system must support. Because that stream is uncertain, "realistically support" does not mean preparing for every imaginable future. It means reasoning from the product, domain, architecture, and organization about which changes are credible enough to shape the design.
+
+A plugin architecture is justified in a product that routinely adds third-party integrations; it is indefensible in a small internal CRUD tool. The same design move can be brilliant in one context and over-engineered in another, depending entirely on whether the modifications it anticipates are actually going to arrive.
+
+## Sufficient Context
+
+Sufficiency is an information condition relative to the correctness bar below: enough facts to eliminate the modifier's uncertainty about whether the change is correct. CMP does not lower this threshold, it only asks the same sufficient set to be cheaper to acquire, and avoid unrelated context.
+
+## Correct Modification
+
+The bar is correctness: a change that is complete, preserves invariants, and produces the intended behavior.
+
+## Cheaper to Acquire
+
+Cheapness has two axes: *size* and *discoverability*. A sufficient set is cheaper when it contains fewer facts, and the facts are more directly reachable.
+
+A design that shrinks the set but leaves it hidden has not reduced cost; nor has a design that scatters the set across the codebase even if each fact is locally simple. Context size is theoretical; context acquisition cost is operational.
+
+This is why "clean code" alone is not sufficient as a design goal. A codebase can be locally pristine—every function short, every name clear, every module focused—while still imposing enormous context cost because the relationships among those clean pieces are scattered, implicit, or unreliable to follow.
+
+---
+
+Taken together, these constraints turn CMP from a slogan into a comparative frame: scoped to realistic modifications, grounded in sufficiency, disciplined by correctness, and measured by context cost rather than by visible size alone.
+
+With CMP in place, the familiar debates of software design—DRY versus simplicity, abstraction versus directness, eager structuring versus YAGNI—stop being clashes of taste and become comparable trade-offs in a single currency: the cost of acquiring sufficient context for safe modification.
+
+The remaining question is how context cost actually grows. In the next chapters, we will see that it expands through two recurring patterns: **Depth** and **Breadth**. Most classical design principles can be reframed as moves that reduce, relocate, or index one or both of them.

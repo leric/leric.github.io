@@ -4,34 +4,178 @@ import { SITE_TITLE } from "../../consts";
 
 const pageTitle = `Context Minimization Principle — ${SITE_TITLE}`;
 const pageDescription =
-	"CMP is a long-term writing series on software design, context cost, and correct modification.";
+	"CMP is a framework for software design as the discipline of reducing context acquisition cost — for humans and AI agents alike.";
 
-const readingPath = [
+type ChapterStatus = "published" | "planned";
+
+interface Chapter {
+	num: number;
+	title: string;
+	description: string;
+	status: ChapterStatus;
+	href?: string;
+}
+
+interface RoadmapPart {
+	id: string;
+	label: string;
+	chapters: Chapter[];
+}
+
+const manifesto: Chapter = {
+	num: 1,
+	title: "AI Makes Code Cheap. Context Is Still Expensive.",
+	description:
+		"The manifesto for CMP: the hidden tax every programmer pays, why AI agents make context cost visible, and why software design still matters when code generation becomes cheap.",
+	status: "published",
+	href: "/research/cmp/start/why-ai-agents/",
+};
+
+const parts: RoadmapPart[] = [
 	{
-		title: "AI Makes Code Cheap. Context Is Still Expensive.",
-		description: "The hidden tax every programmer pays, and why software design still matters in the age of AI.",
-		href: "/research/cmp/foundations/why-ai-agents/",
-		available: true,
+		id: "foundations",
+		label: "Part I — Foundations",
+		chapters: [
+			{
+				num: 2,
+				title: "Software Is Made of Modifications",
+				description:
+					"Why software development is better understood as continuous modification rather than one-time creation. Features, bug fixes, refactoring, review, and testing all revolve around changing a living system safely.",
+				status: "published",
+				href: "/research/cmp/foundations/software-is-made-of-modifications/",
+			},
+			{
+				num: 3,
+				title: "The Cost of Modification",
+				description:
+					"Required context, explicit and implicit knowledge, and why context cost is the shared currency of software engineering.",
+				status: "published",
+				href: "/research/cmp/foundations/the-cost-of-modification/",
+			},
+			{
+				num: 4,
+				title: "The Context Minimization Principle",
+				description:
+					"The formal statement of CMP and the four constraints that turn it from a slogan into a comparative frame for software design.",
+				status: "published",
+				href: "/research/cmp/foundations/the-context-minimization-principle/",
+			},
+		],
 	},
 	{
-		title: "Depth and Breadth",
-		description: "How context distance and context surface area shape modification difficulty.",
-		available: false,
+		id: "shape",
+		label: "Part II — The Shape of Context",
+		chapters: [
+			{
+				num: 5,
+				title: "Depth: Why Simple Calls Become Long Investigations",
+				description:
+					"Depth is the cost of traversing behind a focal point until behavior is sufficiently understood. This chapter explains why indirection is not inherently bad, but unreliable stopping points are.",
+				status: "planned",
+			},
+			{
+				num: 6,
+				title: "Breadth: The Things You Forgot to Change",
+				description:
+					"Breadth is the cost of acquiring the full modification closure: every place that must be considered together for a change to be correct. This chapter explains why omission risk is often more dangerous than extra reading.",
+				status: "planned",
+			},
+			{
+				num: 7,
+				title: "Context Transformation",
+				description:
+					"Design rarely eliminates context. It transforms it: reducing, relocating, indexing, or making it checkable. This chapter connects depth and breadth to concrete design moves.",
+				status: "planned",
+			},
+		],
 	},
 	{
-		title: "Design Principles as Context Operators",
-		description: "Reframing design principles as operators that reduce context acquisition cost.",
-		available: false,
+		id: "operators",
+		label: "Part III — Design as Context Engineering",
+		chapters: [
+			{
+				num: 8,
+				title: "Boundaries: The Art of Knowing Where to Stop",
+				description:
+					"A boundary is valuable when it lets the modifier stop reading. This chapter reframes abstraction, information hiding, interfaces, and deep modules as mechanisms for reducing traversal cost.",
+				status: "planned",
+			},
+			{
+				num: 9,
+				title: "Locality: Things That Change Together Must Be Reachable Together",
+				description:
+					"Locality is not about putting similar code together. It is about making modification closure reachable. This chapter reframes DRY, SRP, cohesion, and duplication through context cost.",
+				status: "planned",
+			},
+			{
+				num: 10,
+				title: "Architecture as Context Routing",
+				description:
+					"Architecture is a routing map for context acquisition. This chapter explains how layers, bounded contexts, framework conventions, and system boundaries make decision placement predictable.",
+				status: "planned",
+			},
+			{
+				num: 11,
+				title: "Tests: Making Required Context Executable",
+				description:
+					"Tests preserve behavioral context by turning assumptions about intended behavior into executable feedback. This chapter explains how good tests reduce the cost of confidence in a modification, and how bad tests create their own context cost.",
+				status: "planned",
+			},
+			{
+				num: 12,
+				title: "Programming Languages as Universal Mechanical Indexes",
+				description:
+					"Programming languages are the strongest context operators because their mechanisms apply across the entire codebase and are mechanically enforced. Types, modules, visibility, nullability, exhaustive matching, ownership, and effect systems can turn missed modification closures into tool-visible failures.",
+				status: "planned",
+			},
+		],
 	},
 	{
-		title: "AI Agents and Observable Context",
-		description: "What AI-assisted engineering reveals about hidden context and system legibility.",
-		available: false,
+		id: "economics",
+		label: "Part IV — The Economics of Design",
+		chapters: [
+			{
+				num: 13,
+				title: "Over-Engineering Is a Bad Context Trade",
+				description:
+					"Over-engineering is not “too much design.” It is paying present context cost for future savings that do not arrive, arrive along the wrong axis, or would have been cheaper to defer.",
+				status: "planned",
+			},
+			{
+				num: 14,
+				title: "YAGNI, Deferral, and Wrong Bets",
+				description:
+					"Premature abstraction and careless deferral are failed bets in opposite directions. This chapter explains design under uncertainty through expected future context cost.",
+				status: "planned",
+			},
+		],
 	},
 	{
-		title: "Context Footprint",
-		description: "Toward practical measurement for modification context in real codebases.",
-		available: false,
+		id: "agents",
+		label: "Part V — Humans, Agents, and Measurement",
+		chapters: [
+			{
+				num: 15,
+				title: "Agents Are Modifiers Too",
+				description:
+					"An AI coding agent is not a magic coder. It is another modifier of the system, and it also needs sufficient context, reliable boundaries, discoverable closures, and executable feedback.",
+				status: "planned",
+			},
+			{
+				num: 16,
+				title: "Agent-Friendly Codebases Are Human-Friendly Codebases",
+				description:
+					"A codebase friendly to agents is one where modification context is explicit, bounded, discoverable, and checkable. The same properties make codebases better for humans.",
+				status: "planned",
+			},
+			{
+				num: 17,
+				title: "Measuring the Shadows of Context Cost",
+				description:
+					"Context cost may not be directly measurable, but its traces can be observed: retrieved files, failed localization, missed edits, patch breadth, test failures, review corrections, and static structure. This chapter connects CMP to Context Footprint and future tooling.",
+				status: "planned",
+			},
+		],
 	},
 ];
 ---
@@ -43,20 +187,59 @@ const readingPath = [
 			<p class="lead">Software design is for modification.</p>
 			<p class="lead">Correct modification requires sufficient context.</p>
 			<p class="lead">Good design makes that context cheaper to acquire.</p>
+			<blockquote class="intro">
+				CMP is a framework for understanding software design as the discipline of reducing the cost of
+				acquiring sufficient context for safe modification — for humans and AI agents alike.
+			</blockquote>
 		</header>
 
-		<section class="path">
-			<h2>Start here</h2>
-			<ol>
-				{readingPath.map((item) => (
-					<li>
-						{item.available && item.href ? <a href={item.href}>{item.title}</a> : <span>{item.title}</span>}
-						<p>{item.description}</p>
-						{!item.available && <small>Planned</small>}
+		<nav class="roadmap" aria-label="CMP book roadmap">
+			<section class="roadmap-section">
+				<h2>Start here</h2>
+				<ol class="chapter-list" start={manifesto.num}>
+					<li class="chapter">
+						<div class="chapter-heading">
+							{manifesto.status === "published" && manifesto.href ? (
+								<a href={manifesto.href}>{manifesto.title}</a>
+							) : (
+								<span>{manifesto.title}</span>
+							)}
+							{manifesto.status === "planned" && <small class="status">Planned</small>}
+						</div>
+						<p>{manifesto.description}</p>
 					</li>
-				))}
-			</ol>
-		</section>
+				</ol>
+			</section>
+
+			{
+				parts.map((part) => (
+					<section class="roadmap-section">
+						<h2>{part.label}</h2>
+						<ol class="chapter-list" start={part.chapters[0]?.num}>
+							{part.chapters.map((chapter) => (
+								<li class="chapter">
+									<div class="chapter-heading">
+										{chapter.status === "published" && chapter.href ? (
+											<a href={chapter.href}>{chapter.title}</a>
+										) : (
+											<span>{chapter.title}</span>
+										)}
+										{chapter.status === "planned" && <small class="status">Planned</small>}
+									</div>
+									<p>{chapter.description}</p>
+								</li>
+							))}
+						</ol>
+					</section>
+				))
+			}
+		</nav>
+
+		<p class="roadmap-footer">
+			<a href="/research/cmp/">Full research index</a>
+			·
+			<a href="/research/cmp/rss.xml">RSS</a>
+		</p>
 	</section>
 </BaseLayout>
 
@@ -81,42 +264,85 @@ const readingPath = [
 		margin-bottom: 6px;
 	}
 
-	.path {
+	.intro {
+		margin: 20px 0 0;
+		padding: 0 0 0 1em;
+		border-left: 3px solid var(--border);
+		color: var(--secondary);
+		font-size: 17px;
+		line-height: 1.6;
+	}
+
+	.roadmap {
 		padding-top: 28px;
 	}
 
-	.path h2 {
-		font-size: 22px;
-		margin: 0 0 12px;
+	.roadmap-section {
+		margin-bottom: 36px;
 	}
 
-	.path ol {
+	.roadmap-section h2 {
+		font-size: 20px;
+		font-weight: 600;
+		margin: 0 0 14px;
+		color: var(--text);
+		letter-spacing: -0.01em;
+	}
+
+	.chapter-list {
 		margin: 0;
-		padding-left: 22px;
+		padding-left: 28px;
+		list-style: decimal;
 	}
 
-	.path li {
-		margin-bottom: 14px;
+	.chapter {
+		margin-bottom: 20px;
+		padding-left: 4px;
 	}
 
-	.path li a,
-	.path li span {
-		font-size: 18px;
+	.chapter-heading {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 8px 12px;
+	}
+
+	.chapter-heading a,
+	.chapter-heading span {
+		font-size: 17px;
 		font-weight: 500;
+		line-height: 1.35;
 	}
 
-	.path li span {
+	.chapter-heading span {
 		color: var(--secondary);
 	}
 
-	.path li p {
-		margin: 6px 0 2px;
+	.chapter p {
+		margin: 6px 0 0;
 		color: var(--secondary);
+		font-size: 15px;
+		line-height: 1.55;
 	}
 
-	.path li small {
+	.status {
 		color: var(--text-muted);
-		font-size: 12px;
+		font-size: 11px;
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+
+	.roadmap-footer {
+		margin-top: 8px;
+		padding-top: 20px;
+		border-top: 1px solid var(--border);
+		font-size: 14px;
+		color: var(--text-muted);
+	}
+
+	.roadmap-footer a {
+		color: var(--secondary);
 	}
 
 	@media (max-width: 700px) {
@@ -128,9 +354,13 @@ const readingPath = [
 			font-size: 18px;
 		}
 
-		.path li a,
-		.path li span {
-			font-size: 17px;
+		.intro {
+			font-size: 16px;
+		}
+
+		.chapter-heading a,
+		.chapter-heading span {
+			font-size: 16px;
 		}
 	}
 </style>

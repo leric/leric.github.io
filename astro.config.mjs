@@ -15,6 +15,9 @@ export default defineConfig({
   site: "https://www.contextcost.dev",
   base: "/",
   output: "static",
+  redirects: {
+    "/research/cmp/foundations/why-ai-agents": "/research/cmp/start/why-ai-agents/",
+  },
   markdown: {
     remarkPlugins,
     rehypePlugins,

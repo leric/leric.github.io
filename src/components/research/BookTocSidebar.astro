@@ -3,6 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 import {
 	CMP_PART_LABELS,
 	CMP_PART_ORDER,
+	CMP_START_PART,
 	cmpChapterPath,
 	isCmpChapterPublished,
 	parseCmpEntryId,
@@ -29,19 +30,23 @@ for (const ch of chapters) {
 for (const [, list] of byPart) {
 	list.sort((a, b) => a.data.order - b.data.order);
 }
+
+const partsWithChapters = CMP_PART_ORDER.filter((partId) => (byPart.get(partId)?.length ?? 0) > 0);
 ---
 
 <nav class="book-toc" aria-label="Book table of contents">
 	<p class="book-toc-heading">CMP</p>
 	{
-		CMP_PART_ORDER.map((partId) => {
+		partsWithChapters.map((partId, index) => {
 			const items = byPart.get(partId) ?? [];
-			if (items.length === 0) return null;
-			const open = partId === currentPart;
+			const showDivider = index > 0;
+			const showPartLabel = partId !== CMP_START_PART;
+
 			return (
-				<details class="book-toc-part" open={open}>
-					<summary>{CMP_PART_LABELS[partId]}</summary>
-					<ul>
+				<div class="book-toc-group">
+					{showDivider && <hr class="book-toc-divider" />}
+					{showPartLabel && <p class="book-toc-part-label">{CMP_PART_LABELS[partId]}</p>}
+					<ul class="book-toc-chapters">
 						{items.map((ch) => {
 							const ids = parseCmpEntryId(ch.id);
 							const slug = ids?.slug ?? '';
@@ -56,7 +61,7 @@ for (const [, list] of byPart) {
 							);
 						})}
 					</ul>
-				</details>
+				</div>
 			);
 		})
 	}
@@ -67,6 +72,7 @@ for (const [, list] of byPart) {
 		font-size: 13px;
 		line-height: 1.45;
 	}
+
 	.book-toc-heading {
 		font-size: 11px;
 		font-weight: 800;
@@ -75,30 +81,36 @@ for (const [, list] of byPart) {
 		color: var(--text-muted);
 		margin: 0 0 12px;
 	}
-	.book-toc-part {
-		border: 1px solid var(--border-light);
-		border-radius: 8px;
-		margin-bottom: 8px;
-		background: white;
-	}
-	.book-toc-part summary {
-		cursor: pointer;
-		font-weight: 700;
-		color: var(--primary);
-		padding: 10px 12px;
-		list-style: none;
-	}
-	.book-toc-part summary::-webkit-details-marker {
-		display: none;
-	}
-	.book-toc-part ul {
+
+	.book-toc-group {
 		margin: 0;
-		padding: 0 8px 10px 12px;
+	}
+
+	.book-toc-divider {
+		margin: 14px 0;
+		border: none;
+		border-top: 1px solid var(--border-light);
+	}
+
+	.book-toc-part-label {
+		font-size: 11px;
+		font-weight: 800;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+		margin: 0 0 8px;
+	}
+
+	.book-toc-chapters {
+		margin: 0;
+		padding: 0;
 		list-style: none;
 	}
-	.book-toc-part li {
+
+	.book-toc-chapters li {
 		margin-bottom: 6px;
 	}
+
 	.toc-link {
 		display: block;
 		color: var(--secondary);
@@ -107,29 +119,13 @@ for (const [, list] of byPart) {
 		padding: 4px 0;
 		border-radius: 4px;
 	}
+
 	.toc-link:hover {
 		color: var(--accent);
 	}
+
 	.toc-link.active {
 		color: var(--accent);
 		font-weight: 700;
-	}
-	.toc-soon {
-		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: 8px;
-		color: var(--text-muted);
-		padding: 4px 0;
-	}
-	.soon-pill {
-		font-size: 10px;
-		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: 0.06em;
-		border: 1px solid var(--border);
-		border-radius: 999px;
-		padding: 1px 6px;
-		flex-shrink: 0;
 	}
 </style>
