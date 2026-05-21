@@ -1,0 +1,186 @@
+---
+title: "Depth: When Simple Calls Become Long Investigations"
+description: "Depth is the context cost of acquiring the behavioral meaning of a focal artifact — and why boundaries only stop traversal when their contracts do the work."
+book: cmp
+part: shape
+order: 1
+status: published
+version: "0.1"
+pubDate: May 19 2026
+updatedDate: May 19 2026
+canonicalUrl: "https://www.contextcost.dev/research/cmp/shape/depth/"
+tags: ["CMP", "software-design", "context-cost", "depth"]
+lang: en
+---
+
+## A Short Call Site Can Hide a Long Investigation
+
+Pick any reader on any ordinary task. A reviewer skimming a PR. A developer chasing a pricing bug. A new hire reading their way into the codebase. Someday they might land on a line like this:
+
+```tsx
+const discount = calculateDiscount(order, customer)
+```
+
+The line looks small. But before they can do anything with it — approve it, fix it, build on it — they have to answer the same question: how much do I need to read before I know what this line actually does?
+
+The amount of context required to answer that can vary dramatically.
+
+In one design, `calculateDiscount` is a direct function. Its name states the responsibility. Its parameter types expose the required inputs. Its return type makes the result clear. The discount rule lives in the function body, and its tests describe the important cases. A reader can open the function, read the contract and the nearby tests, and stop.
+
+In another design, the same call enters a `PricingService`, delegates to a `DiscountPolicy` interface, resolves a concrete strategy through a runtime factory, reads a feature flag, consults user configuration, and finally computes the discount. The visible call site has not changed much. But the context behind it has expanded.
+
+The call site is identical. The cost of understanding it is not. This pattern of hidden context is the first axis in CMP: depth.
+
+> **Depth is the context cost of acquiring the behavioral meaning of a focal artifact.**
+>
+> It includes the artifact's own code and the surrounding structure a reader must traverse before what it promises and what it requires are sufficiently understood.
+
+Depth is not a symptom of design failure. It is an inherent cost of code comprehension. An artifact has depth because its behavior must be expressed in code: in its own body, and in the callees, callers, interfaces, configuration, schemas, and protocol definitions that surround it.
+
+Some depth reflects how hard the problem actually is. A complex business rule may legitimately require more code and more context than a simple rule. CMP does not treat that cost as waste. It asks whether the required context is proportional to the behavior being expressed, and whether the surrounding structure prevents that cost from spreading farther than necessary.
+
+Depth has a focal point. The focal artifact may be a function, class, module, interface, endpoint, service, schema, or framework extension point. Depth asks: if this artifact is placed in front of a reader, how much surrounding structure must be loaded before its behavior is clear?
+
+The answer depends on two things together. The first is the code's topology around the artifact — the calls, imports, and references that link its body to the surrounding code. The second is whether the boundaries along that topology carry contracts strong enough to let the reader stop. Topology describes which edges exist; boundaries decide which of those edges have to be crossed. Both are properties of the code as it stands, not of any particular modification task: once you've picked the artifact in question, its depth is fixed by the structure and contracts that already surround it.
+
+## A Boundary Stops the Reader Only If Its Contract Does the Work
+
+If depth is inherent, design cannot eliminate it. What design can do is decide whether it stops locally.
+
+Every layer of structure creates a possible stopping point. A function call may be opened. An interface may lead to its implementations. A service may lead to repositories, adapters, and policies. A factory may lead to runtime selection rules. A feature flag may lead to configuration. A framework annotation may lead to lifecycle behavior. A remote client may lead to another system's protocol.
+
+Each of these is a place where the reader could, in principle, stop walking. Whether they actually do depends on what the boundary offers.
+
+A boundary acts as a stopping point when its contract carries enough of the behavior needed at that level — when the implementation does not have to be opened to recover it. A boundary that fails to do this is still a boundary, with a name and a location, but the reader has no reason to stop crossing it.
+
+The relevant question at a boundary is therefore not whether the implementation is correct, but whether the observable behavior is sufficiently explained: what it promises, what it requires, what it returns, what it may fail to do, what side effects it performs, and which invariants it preserves. A boundary that captures these does not eliminate the implementation's complexity; it makes that complexity unnecessary for ordinary reasoning.
+
+Consider a payment boundary:
+
+```tsx
+type ChargeRequest = {
+  amount: number
+  currency: string
+  cardToken: string
+}
+
+type ChargeResult = {
+  success: boolean
+  transactionId?: string
+  errorMessage?: string
+}
+
+interface PaymentGateway {
+  charge(request: ChargeRequest): Promise<ChargeResult>
+}
+```
+
+The type signature tells us that a charge request produces a charge result. But the signature alone may leave the behavior unresolved:
+
+- Is the operation idempotent?
+- What happens after a timeout?
+- Can the payment be captured but reported as failed locally?
+- Which failures are retryable?
+- Can the result be pending?
+- How are currency and precision represented?
+- Which external side effects may already have occurred?
+
+If these questions are not expressed by the boundary, the reader has to open the implementation to recover them. The interface exists, but it does not stop traversal. Each missing obligation becomes another step inward.
+
+<details class="cmp-code-details">
+<summary>A contract that answers all seven questions</summary>
+
+```tsx
+type Currency = "USD" | "EUR" | "JPY"
+type MinorUnits = number & { readonly __brand: "MinorUnits" }
+type Money = { currency: Currency; minorUnits: MinorUnits }
+
+type IdempotencyKey = string & { readonly __brand: "IdempotencyKey" }
+type ChargeId      = string & { readonly __brand: "ChargeId" }
+type CardToken     = string & { readonly __brand: "CardToken" }
+
+type ChargeRequest = {
+  idempotencyKey: IdempotencyKey
+  amount: Money
+  cardToken: CardToken
+}
+
+type PermanentFailure =
+  | { kind: "card_declined";    reasonCode: string }
+  | { kind: "invalid_request";  field: string }
+  | { kind: "insufficient_funds" }
+
+type ChargeOutcome =
+  | { status: "succeeded"; chargeId: ChargeId; capturedAt: Date }
+  | { status: "failed";    reason: PermanentFailure }
+  | { status: "pending";   chargeId: ChargeId; pollAfter: Date }
+  | { status: "unknown";   idempotencyKey: IdempotencyKey }
+
+type TransientError = { kind: "transient"; retryAfter?: Date }
+
+interface PaymentGateway {
+  /**
+   * Idempotent by idempotencyKey: repeated calls with the same key
+   * return the same ChargeOutcome.
+   *
+   * Resolves with a definitive ChargeOutcome (including `unknown`).
+   * Rejects only with TransientError; the caller MAY retry with the same key.
+   *
+   * `unknown` means an external charge may exist. The caller MUST reconcile
+   * via getStatus before reporting a final outcome.
+   *
+   * No side effects other than the charge itself; notifications and ledger
+   * writes are driven by webhooks, not by this call.
+   */
+  charge(request: ChargeRequest): Promise<ChargeOutcome>
+
+  /** Returns the current ChargeOutcome for a known idempotencyKey. */
+  getStatus(key: IdempotencyKey): Promise<ChargeOutcome>
+}
+```
+
+</details>
+
+The example above answers its seven questions through several language mechanisms: discriminated unions distinguish `pending`, `unknown`, and `failed`; branded types make `IdempotencyKey` and `Money` impossible to mistake for ordinary strings or numbers; a separate error type carries retryability. And several obligations — that `charge` rejects only on transient errors, that `unknown` must be reconciled via `getStatus`, that no other side effects occur — live in the docstring, not in any type. Comments are weaker than types — they are not checked and they drift — but obligations like these cannot be carried any other way, so they remain a necessary part of the contract. How to combine these mechanisms is the task of later boundary principles. For now, the diagnostic is enough: when behavior is not explicit at the boundary, the reader keeps traversing.
+
+## Depth Runs in Both Directions
+
+Depth is often imagined from the caller's side: a reader starts at a call site and walks inward through the implementation until the behavior becomes clear. But structural comprehension has a second direction.
+
+An implementer modifying the inside of an artifact must understand what the outside is allowed to depend on. If the boundary contract is incomplete, the implementer cannot safely reason locally. They must scan callers to discover which assumptions are in use.
+
+A reliable boundary therefore stops traversal in both directions:
+
+> From outside to inside, callers should not need implementation details to use the artifact correctly.
+>
+> From inside to outside, implementers should not need caller-specific assumptions to change the implementation safely.
+
+Take a `DiscountPolicy` interface. If its contract clearly states whether discounts may be negative, whether multiple discounts are composable, whether customer segmentation is part of the policy, and whether the returned amount includes tax, then both sides can reason locally. Callers do not need to inspect every concrete policy. Policy implementations do not need to inspect every checkout, billing, analytics, or promotion-preview caller.
+
+If the contract does not state these obligations, depth expands outward as well as inward. A caller must inspect implementations to understand behavior. An implementer must inspect callers to understand dependency expectations.
+
+This is why boundary reliability is more than encapsulation. Encapsulation hides code. A reliable boundary hides context.
+
+## Indirection Redistributes Depth
+
+It would be tempting to read the previous sections as an argument against indirection — every interface, factory, hook, or service is another traversal edge, another place the reader might fail to stop. But indirection is not the opposite of depth, and it is not equivalent to it either.
+
+A program can have several layers of indirection and still be shallow if each layer carries a reliable contract. A program can have almost no explicit abstraction and still be deep if behavior depends on implicit state, hidden side effects, global conventions, or runtime magic. Indirection does not create or destroy depth; it redistributes it.
+
+The clearest case is a long function. A single procedure that mixes validation, pricing, persistence, notification, and error handling holds all of its depth in one continuous local context. The reader cannot stop until they have walked the whole body. Extracting those regions into functions whose names and contracts match real sub-responsibilities adds calls but reduces what must be loaded at any one time: the top-level body becomes a sequence of meaningful steps, and the reader opens only the step whose behavior matters.
+
+The same refactoring can fail. If extraction merely hides arbitrary lines behind vague names, it adds traversal without creating a useful stopping point — the reader still has to open each call to recover the behavior, and now has more places to look. Indirection reduces depth only when it compresses local complexity into a boundary the reader can trust.
+
+## The Failure Mode of Depth: Exhaustion
+
+When indirection fails to compress, or when an implementation does more than its boundary admits, depth cannot be contained locally. The reader still understands eventually — but the path is long, fragmented, and cognitively expensive. They follow calls, inspect implementations, decode binding rules, reconstruct failure semantics, infer side effects, and compare scattered tests before the artifact's behavior becomes clear.
+
+For a human developer, this appears as attention drain: too many files open, too many assumptions in working memory, too much switching between local behavior and global structure.
+
+For an AI coding agent, it appears in observable traces: larger retrieval sets, rapidly exhausted context windows, more tool calls, more irrelevant edits, and more test-driven correction loops. A senior developer may carry implicit project knowledge that lets them shortcut the traversal. An agent has no such shortcut; it must read the actual implementation to recover what the senior developer carries in memory. The deeper the artifact, the more implementation it has to load to make sense of it.
+
+## Depth Is Inherent; Boundaries Decide Where It Stops
+
+Within CMP, depth names the local structural cost of understanding behavior around a focal artifact. It explains why a short call site can hide a large comprehension burden, why abstraction can either reduce or increase context cost, and why information hiding only works when a boundary carries a semantic contract.
+
+Good design does not eliminate depth. Some depth is the price of expressing real behavior, and complex domains will legitimately carry more of it. What design can do is place boundaries that partition that depth into regions a reader can comprehend locally. How to design boundaries that do this — responsibility contracts, dependency inversion, interface segregation, substitutability, module depth, client-shaped abstractions — belongs to the later discussion of boundary principles.

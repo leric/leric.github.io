@@ -3,7 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 export const CMP_BOOK_SLUG = 'cmp' as const;
 
 /** URL segment order for Parts (TOC + prev/next). */
-export const CMP_PART_ORDER = ['start', 'foundations'] as const;
+export const CMP_PART_ORDER = ['start', 'foundations', 'shape'] as const;
 
 export type CmpPartId = (typeof CMP_PART_ORDER)[number];
 
@@ -12,6 +12,7 @@ export const CMP_START_PART = 'start' as const;
 export const CMP_PART_LABELS: Record<CmpPartId, string> = {
 	start: 'Start here',
 	foundations: 'Part I — Foundations',
+	shape: 'Part II — The Shape of Context',
 };
 
 export function cmpChapterPath(part: string, slug: string) {

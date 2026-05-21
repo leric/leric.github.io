@@ -8,7 +8,7 @@ import BookTocSidebar from '../components/research/BookTocSidebar.astro';
 import ChapterOutline from '../components/research/ChapterOutline.astro';
 import ChapterPager from '../components/research/ChapterPager.astro';
 import FormattedDate from '../components/FormattedDate.astro';
-import { AUTHOR, githubEditUrl, cmpDiscussUrl } from '../consts';
+import { AUTHOR, cmpDiscussUrl } from '../consts';
 import 'katex/dist/katex.min.css';
 
 interface Props {
@@ -30,7 +30,6 @@ const ids = entry.id.match(/^cmp\/([^/]+)\/(.+)$/);
 const part = ids?.[1] ?? entry.data.part;
 const slug = ids?.[2] ?? '';
 
-const editPath = `src/content/research/cmp/${part}/${slug}.mdx`;
 const wip = entry.data.status === 'wip';
 
 const updated = entry.data.updatedDate ?? entry.data.pubDate;
@@ -87,10 +86,6 @@ const updated = entry.data.updatedDate ?? entry.data.pubDate;
 							>.
 						</p>
 						<div class="footer-links">
-							<a href={githubEditUrl(editPath)} target="_blank" rel="noopener noreferrer"
-								>Edit on GitHub</a
-							>
-							<span class="dot">·</span>
 							<a href={cmpDiscussUrl()} target="_blank" rel="noopener noreferrer"
 								>Discuss this chapter</a
 							>
@@ -208,6 +203,38 @@ const updated = entry.data.updatedDate ?? entry.data.pubDate;
 				overflow-x: auto;
 				padding: 8px 0;
 			}
+			.research-chapter-prose :global(.cmp-code-details) {
+				margin: 20px 0;
+				border: 1px solid var(--border-light);
+				border-radius: 8px;
+				background: var(--bg-subtle, #f8f9fa);
+			}
+			.research-chapter-prose :global(.cmp-code-details summary) {
+				cursor: pointer;
+				font-weight: 600;
+				font-size: 15px;
+				color: var(--primary);
+				padding: 12px 14px;
+				list-style: none;
+			}
+			.research-chapter-prose :global(.cmp-code-details summary::-webkit-details-marker) {
+				display: none;
+			}
+			.research-chapter-prose :global(.cmp-code-details summary::before) {
+				content: '▸ ';
+				display: inline-block;
+				margin-right: 4px;
+				color: var(--accent);
+				transition: transform 0.15s ease;
+			}
+			.research-chapter-prose :global(.cmp-code-details[open] summary::before) {
+				transform: rotate(90deg);
+			}
+			.research-chapter-prose :global(.cmp-code-details pre) {
+				margin: 0;
+				border-radius: 0 0 8px 8px;
+				border-top: 1px solid var(--border-light);
+			}
 			.research-chapter-footer {
 				margin-top: 32px;
 				padding-top: 20px;
@@ -233,9 +260,6 @@ const updated = entry.data.updatedDate ?? entry.data.pubDate;
 				flex-wrap: wrap;
 				align-items: center;
 				gap: 4px;
-			}
-			.footer-links .dot {
-				color: var(--text-muted);
 			}
 			@media (max-width: 1080px) {
 				.research-shell {

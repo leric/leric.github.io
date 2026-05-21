@@ -1,0 +1,83 @@
+---
+title: "Context Transformation: How Design Changes the Shape of Context"
+description: "Breadth selects artifacts; depth prices each one. Design moves transform context by reducing, relocating, indexing, or making it checkable."
+book: cmp
+part: shape
+order: 3
+status: published
+version: "0.1"
+pubDate: May 19 2026
+updatedDate: May 19 2026
+canonicalUrl: "https://www.contextcost.dev/research/cmp/shape/context-transformation/"
+tags: ["CMP", "software-design", "context-cost", "depth", "breadth"]
+lang: en
+---
+
+import depthBreadth from '../../../../assets/depth-breadth.png';
+
+The previous two articles introduced the two primary shapes of context cost. Depth is the structural cost of understanding a focal artifact. Breadth is the cost of acquiring the modification closure of a realistic change — the set of artifacts that must move together for the change to be correct.
+
+This article brings the two together and uses them to ask a new question: when a design move makes future modification easier, what is it actually doing?
+
+## Breadth Selects the Artifacts, Depth Prices Each One
+
+A single picture summarizes the two-shape view.
+
+<figure>
+  <img
+    src={depthBreadth.src}
+    alt="Diagram: Depth and Breadth in CMP — static structure vs modification scenario, and how design principles act as context operators"
+    width={depthBreadth.width}
+    height={depthBreadth.height}
+    loading="lazy"
+  />
+  <figcaption>
+    Figure 1. Depth belongs to static code structure. Breadth belongs to a modification scenario. A real
+    modification pays both: the cost of acquiring the relevant closure, plus the local depth costs of the
+    selected artifacts. (Image generated with GPT Image 2.)
+  </figcaption>
+</figure>
+
+Any real modification answers two different questions. Which artifacts belong to this change? That is breadth. For each of those artifacts, how much local context does the modifier need to edit or verify it safely? That is depth. In practice the two are interleaved — reading one artifact often surfaces another that belongs to the closure, and each new closure member opens its own local-context question — but the costs stay conceptually distinct. Breadth selects the artifacts; depth prices each one.
+
+This separation has practical consequences. A codebase can have locally understandable artifacts but still be dangerous to modify, because change-together relationships are scattered. It can also have well-localized modifications whose selected artifacts are individually hard to understand. These are different problems, and design must address each one.
+
+## Design Reshapes Context: Reduce, Relocate, Index, Check
+
+Design rarely makes context disappear. More often it transforms context — the same information takes a different shape, lives in a different place, or surfaces through a different path. A decision that was once duplicated across several places may be collapsed into one named abstraction. A complex implementation detail may be moved behind a boundary. A scattered set of related artifacts may remain distributed, but become discoverable through an explicit path. A previously implicit assumption may be recorded in a test, type, schema, or protocol and become checkable. In each case, the system may not contain less total information. What changes is the shape of context acquisition.
+
+This is CMP applied to a single design move. CMP asks whether one design is better than another by checking whether the sufficient context for correct modification is cheaper to acquire. Asked of an individual move rather than a whole design, the same principle gives a single test.
+
+> **A design move is valuable when it transforms required context into a cheaper acquisition shape.**
+
+"Cheaper" here carries the same operational meaning CMP gives it: it depends on size and discoverability. Concretely, a design move can make context cheaper in a few different ways. Sometimes it means fewer artifacts. Sometimes it means better stopping points. Sometimes it means more visible relationships among distributed artifacts. Sometimes it means turning a fragile assumption into executable feedback.
+
+Those four "sometimes" shapes correspond to four basic transformations a design move can perform. **Reduce** shrinks the set a modifier must acquire, by collapsing a duplicated decision into one owned place. **Relocate** moves detail behind a boundary, so the reader pays a smaller surface cost at a stopping point instead of a larger internal cost. **Index** keeps a closure distributed but makes its members reachable together, turning open-ended search into bounded acquisition. **Check** moves an assumption into a test, type, schema, or validator, so a missing piece surfaces as failure rather than silent defect.
+
+These are not mutually exclusive: a single design move can reduce one closure, introduce a boundary, create an index, and make some assumptions checkable. The point is not to label every technique into exactly one bucket, but to see that design changes the acquisition path, not merely the visual shape of the code.
+
+## Every Transformation Trades One Cost for Another
+
+Every transformation has a price, which is why design debates are often difficult. Most design moves improve one form of context cost while worsening another. An abstraction may reduce breadth by collapsing several duplicated decisions into one named place, but it also adds a new concept and a new boundary that readers must understand. A layered architecture may reduce open-ended search by making decision placement predictable, but it also adds traversal through layers. A registry may keep a distributed closure discoverable, but it introduces a lookup mechanism that future modifiers must learn.
+
+These trade-offs are why vague labels rarely settle design disagreements. The same structure may be called "cleanly factored" by one engineer and "over-abstracted" by another. The difference is often not that they disagree about the code they can see, but that they are pricing different context costs. One person is focused on the breadth avoided by the abstraction. The other is focused on the depth introduced by the new boundary.
+
+CMP reframes the disagreement in a more useful form: for the realistic modifications this system must support, what context cost does this move add, and what context cost does it remove, relocate, index, or check? That question does not make judgment automatic, but it makes the hidden ledger visible. A design move stops being "good" or "bad" in the abstract and becomes a trade against an expected modification stream.
+
+One asymmetry is worth naming. Depth and breadth do not deserve equal weight when their costs are compared, because they fail differently — depth fails visibly during the work, breadth fails silently after the work is shipped. A slow change can still be correct; an incomplete change cannot. For that reason it is often reasonable to pay some visible depth to control real breadth: a boundary, registry, type, or test may add surface cost, but the cost is justified when it prevents a closure member from being missed. The bias is not absolute — paying depth for imaginary breadth is over-engineering — but when the closure is real, breadth tends to deserve the heavier vote.
+
+## Revisiting the Discount Rule: A Trade in Practice
+
+The breadth article opened with a discount rule scattered across the checkout UI, the order service, the billing job, and the analytics pipeline. Treated as a breadth problem, the danger was clear: a future modifier might update three of the four places and ship a quiet inconsistency. The transformation vocabulary lets us look at the same scenario from the design side.
+
+A common design move is to introduce a named abstraction, such as `DiscountPolicy`, and make the relevant parts of the system depend on it. This is a **reduce** move: it collapses a scattered decision into one owned concept, so the future modifier no longer has to rediscover four independent representations of the same rule. It is also an **index** move: with the named type as an anchor, every place that depends on the rule is one find-references away — the closure is no longer something the modifier has to rediscover by grep and tribal knowledge.
+
+But the move is not free. The system now has a new concept, a new boundary, and perhaps a new traversal step. Readers must understand what `DiscountPolicy` means and what behavior its contract guarantees. In other words, the design has traded some breadth for some depth.
+
+That trade is good if the new boundary is reliable and the old closure was real. It is bad if the abstraction is vague, shallow, or premature. The duplication-abstraction debate becomes clearer when phrased this way: the issue is not whether duplication or abstraction is universally better, but whether the added depth is smaller and more reliable than the breadth it removes.
+
+## Design Principles Are Context Operators
+
+With depth, breadth, and context transformation in hand, classical design principles can be read in a new way. They are not freestanding rules of taste; they are context operators. Boundary-oriented principles primarily act on depth by creating stopping points. Locality-oriented principles primarily act on breadth by making modification closures smaller or more reachable. Architecture routes context acquisition by making decision placement predictable. Tests and language mechanisms make parts of context checkable, so missed assumptions surface as feedback rather than silent defects.
+
+Each of these families deserves its own treatment, which is the job of Part III. This article's job was only to set the shared frame; the next chapters take up the major operators one at a time — boundaries, locality, architecture, tests, and language mechanisms.

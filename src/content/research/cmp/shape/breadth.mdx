@@ -1,0 +1,90 @@
+---
+title: "Breadth: The Things You Forgot to Change"
+description: "Breadth is the cost of acquiring every artifact that must be considered together for a realistic change to be correct — and of knowing the modification closure is complete."
+book: cmp
+part: shape
+order: 2
+status: published
+version: "0.1"
+pubDate: May 19 2026
+updatedDate: May 19 2026
+canonicalUrl: "https://www.contextcost.dev/research/cmp/shape/breadth/"
+tags: ["CMP", "software-design", "context-cost", "breadth"]
+lang: en
+---
+
+## A Small Edit Can Reach More Places Than It Appears
+
+In the previous article, we discussed depth: the structural cost of understanding a focal artifact. Depth describes the static structure of code. Breadth begins from a different experience.
+
+Suppose a team changes a discount rule.
+
+The visible change may start in one obvious place: a pricing function, a checkout component, or a policy object. The code at that location may be clear. The local boundary may be reliable. The function may have low depth.
+
+Yet the change can still be wrong.
+
+The checkout UI may show the new discount, but the billing job may still apply the old rule. The order service may validate one version, while the analytics pipeline classifies discounted orders using another. Documentation may still describe the old condition.
+
+No single artifact is hard to understand. The problem is that the modification required several artifacts to be considered together, and one of them was missed.
+
+This is breadth.
+
+> **Breadth is the cost of acquiring every artifact that must be considered together for a realistic change to be correct.**
+>
+> It measures how hard it is to discover that complete set and to be sure that nothing has been missed.
+
+Depth asks how hard one artifact is to understand. Breadth asks which artifacts must be brought into context together.
+
+## Modification Closure
+
+Most engineers have felt these sets long before they had a name for them. While writing a feature, you find yourself editing several places — a schema column, a validator, a UI field, a background job — and notice that nothing in the code records the fact that these places belong together. Their relationship lives only in the decision you happen to be making right now. That is when an alarm fires. The next person to change this code — possibly you, a few weeks from now — will not have this decision in mind, and one of these places will be missed.
+
+This sense has a name in CMP.
+
+> **A modification closure is the set of artifacts that must be considered together because a realistic modification requires them to change, be checked, or remain consistent together.**
+
+The word "artifact" should be read broadly. A closure may include source files, tests, schemas, migrations, UI components, API definitions, background jobs, configuration, event consumers, fixtures, external protocol definitions, or documentation.
+
+The closure is easiest to see while it is being created. Writing a feature or fixing a bug forces you to load the whole closure into your head at once — you are reaching into the schema, the validator, the UI field, the background job, and noticing how each piece has to match the change you are making. Nowhere else in the lifecycle of the code is the entire set so naturally present in one person's working memory.
+
+This makes writing the best moment to notice problems inside the closure: edits that look local but quietly imply edits elsewhere, places where a future modifier could plausibly land without ever discovering the rest. Experienced engineers even train this check into a sense of code-smell. While editing, part of their attention is running an automatic question — "if I were the next person changing only one of these places, would I find the others?" When the answer is no, we can feel that something is wrong.
+
+This is what makes modification closure operational where earlier design principles stay abstract. "Single Responsibility" tells you a module should have one reason to change. "Things that change together belong together" tells you to co-locate co-changing code. The trouble with both principles is that their definitions hinge on a hypothetical future. "Reason to change" and "things that change together" describe modifications that have not happened. To apply either one, you have to imagine the future changes you think might arrive and ask whether the current code will hold up under them. That imagined future is open-ended: there is no signal that tells you when enough scenarios have been considered, and nothing in the code to verify your guess against.
+
+Modification closure is defined as "considered together" too, but from a different angle. The code you are writing right now to complete one feature or fix one bug is, by definition, the closure — you can see it directly in what your hands are touching. The design question that remains is concrete: what trace will you leave behind so the next modifier, who will not have your decision in mind, can still find every member?
+
+The most important property of a closure is completeness. Breadth is the cost not just of identifying closure members but of knowing the set is whole. A closure is only useful once every member has been found. A modification that touches most of its closure but misses one member is not "mostly correct"; it is incorrect, just incorrect in a place that has not surfaced yet.
+
+## The Failure Mode of Breadth: Omission
+
+When a closure is incomplete, it fails in a particular way. The modifier never visits a place that belonged to it. The code that did get changed compiles, runs, and passes its local tests. The review looks clean. The patch seems complete. But somewhere in the codebase, an artifact that needed to move with the change has been left at the old behavior, and the gap will not surface until something downstream depends on it.
+
+This is why omission is more dangerous than depth's failure. Depth fails by exhaustion: the reader keeps following structure because they cannot find a trustworthy stopping point — too many jumps, too many abstractions, too many hidden behaviors. The work is slow, tiring, and context-heavy, but the cost is visible while it is happening, and anyone watching can see the reader struggling. Breadth fails the opposite way. The modifier feels nothing during the work, because nothing in the code surfaces the missing member; they believe the closure is complete simply because no path through it revealed otherwise. Depth hurts during reading; breadth hurts after forgetting.
+
+When the missing member does surface, it is rarely at the original site of the change. It shows up as a stale report, a mismatched UI, a broken export, a billing inconsistency, an outdated migration assumption, or a downstream consumer that still sees the old behavior.
+
+Breadth is therefore not only an effort cost; it is a confidence cost. The cost has two parts — how many artifacts belong to the closure, and how reliably the modifier can know the closure is complete — and the second part is usually the heavier one. A modifier does not just need relevant context; they need *sufficient* context. For breadth, sufficiency means being able to answer not one question but two:
+
+> What do I need to change?
+
+and:
+
+> How do I know I have found everything that must change or be checked together?
+
+## Breadth Is the Cost of Knowing the Closure Is Complete
+
+Within CMP, breadth names the task-level cost of context. Where depth measures how hard a single artifact is to understand, breadth measures which artifacts a single change has to bring into context together — and how confidently the modifier can tell when that set is whole.
+
+The two costs are not symmetric. Depth is a property of the code being read: a given artifact has roughly the same depth regardless of what change is being made to it. Breadth is a property of the change being made: the same artifact can sit in very different closures depending on the modification, so asking about the breadth of a codebase is not a meaningful question — one can only ask about the breadth of a particular modification on it.
+
+This gives them complementary jobs:
+
+> **Depth is the structural cost of understanding a focal artifact.**
+>
+> **Breadth is the task-level cost of acquiring the artifacts that must be considered together.**
+
+Breadth selects the artifacts a modification has to consider. Depth prices each one. A real modification pays both.
+
+Software design matters because software must change. For depth, sufficient context means the modifier could understand each artifact they touched. For breadth, it means they reached every artifact that had to move with the change — and could trust that nothing was missing. Breadth, in the end, is the cost of knowing the closure is complete.
+
+Later articles will show how design can reduce or manage breadth — through locality, indexing, architecture, tests, and language mechanisms. The next article brings depth and breadth together and looks at how real design moves transform context between them.
