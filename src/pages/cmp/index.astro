@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { SITE_TITLE } from "../../consts";
+import { CMP_SOURCE_REPO, SITE_TITLE } from "../../consts";
 
 const pageTitle = `Context Minimization Principle — ${SITE_TITLE}`;
 const pageDescription =
@@ -248,7 +248,7 @@ const parts: RoadmapPart[] = [
   url     = {https://www.contextcost.dev/cmp/},
 }`}</code></pre>
 			<p class="citation-note">
-				<a href="/research/cmp/rss.xml">RSS feed</a>
+				<a href={CMP_SOURCE_REPO} target="_blank" rel="noopener noreferrer">GitHub repository</a>
 			</p>
 		</section>
 	</section>
