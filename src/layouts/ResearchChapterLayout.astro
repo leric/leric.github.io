@@ -184,6 +184,32 @@ const updated = entry.data.updatedDate ?? entry.data.pubDate;
 			.research-chapter-prose :global(p) {
 				margin-bottom: 18px;
 			}
+			.research-chapter-prose :global(.cmp-tldr) {
+				margin: 0 0 40px;
+				padding: 20px 22px 18px;
+				border: 1px solid var(--border-light);
+				border-left: 4px solid var(--accent);
+				border-radius: 8px;
+				background: var(--bg-subtle, #f8f9fa);
+			}
+			.research-chapter-prose :global(.cmp-tldr h2) {
+				margin-top: 0;
+				margin-bottom: 14px;
+				font-size: 12px;
+				font-weight: 800;
+				letter-spacing: 0.1em;
+				text-transform: uppercase;
+				color: var(--accent);
+			}
+			.research-chapter-prose :global(.cmp-tldr p) {
+				margin-bottom: 14px;
+				font-size: 16px;
+				line-height: 1.65;
+				color: var(--secondary);
+			}
+			.research-chapter-prose :global(.cmp-tldr p:last-child) {
+				margin-bottom: 0;
+			}
 			.research-chapter-prose :global(.footnotes) {
 				margin-top: 40px;
 				padding-top: 20px;

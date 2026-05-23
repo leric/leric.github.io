@@ -1,6 +1,6 @@
 ---
-title: "AI Makes Code Cheap. Context Is Still Expensive."
-description: "The hidden tax every programmer pays, and why software design still matters in the age of AI"
+title: "Reliable Coding Agents Need Better Codebases"
+description: "Better models and better harnesses matter. But agents also need codebases where the right context is cheap to find, trust, and use."
 book: cmp
 part: start
 order: 1
@@ -8,10 +8,26 @@ status: published
 version: "0.1"
 pubDate: May 18 2026
 updatedDate: May 19 2026
-canonicalUrl: "https://www.contextcost.dev/research/cmp/start/ai-makes-code-cheap/"
+canonicalUrl: "https://www.contextcost.dev/research/cmp/start/reliable-coding-agents-need-better-codebases/"
 tags: ["CMP", "software-design", "AI-coding", "context-cost"]
 lang: en
 ---
+
+<div class="cmp-tldr">
+
+## TL;DR
+
+How can we make coding agents more reliable in real codebases?
+
+The common answers are better models and better harness engineering. Both matter, and both are improving fast. But they are not the whole answer. The codebase itself also determines how reliably an agent can work.
+
+AI has made code cheaper to produce, but it has not made software cheaper to change correctly. The hard part of real modification is not typing the patch. It is acquiring enough context to know what the patch must preserve, where related decisions live, and whether the change is complete.
+
+This hidden cost is **context cost**. Human teams have always paid it through seniority, onboarding, code review, and tribal knowledge. Coding agents make it visible, they fail when the required context is implicit, scattered, unreliable, or hard to discover.
+
+The **Context Minimization Principle** reframes software design around this cost: for the modifications a system must realistically support, a design is better when the sufficient context required for correct modification is cheaper to acquire.
+
+</div>
 
 A programmer picks up a bug. The actual fix is small: maybe two lines, one condition, a missing field in a serializer, a wrong assumption in a background job, or an edge case in a permission check. But the patch does not take two minutes. It takes three days.
 

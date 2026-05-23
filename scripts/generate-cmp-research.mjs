@@ -14,11 +14,11 @@ const chapters = [
 	{
 		part: "foundations",
 		order: 1,
-		slug: "ai-makes-code-cheap",
+		slug: "reliable-coding-agents-need-better-codebases",
 		status: "published",
-		title: "AI Makes Code Cheap. Context Is Still Expensive.",
+		title: "Reliable Coding Agents Need Better Codebases",
 		description:
-			"The hidden tax every programmer pays, and why software design still matters in the age of AI",
+			"Better models and better harnesses matter. But agents also need codebases where the right context is cheap to find, trust, and use.",
 	},
 	{
 		part: "foundations",
@@ -321,8 +321,8 @@ for (const ch of chapters) {
 	fs.mkdirSync(dir, { recursive: true });
 	const file = path.join(dir, `${ch.slug}.mdx`);
 	// Chapter 1 is hand-maintained; do not overwrite on regenerate.
-	if (ch.slug === "ai-makes-code-cheap" && fs.existsSync(file)) continue;
-	const body = ch.slug === "ai-makes-code-cheap" && ch.status === "published" ? publishedBody : draftBody;
+	if (ch.slug === "reliable-coding-agents-need-better-codebases" && fs.existsSync(file)) continue;
+	const body = ch.slug === "reliable-coding-agents-need-better-codebases" && ch.status === "published" ? publishedBody : draftBody;
 	fs.writeFileSync(file, fm(ch) + body.trim() + "\n", "utf8");
 }
 
