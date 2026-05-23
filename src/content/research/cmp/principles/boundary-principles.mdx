@@ -1,0 +1,157 @@
+---
+title: "Boundary Principles: Hiding Context, Not Code"
+description: "Boundary principles are context operators on depth — semantic contracts that let modifiers stop without loading implementation details behind them."
+book: cmp
+part: principles
+order: 1
+status: published
+version: "0.1"
+pubDate: May 19 2026
+updatedDate: May 19 2026
+canonicalUrl: "https://www.contextcost.dev/research/cmp/principles/boundary-principles/"
+tags: ["CMP", "software-design", "boundaries", "SOLID", "depth"]
+lang: en
+---
+
+## Design Principles as Context Operators
+
+The previous essays established the basic vocabulary of CMP: software development is primarily an activity of modification; the cost of a modification is not the amount of code changed, but the context required to make the change correctly; and that context can take different shapes — Depth, Breadth, implicit assumptions, omission risk.
+
+From this essay onward, CMP becomes a lens for rereading familiar design principles.
+
+Classic principles are not arbitrary conventions — they have lasted because they solve real problems in how software evolves. Information hiding, dependency inversion, interface segregation, substitutability, openness to extension — these are all valuable ideas. But they are often taught as if they were unconditional rules. Hide information. Depend on abstractions. Keep interfaces small. Open for extension, closed for modification.
+
+Real systems are less clean. Every abstraction has a cost. Every boundary charges rent. Every principle assumes some future pattern of change, and that assumption might be wrong.
+
+In CMP, a design principle is not a style preference. It is a **context operator**: a way of organizing context for cheaper future modifications. Different principles operate on different shapes of context.
+
+Boundary principles primarily operate on **Depth**. They try to stop a modifier from digging further into implementation details. Locality principles primarily operate on **Breadth**. They merge duplicate logic together, or create an index over related modification points, so scattered decisions can be found, compared, and changed together. This essay focuses on the first family: boundary principles.
+
+## A Boundary Hides Context, Not Code
+
+It is tempting to think of a boundary as a structural object: a module, a class, an interface, a facade, a service, a package, a process.
+
+Those are places where a boundary may appear. They are not the boundary itself.
+
+A module can simply move complexity into another directory. An interface can mirror every method of a provider. A facade can add one more hop before the reader reaches the real implementation. These structures may hide code, but they do not necessarily reduce the context required for modification.
+
+A real boundary is not created by separation. It is created when the modifier no longer needs to keep digging into details.
+
+For a boundary to hold, three things must be true:
+
+1. It abstracts a responsibility.
+2. It expresses that responsibility as a contract.
+3. The modifier can reason from that contract without crossing into the implementation behind it.
+
+> A nominal boundary hides code. A semantic boundary hides context.
+
+The distinction matters. A nominal boundary can make the architecture diagram look cleaner while still forcing the modifier to load implementation details, historical assumptions, and provider-specific behavior. A semantic boundary changes the shape of context acquisition. The modifier reaches the boundary and already has enough context to perform the modification reliably.
+
+## A Good Name Is the Shortest Contract
+
+A responsibility also needs a good name.
+
+A contract is not only a method signature or a type definition. The name of the responsibility is part of the contract. In fact, it is often the shortest, most frequently referenced, and most widely propagated part of the contract.
+
+A good name compresses a set of assumptions into a reusable token. When a modifier sees the name, they can activate existing domain knowledge and engineering experience, then continue reasoning from the concept the name represents.
+
+This is similar to prompting an LLM. A precise term can be more effective than a long explanation because it activates a whole region of learned structure. Humans work similarly. A name like `Cache` immediately brings to mind source of truth, TTL, stale data, misses, invalidation, and fallback. `Transaction` brings commit, rollback, isolation, and failure boundaries. In the business domain, `Cart`, `Order`, and `Invoice` each carry a different set of rules and constraints.
+
+> A name is a context package.
+
+But that also means a rich name comes with obligations.
+
+You cannot call something a `Cache` and require callers to treat it as the source of truth. You cannot call a flow a `Transaction` if it has no rollback semantics. You cannot call an object an `Invoice` if it can be freely edited without audit implications. A good name reduces explanation because it borrows shared understanding. If the implementation violates that understanding, the name stops reducing context and starts generating confusion.
+
+When a responsibility is hard to name, that is often not a writing problem. It is a design signal. It may mean we have not found a stable responsibility yet. We may have merely bundled a set of implementation details that happened to be adjacent at the time. Such a boundary usually needs more comments, more documentation, more examples, more tests, and more oral tradition to explain what it means. The context that the name failed to carry returns in another form.
+
+An interface named `OrderHandler` can be declared with typed method signatures and documentation. But the name does not let the caller stop at the boundary. Handle how? Validate? Fulfill? Cancel? Which operations are idempotent? Which provider semantics have been folded into this contract?
+
+## Designing a Good Boundary
+
+So far we have described what a boundary does. The harder question is how to design a good one.
+
+The L and I parts of the SOLID principles answer the first half of this question: what does a good boundary look like?
+
+- Liskov Substitution Principle asks: can different implementations satisfy this contract without forcing the caller to load each implementation's special behavior?
+- Interface Segregation Principle asks: does this caller receive only the context required for its modification class, rather than a large surface of unrelated methods, states, and failure modes?
+
+When a boundary fails these checks, the boundary has not become semantic: either provider details still leak through the contract, or the contract exposes surface the caller never needed.
+
+How do we design boundaries that pass these checks?
+
+The answer is in the D of SOLID: Dependency Inversion.
+
+DIP is often explained as "depend on abstractions, not concrete implementations," or as a way to make implementations easier to swap. These explanations are not wrong, but they are shallow. The important question is not whether a concrete class has been replaced by an interface. The important question is:
+
+**Who wrote the interface?**
+
+There is an old saying in product thinking: **the customer is always right**.
+
+It does not mean customers are factually correct about everything. It means the value of a product must be defined from the side that pays the cost. A supplier should not put something on the shelf merely because they can produce it. The shelf should be organized around what the customer is willing to pay for.
+
+Software boundaries work the same way.
+
+In code, a provider-shaped abstraction is like a supplier-driven product. It takes whatever the provider can offer and wraps it in an interface. Because it does not know how it will be used, it is tempting to include everything "just in case."
+
+This predictably breaks both LSP and ISP. A `PaymentProvider` interface modeled after Stripe might expose a `charge()` method with Stripe-specific parameters and error codes. Swap in PayPal, and the caller learns the contract never truly abstracted anything: PayPal's pre-authorization model does not fit, and the error codes do not map. The caller must know which provider sits behind the interface. That is LSP failing. The same interface might expose thirty methods — charge, refund, dispute, subscription, invoice, webhook management — even though the client only needs charge and refund. The client still has to navigate the full surface. That is ISP failing.
+
+A client-shaped abstraction asks a different question: what does the client actually need to do its job? Which concepts is the client willing to pay a context cost for? Which failure modes must be visible to the client's reasoning? Which provider differences should remain behind the boundary? These questions will lead to names the client can reason with. Not `StripeChargeRequest`, but `PaymentIntent`. Not `StripeChargeResult`, but `PaymentOutcome`. Not a provider's raw error code set, but the modification semantics the client actually cares about: declined, retryable, needs 3DS.
+
+This is the real value of Dependency Inversion: it gives authorship of the contract back to the client. More than that, it gives naming authority back to the client. Once the contract is authored by the client, LSP and ISP become less like external rules and more like consequences.
+
+LSP holds because the contract describes the semantics the client needs. Any implementation that satisfies those semantics can be substituted without forcing the client to load subtype-specific behavior.
+
+ISP holds because the contract only contains capabilities the client is willing to pay a context cost for. Provider capabilities that the client does not need to understand never appear on the interface.
+
+OCP is also a consequence, not a starting point. When the contract's axis matches the real axis of modification, new providers, new implementation strategies, and new internal changes can happen behind the boundary without forcing existing clients to rewrite their reasoning. "Open for extension, closed for modification" is not achieved by adding an abstraction in advance. It emerges when the boundary, DIP, LSP, and ISP are all aligned.
+
+## Boundaries Are Not Only Interfaces
+
+The discussion so far used SOLID, interfaces, and subtypes because they are familiar boundary carriers in software design. But boundary principles are not OOP principles.
+
+From CMP's perspective, anything that limits the scope of context acquisition can be a boundary. An event payload can be a boundary: consumers depend on the event semantics without needing to know which internal state transitions the publisher went through. An HTTP API is obviously a boundary: a public contract. A state machine can be a boundary: it compresses a workflow into finite states and legal transitions, so the modifier can focus on a single state and its outgoing transitions, rather than untangling how the pieces might interact across the entire system.
+
+Functional programming offers many boundary carriers as well. `Option` / `Maybe` puts absence into the type, so a modifier does not need to search the implementation for where null might appear. `Either` / `Result` turns failure paths into explicit contracts, so callers reason in terms of success and failure rather than tracing where exceptions might be thrown. Algebraic data types and pattern matching compress a set of possible states into a closed set of cases, making the required handling visible at the boundary.
+
+Other boundaries look even less like "code boundaries": SQL, Terraform, Kubernetes YAML, permission rules, validation rules, contract tests. They compress data access, infrastructure changes, deployment behavior, authorization decisions, input constraints, and cross-service agreements into languages or executable checks.
+
+Their common feature is not form. Their common feature is context control.
+
+## When Boundaries Backfire
+
+A boundary is a context transformation. That means it is not free.
+
+Every boundary taxes the future. It adds a name, a contract, a conceptual surface, and a coordination relationship that must be maintained. The question is not whether boundaries are good. The question is whether the tax buys a real reduction in required context.
+
+Boundaries commonly fail in five ways.
+
+The first failure mode is that the assumed modification stream never arrives.
+
+Many abstractions are built around a future story: we may switch payment providers, support multiple storage backends, add more execution engines. So the system grows adapters, interfaces, configuration layers, and names in advance. But if those changes never happen, the boundary remains pure cost. Every modifier must understand the abstraction, then discover there is only one implementation behind it. The boundary did not reduce Depth. It routed everyone through a detour.
+
+The second failure mode is that change arrives along a different axis.
+
+Suppose a payment system is designed around provider replacement. But the real changes are BNPL, revenue splitting, subscriptions, pre-authorization, regional compliance, or fraud workflows. The variation was not provider replacement. The variation was payment semantics. The boundary has the wrong shape. New modifications must bypass it, pierce it, or dismantle it. This is wrong-shape depth: the problem is not too little abstraction, but abstraction compressed along the wrong axis.
+
+The third failure mode is context leakage.
+
+A payment interface that still requires callers to understand Stripe error codes, PayPal state machines, or bank-channel timeout behavior has not formed a semantic boundary. It has renamed provider details without containing them. The caller must understand `PaymentOutcome` and the provider-specific behavior hidden beneath it. The implementer must satisfy the contract and still accommodate caller-specific assumptions. Neither side's context has been cut cleanly. The boundary becomes carrying depth.
+
+The fourth failure mode is misleading naming.
+
+A good name is a context package, but the package must match the contents. Calling an authoritative data source a `Cache`, a non-rollbackable flow a `Transaction`, or a freely editable object an `Invoice` causes modifiers to reason from the wrong shared understanding. The most dangerous boundary is not one with no contract. It is one whose contract looks trustworthy while violating the community's expectations at a critical point.
+
+The fifth failure mode is hiding information that should have remained visible.
+
+Not every detail should be hidden. Some failure modes, performance constraints, consistency assumptions, security boundaries, and audit requirements belong to the caller's required context. If a boundary hides these facts in the name of cleanliness, local code may become simpler while its decisions become less reliable. The surface complexity goes down, but omission risk goes up.
+
+## Closing
+
+One sentence captures boundary principles:
+
+> A good boundary lets local code do the right thing without needing a big-picture view.
+
+It does not prescribe interfaces, modules, services, schemas, protocols, or types. It prescribes responsibility contracts to exclude implementation details, collaborator construction, provider-specific behavior, and caller-specific assumptions from the required context of future modifications.
+
+The next group of principles shifts from Depth to Breadth. DRY, cohesion, and SRP are less about stopping a modifier from digging into details, and more about connecting related modification points: how repeated judgments are merged, how scattered context becomes discoverable, and how a set of related changes gets an index.
