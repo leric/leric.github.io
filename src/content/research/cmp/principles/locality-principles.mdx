@@ -1,0 +1,194 @@
+---
+title: "Locality Principles: Designing Against Omission"
+description: "Locality is not about putting similar code together. It is about making modification closure reachable from every legitimate entry point — for humans and agents alike."
+book: cmp
+part: principles
+order: 2
+status: published
+version: "0.1"
+pubDate: May 19 2026
+updatedDate: May 19 2026
+canonicalUrl: "https://www.contextcost.dev/research/cmp/principles/locality-principles/"
+tags: ["CMP", "software-design", "locality", "breadth", "DRY", "SRP", "cohesion"]
+lang: en
+---
+
+## The agent did the obvious work
+
+An AI coding agent is asked to add Apple Pay as a new payment method.
+
+The task looks small. The codebase already has a `PaymentMethod` type. Checkout already renders a list of available methods. The payment processor already dispatches to different providers. The agent finds the obvious entry points, adds `"apple_pay"` to the union, updates the checkout form, wires the new method into the processor, and adds a happy-path test. The test suite passes. The patch looks clean, local, and reasonable.
+
+The agent even does what a careful agent should do. Before finishing, it asks a reviewer whether anything else needs to handle Apple Pay.
+
+The reviewer thinks for a moment and remembers the admin order detail page. The agent adds a display label there too. Now the patch looks even more complete. It compiles. Tests are green. A human has looked at it. It seems ready to merge.
+
+But the change is still incomplete.
+
+A few days later, the omissions start showing up. Refunds for Apple Pay orders go through the wrong fallback path because the refund policy does not classify Apple Pay as a wallet payment. Settlement reports group it under `other` because the reporting map has no entry for the new method. Fraud scoring does not apply the wallet-payment risk rules. The i18n table has no display name. The test factory never generates Apple Pay, so some paths were never exercised. The analytics event schema still rejects the new value as unknown.
+
+None of these failures require another service, another repository, or a complicated organizational boundary. They can all happen inside a single codebase. Every missing place is related to `PaymentMethod`, but the relationship is not necessarily recorded by a single explicit structure. The artifacts share a design decision: the system supports a new payment method.
+
+Every local edit the agent made may have been correct. It knew how to update a union, adjust UI, add a test, and wire a processor. The failure was that starting from the natural entry point, `PaymentMethod`, the agent did not reliably acquire the complete modification closure.
+
+Asking a human did not solve the problem either. The reviewer was not a closure oracle. The reviewer could only add what came to mind: recently touched modules, obvious names, familiar ownership areas. The missing mappings, policies, factories, reports, and schemas were still hidden because the system had no path that exposed them.
+
+"I cannot think of anything else" is not proof that the closure is complete.
+
+This is becoming a characteristic failure mode of agentic coding. The agent has enough context to produce a locally correct patch, but not enough context to make the whole modification correct. As models become better, this failure becomes more important, not less. Code generation gets cheaper; missing the context that should have been changed with the code becomes more expensive.
+
+Locality principles are about this failure. They are not primarily about physical proximity, elegant class names, or whether everything sits in one file. They ask whether, when a real change begins from any valid entry point, the system lets a human or an agent find every artifact that must be considered together.
+
+## From breadth to locality
+
+In the previous article on breadth, we named the set of artifacts that must be considered together for a change: the **modification closure**. It may include codes, tests, UI, configuration, documentation, reports, deployment steps, or anything else that must change, be checked, or remain consistent for the task to be correct.
+
+Breadth is the cost of acquiring that set. It does not ask whether one file is hard to understand. It asks which artifacts must enter context together for this modification to be safe. When a required member of the closure never enters context, the change fails in a particular way: the code that was edited may be correct, but some necessary place was never visited.
+
+That failure mode is omission.
+
+Omission is dangerous because it often does not feel like failure while the work is happening. The agent edits what it can find. Tests pass. Review looks reasonable. Human developers experience the same thing. The modification can feel smooth because nothing in the visible path is especially complex. The real problem is that the system never exposed the other artifacts that belonged to the same closure.
+
+Experienced engineers recognize this as a design smell. While making a change, they notice several places moving together and realize that the codebase does not record why they belong together. The alarm is not "this code is already broken." The alarm is "the next modifier may enter from one of these places and never find the rest."
+
+Locality is the design property that answers that alarm.
+
+> **Locality is the design property that makes the complete modification closure reachable from the place where a legitimate change naturally begins.**
+
+The phrase "naturally begins" matters. A change might start from a failing test, a type definition, an API field, a UI option, a configuration key, an event payload, a business rule, or a user-reported bug. Good locality does not require every relevant artifact to sit beside that entry point. It requires explicit paths from the entry point to the rest of the closure.
+
+For humans, locality reduces the cognitive cost of change. It reduces the need to search the whole system or rely on memory. It helps a developer know what to inspect, what can be ignored, and when the closure is likely complete.
+
+For agents, locality is also a reliability property. A strong model can reason well over context it has acquired. It cannot reason over an artifact that never entered context. Without locality, the agent can confidently produce a patch that is locally coherent and globally incomplete.
+
+Agent reliability is therefore not only a property of the model. It is also a property of the codebase and the engineering system around it. Model capability determines how well the agent uses acquired context. Locality determines whether the agent can reliably acquire enough context in the first place.
+
+Breadth names the cost of acquiring the closure. Locality is how design makes that acquisition reliable.
+
+## Re-reading DRY, SRP, and cohesion
+
+Classic locality principles have survived because they point at real design pressures. DRY says not to duplicate knowledge. SRP says a module should have one reason to change. Cohesion says related things should stay together. These statements are useful, but their key terms are slippery. What counts as the same knowledge? What counts as one reason to change? What does related mean?
+
+Modification closure gives these intuitions a more concrete object.
+
+This matters because modification closure is not just another vague design noun. It is the set that the task itself constitutes in the modifier's working memory. When you implement a feature — say, adding Apple Pay — by the time the work is done you have added a value to the `PaymentMethod` union, edited the checkout form, registered a handler in the processor, extended the refund policy map, added an entry to the settlement report grouping, updated the analytics schema, added a display name to the i18n table, removed an obsolete fallback branch, and adjusted the test factory so it can generate the new method. Every one of these files was opened, read, modified, added to, or deleted from in the course of completing the task. By the end, all of them sit together in your working memory as a single working unit — not as separate recollections that arrived one at a time. For the person doing this task, they are one piece of knowledge, one reason to change, related to one another by virtue of belonging to the same modification. The set is not invented by abstract classification, nor recovered by remembering; it is constituted by the task itself. These are the artifacts that must be considered together for this modification to be correct.
+
+That makes modification closure more operational than "knowledge," "responsibility," or "relatedness." It asks: for this concrete change, what would be wrong if we forgot it?
+
+### DRY: one decision, one (or indexed) representation
+
+DRY is often reduced to "do not write similar code twice," but similarity and sameness of decision are different things. A `User` domain entity and a `UserRecord` persistence model may share fields yet encode different decisions (business invariants vs. storage layout); `PaymentMethod`, refund policy, display names, analytics values, and test factories look nothing alike yet all encode one decision: which payment methods this system supports.
+
+From a locality perspective, DRY is a rule about *duplicated representations of the same decision*: they should either collapse into one owned place or be reachable from one another. The real DRY failure is an unindexed decision with multiple representations.
+
+### SRP: a reason to change is a closure family
+
+SRP says "a module should have one reason to change," but reasons are hard to count. The typical SRP failure is conceptual: *responsibility* or *one thing* gets defined too broadly. A whole business process — "order processing," "user onboarding," "checkout" — sounds like one thing in conversation, but it bundles pricing, inventory, payment, fulfillment, notification, analytics, and more, each with its own modification closure and its own reason to change.
+
+Once these unrelated closures live on the same modification surface, every change leaks across them. A pricing tweak drags you through fulfillment code; a notification change forces you to reason about payment state; a fix to one closure ships unintended edits in another. The scope of a small change keeps inflating because closures that should have stayed separate are now entangled.
+
+Locality reframes the question: do the closures inside this module form a coherent family, or have unrelated closures been collapsed onto the same modification surface because they were misnamed as one responsibility?
+
+> **A module should not force unrelated modification closures to share the same modification surface.**
+
+### Cohesion: co-change reachability
+
+Cohesion is usually stated as "related things belong together," but *related* is too broad. Locality gives it a narrower meaning: a module is cohesive when its artifacts serve closures that are commonly acquired together and are easy to reach from one another. Cohesion is co-change reachability — less a separate rule than an outcome of good locality.
+
+DRY, SRP, and cohesion are three views of the same reachability judgment. The old principles were not wrong; locality turns their intuition into a question humans and agents can act on: what is the closure of this change, and is it reachable from where the change begins?
+
+## How locality is implemented
+
+Locality is not only a property of the code. The mechanisms that implement it fall into three layers, distinguished by how they enforce the closure:
+
+- **Code** — anything expressed as source, tests, or CI/CD artifacts. These provide feedback through execution: a missing closure member can fail a build, fail a type-check, fail a test, or fail a pipeline check.
+- **Architecture** — conventions about where things live and how parts of the system connect: directory layouts, module boundaries, dependency direction, service boundaries, API and event schemas, contracts. Conventions don't fail a build, but they sharply narrow the search space.
+- **Documentation** — purely textual hints: comments, READMEs, ADRs, runbooks, checklists. No enforcement, only reachability for whoever is reading.
+
+All three matter, as long as they turn what would otherwise live only in someone's memory into something the next modifier can follow.
+
+### Code-level indexes
+
+Code-level indexes encode closure relationships in artifacts that can be executed or tested, so a missing member produces feedback before the change ships. The strongest forms make the closure a compile-time obligation. A type like `Record<PaymentMethod, RefundPolicy>` says "a map that must have a `RefundPolicy` for every value of `PaymentMethod`" — if you add `apple_pay` to the union without giving it a policy, the code stops compiling. Exhaustive `switch` statements, generated code, and similar constructs work the same way: adding a new variant without updating its dependent mappings becomes a build error.
+
+Tests carry the same idea to runtime. A normal happy-path test only proves that the path the agent edited works. A *completeness test* asserts the closure itself — for every member of an enumerated set (every payment method, every order status, every supported locale), the required mapping, handler, or policy exists. For payment methods, useful locality tests might assert:
+
+- every payment method has a display name
+- every payment method has a refund policy
+- every payment method has an analytics value
+- every payment method has a risk category
+- the test factory can generate every supported method
+
+Each of these turns an omission into a visible failure long before it can become an incident in production.
+
+The same mechanisms extend past application code. Migrations, feature flag configurations, infrastructure definitions, dashboards, alert rules, runbooks, and release checklists all ship as files in the repository and participate in the same enforcement: a missing migration entry fails the build, an alert without an owner fails a lint, a rollout step that depends on an absent dashboard fails a check. Wherever the closure relationship is written down as something a tool can read, the tool can refuse an incomplete change.
+
+Design patterns also belong here. Their value is not elegance but the way they make a common closure traversable:
+
+- **Visitor and exhaustive matching** serve variant closures. Adding a new AST node, payment state, or order status may affect parsing, evaluation, serialization, rendering, validation, snapshot generation, and autocomplete. Exhaustive matching turns the closure into a list of required handlers.
+- **Registry and plugin registry** serve membership closures. Adding a payment method, export format, notification channel, or integration provider should not require guessing every `if`. Membership is declared in one artifact, with one set of required fields.
+- **Strategy** serves policy-family closures. Adding a refund policy, pricing rule, or risk scoring method should reveal the interface, existing implementations, shared tests, and registration point — Strategy makes a family of policies enumerable.
+
+Patterns, completeness tests, and CI-as-code help when they turn "where else should I look?" into a path the tooling can follow. When they add layers without improving closure reachability, they are ceremony.
+
+### Architecture-level indexes
+
+Architecture-level indexes are conventions about where things live and how parts of the system connect: directory layouts, module boundaries, dependency direction, service boundaries, API schemas, event schemas, and contracts. They cannot fail a build on their own, but they sharply narrow where a modifier needs to look. If payment capabilities always live under `payments/capabilities`, analytics values are generated from one schema, and external events declare producer, consumer, and compatibility rules under `events/contracts`, a modifier does not need to search the entire codebase.
+
+Across system boundaries, locality and boundaries become two views of the same property. A working boundary hides context: a modifier on one side does not need to acquire what lives on the other side, only the contract between them. When the boundary fails — an undocumented consumer, a missing compatibility rule, a contract that has drifted from reality — the hidden context rejoins the closure, except the modifier has no path to reach it from where the change begins. **A boundary failure is therefore also a locality failure**: the closure now includes downstream consumers, versions, and behaviors that are invisible to the side making the change.
+
+### Documentation indexes
+
+Documentation indexes carry no enforcement — they are purely textual hints meant to be read. Comments, READMEs, ADRs, AGENTS.md, skills, runbooks, release checklists, and deprecation policies, as long as they live where humans and agents can find them.
+
+The lightest index may be a comment:
+
+```tsx
+// When adding a PaymentMethod, also update:
+// - refundPolicyByPaymentMethod
+// - settlementReportGroups
+// - analytics allowed values
+// - i18n display names
+// - paymentMethodFactory test coverage
+type PaymentMethod = "card" | "paypal" | "bank_transfer"
+```
+
+This comment does not enforce anything. But it changes reachability. A future human or agent entering through `PaymentMethod` no longer sees only a union; they see a map of the closure they may need to acquire. For an agent reading the file, the comment functions as an index it can follow next.
+
+Because of this, comments and documents in an agentic codebase deserve the same care as code. Plain words are no longer commentary alongside the code — agents read them as part of the same input and act on them the same way. Documentation is no longer a weaker artifact than code, only a different kind of one.
+
+## Closure retrospectives are the only chance
+
+Locality problems are nearly invisible by construction. A closure that was not reachable from the entry point leaves no trace at the place the change began — the diff records what was edited, not what should have been edited together, nor how the missing pieces were eventually found.
+
+But the end of a development task is a point at which the modification closure exists as a directly observable object. To do the work, the agent had to acquire it. By the time it finishes, its context contains an unusually complete record: which files it read, which it changed, which context turned out useful, which was noise, which necessary artifact was discovered late, which path depended on search, guessing, or human prompting. The diff discards almost all of this. For a human, that knowledge fades within hours. For an agent, it disappears the moment the context window resets. If the closure is not captured here, it will not be observable anywhere else.
+
+This makes the closure retrospective not a useful add-on but the workflow's main locality mechanism. Code-level indexes, architecture, and documentation can only encode closures someone has already noticed; the retrospective is what surfaces the closures that no existing index has yet caught. Without it, locality problems can still be recovered later — through an incident, a careful re-read, or a future modifier entering from a different path — but reconstructing the closure that way takes far more effort and rarely reaches the same confidence as capturing it while it is still intact.
+
+An agentic workflow should therefore end with a closure retrospective. The agent should ask:
+
+- What was the goal of this task?
+- What context is loaded for this task?
+- Which changed artifacts served the same feature or design decision?
+- Should those artifacts be co-located?
+- If not, what index connects them?
+- Could the next human or agent find the same closure from any reasonable entry point?
+- What index would make the next change safer?
+
+This is not a normal task summary. A normal summary says what was done. A closure retrospective says what context had to be acquired and whether the system recorded the relationships correctly.
+
+The output should be design feedback. If several files always move together, maybe they should be co-located. If they cannot be co-located, maybe they need a comment, registry, test, contract, or runbook. When the agent is adding `settlementReportGroups` for Apple Pay is the cheapest moment to drop a line in the `PaymentMethod` registry noting that the report system uses it.
+
+A practical pattern for this feedback loop is [post-change design reflection](/blog/post-change-design-reflection/): turning the context an agent just paid during a task into focused, actionable locality and design signals before that context disappears.
+
+## Locality as reliability
+
+Locality is ultimately about reliability.
+
+It prevents a human or an agent from confidently missing what had to change together. As model capabilities improve, more failures will move from "the agent could not write the code" to "the agent did not do it right."
+
+Agent reliability is therefore not only a model property. It is also a property of the codebase and engineering system. A system with poor locality constantly produces closure-incomplete context: enough to generate a plausible local patch, not enough to guarantee a correct change. A system with good locality exposes the paths that make sufficient context reachable, confidently.
+
+This reframes DRY, SRP, cohesion, design patterns, contracts, tests, and comments under one goal: make the modification closure reachable from the natural entry point of change.
+
+Locality is reliability — the design property that decides whether the next change finds everything it must move with it, or only what it happens to see.
