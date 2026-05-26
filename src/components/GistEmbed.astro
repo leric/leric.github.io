@@ -1,0 +1,193 @@
+---
+interface Props {
+	gistId: string;
+	user?: string;
+	/** Gist filename, e.g. skill.md — required for raw mode when the gist has multiple files */
+	file?: string;
+	/** `embed`: GitHub-rendered gist (syntax highlight). `raw`: plain markdown source from gist raw URL */
+	display?: 'embed' | 'raw';
+	/** CSS length, e.g. 480px, 70vh */
+	minHeight?: string;
+	height?: string;
+	maxHeight?: string;
+	/** When true (embed only), resize iframe to gist content height after load */
+	autoHeight?: boolean;
+}
+
+const {
+	gistId,
+	user = 'leric',
+	file,
+	display = 'embed',
+	minHeight = display === 'raw' ? undefined : '480px',
+	height,
+	maxHeight = display === 'raw' ? '70vh' : undefined,
+	autoHeight = true,
+} = Astro.props;
+
+const gistUrl = `https://gist.github.com/${user}/${gistId}`;
+const rawUrl = file
+	? `https://gist.githubusercontent.com/${user}/${gistId}/raw/${file}`
+	: `https://gist.githubusercontent.com/${user}/${gistId}/raw`;
+
+let rawMarkdown: string | null = null;
+let fetchError: string | null = null;
+
+if (display === 'raw') {
+	try {
+		const res = await fetch(rawUrl);
+		if (res.ok) {
+			rawMarkdown = await res.text();
+		} else {
+			fetchError = `HTTP ${res.status}`;
+		}
+	} catch (e) {
+		fetchError = e instanceof Error ? e.message : 'fetch failed';
+	}
+}
+
+const scriptSrc = file ? `${gistUrl}.js?file=${file}` : `${gistUrl}.js`;
+const srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><base target="_blank" href="${gistUrl}"></head><body style="margin:0;padding:0"><script src="${scriptSrc}"><\/script></body></html>`;
+
+const sizeStyle = [
+	minHeight && `min-height:${minHeight}`,
+	height && `height:${height}`,
+	maxHeight && `max-height:${maxHeight}`,
+]
+	.filter(Boolean)
+	.join(';');
+---
+
+<figure
+	class:list={['gist-embed', display === 'raw' && 'gist-embed--raw']}
+	aria-label={display === 'raw' ? 'Gist raw markdown' : 'Embedded GitHub Gist'}
+	style={sizeStyle || undefined}
+	data-auto-height={display === 'embed' && autoHeight ? 'true' : undefined}
+>
+	{display === 'raw' ? (
+		rawMarkdown ? (
+			<pre class="gist-raw"><code>{rawMarkdown}</code></pre>
+		) : (
+			<p class="gist-embed-error">
+				Could not load raw markdown{fetchError ? ` (${fetchError})` : ''}.
+			</p>
+		)
+	) : (
+		<iframe
+			class="gist-embed-frame"
+			title="GitHub Gist"
+			srcdoc={srcdoc}
+			loading="lazy"
+			referrerpolicy="no-referrer-when-downgrade"
+			sandbox="allow-scripts allow-same-origin allow-popups"
+			style={height ? `height:${height}` : undefined}
+		/>
+	)}
+	<p class="gist-embed-fallback">
+		<a href={gistUrl} target="_blank" rel="noopener noreferrer">
+			{display === 'raw' ? 'Edit on GitHub Gist' : 'View skill on GitHub Gist'}
+		</a>
+		{rawUrl && display === 'raw' && (
+			<>
+				{' · '}
+				<a href={rawUrl} target="_blank" rel="noopener noreferrer">Raw file</a>
+			</>
+		)}
+	</p>
+</figure>
+
+{display === 'embed' && autoHeight && (
+	<script is:inline>
+		(function () {
+			function resizeGistIframe(iframe) {
+				try {
+					const doc = iframe.contentDocument;
+					if (!doc) return;
+					const figure = iframe.closest('.gist-embed');
+					const max = figure?.style.maxHeight;
+					const height = Math.max(
+						doc.documentElement.scrollHeight,
+						doc.body?.scrollHeight ?? 0,
+						400,
+					);
+					iframe.style.height = height + 'px';
+					if (max) iframe.style.maxHeight = max;
+				} catch {
+					/* not ready */
+				}
+			}
+
+			document
+				.querySelectorAll('.gist-embed[data-auto-height="true"] .gist-embed-frame')
+				.forEach((iframe) => {
+					iframe.addEventListener('load', () => {
+						resizeGistIframe(iframe);
+						setTimeout(() => resizeGistIframe(iframe), 400);
+						setTimeout(() => resizeGistIframe(iframe), 1200);
+					});
+				});
+		})();
+	</script>
+)}
+
+<style>
+	.gist-embed {
+		margin: 24px 0;
+		max-width: var(--reading-width);
+		display: flex;
+		flex-direction: column;
+	}
+
+	.gist-embed-frame {
+		display: block;
+		width: 100%;
+		flex: 1 1 auto;
+		min-height: inherit;
+		border: 1px solid var(--border-light, #e5e7eb);
+		border-radius: 8px;
+		background: #fff;
+	}
+
+	.gist-embed--raw .gist-raw {
+		margin: 0;
+		flex: 1 1 auto;
+		min-height: inherit;
+		max-height: inherit;
+		overflow: auto;
+		padding: 14px 16px;
+		border: 1px solid var(--border-light, #e5e7eb);
+		border-radius: 8px;
+		background: var(--bg-subtle, #f8f9fa);
+		font-size: 13px;
+		line-height: 1.55;
+		white-space: pre-wrap;
+		word-break: break-word;
+		tab-size: 2;
+	}
+
+	.gist-embed--raw .gist-raw code {
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+		color: inherit;
+		background: none;
+	}
+
+	.gist-embed-error {
+		margin: 0;
+		padding: 12px 14px;
+		border: 1px solid var(--border-light, #e5e7eb);
+		border-radius: 8px;
+		background: var(--bg-subtle, #f8f9fa);
+		color: var(--text-muted, #6b7280);
+	}
+
+	.gist-embed-fallback {
+		margin: 10px 0 0;
+		flex: 0 0 auto;
+		font-size: 14px;
+		color: var(--text-muted, #6b7280);
+	}
+
+	.gist-embed-fallback a {
+		color: var(--accent);
+	}
+</style>

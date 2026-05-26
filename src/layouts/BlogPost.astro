@@ -102,46 +102,6 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		max-width: var(--reading-width);
 	}
 
-	.essay-content :global(.blog-collapsible) {
-		margin: 24px 0;
-		border: 1px solid var(--border-light);
-		border-radius: 8px;
-		background: var(--bg-subtle, #f8f9fa);
-		max-width: var(--reading-width);
-	}
-
-	.essay-content :global(.blog-collapsible summary) {
-		cursor: pointer;
-		font-weight: 600;
-		font-size: 16px;
-		padding: 12px 14px;
-		list-style: none;
-	}
-
-	.essay-content :global(.blog-collapsible summary::-webkit-details-marker) {
-		display: none;
-	}
-
-	.essay-content :global(.blog-collapsible summary::before) {
-		content: '▸ ';
-		color: var(--accent);
-	}
-
-	.essay-content :global(.blog-collapsible[open] summary::before) {
-		display: inline-block;
-		transform: rotate(90deg);
-	}
-
-	.essay-content :global(.blog-collapsible pre) {
-		margin: 0;
-		border-radius: 0 0 8px 8px;
-		border-top: 1px solid var(--border-light);
-		max-height: 70vh;
-		overflow: auto;
-		font-size: 12px;
-		line-height: 1.5;
-	}
-
 	@media (max-width: 768px) {
 		.essay {
 			padding-top: 40px;
