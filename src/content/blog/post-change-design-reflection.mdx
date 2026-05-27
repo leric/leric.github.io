@@ -29,6 +29,19 @@ This does not mean the skill redesigns the macro architecture. Macro architectur
 
 Good architecture is not only designed at the beginning. It is either respected or corroded during every modification.
 
+## The skill
+
+Here is the full skill text.
+
+<GistEmbed
+	gistId="5157c03de6f327631829e34cb24e2731"
+	user="leric"
+	file="skill.md"
+	display="raw"
+	maxHeight="70vh"
+/>
+
+
 ## The CMP lens
 
 The Context Minimization Principle says:
@@ -233,17 +246,15 @@ This turns agent work into design telemetry.
 
 Not a metric. Not a score. Not a replacement for engineering judgment. But a practical feedback loop: each real modification can reveal where the system made required context harder to acquire than it needed to be, and whether the change preserved the architecture’s intent.
 
-## The skill
+## A small trial
 
-Here is the full skill text.
+I tried this skill after a concrete task: replacing demo authentication with real authentication.
 
-<GistEmbed
-	gistId="5157c03de6f327631829e34cb24e2731"
-	user="leric"
-	file="skill.md"
-	display="raw"
-	maxHeight="70vh"
-/>
+The reflection did not produce a grand architecture proposal. It found smaller issues that were easier to miss. The auth entry point was not expressed as a single visible convention. Legacy and new routes handled authentication through different paths. The test setup hid the real login/session contract, so passing tests did not clearly explain how authenticated and anonymous clients should be created.
+
+The suggested improvement was correspondingly small: introduce explicit `login_client()` and `anonymous_client()` test helpers, and add a short note near the authorization module to make the expected auth entry point visible.
+
+That is the scale this skill is meant to operate at. It catches the missing connection, hidden convention, or weak contract that would normally be too small for an architecture review, but large enough to become an omission risk in the next similar change.
 
 ## Closing the loop
 

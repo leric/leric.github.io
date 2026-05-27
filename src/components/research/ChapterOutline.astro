@@ -11,9 +11,11 @@
 		const root = document.querySelector('.research-chapter-prose');
 		const nav = document.getElementById('chapter-outline-nav');
 		if (!root || !nav) return;
-		const headings = root.querySelectorAll('h2, h3');
+
+		const headings = Array.from(root.querySelectorAll('h2, h3')) as HTMLElement[];
 		nav.innerHTML = '';
 		const frag = document.createDocumentFragment();
+
 		headings.forEach((el) => {
 			if (!(el instanceof HTMLElement)) return;
 			let id = el.id;
@@ -21,14 +23,81 @@
 				id = el.textContent?.trim().toLowerCase().replace(/\s+/g, '-').slice(0, 64) ?? 'section';
 				el.id = id;
 			}
+			const fullText = el.textContent ?? '';
+			// For h2, strip subtitle after ': ' or ' — ' to keep labels compact
+			let displayText = fullText;
+			if (el.tagName === 'H2') {
+				const colon = fullText.indexOf(': ');
+				const dash = fullText.indexOf(' — ');
+				const cut = [colon, dash].filter((i) => i > 0).sort((a, b) => a - b)[0];
+				if (cut !== undefined) displayText = fullText.slice(0, cut);
+			}
 			const a = document.createElement('a');
 			a.href = `#${id}`;
-			a.textContent = el.textContent ?? '';
+			a.textContent = displayText;
+			if (displayText !== fullText) a.title = fullText;
 			a.className = el.tagName === 'H3' ? 'outline-link depth-3' : 'outline-link';
 			frag.appendChild(a);
 		});
 		nav.appendChild(frag);
+
+		// Scroll-aware active highlight via scroll event
+		if (headings.length === 0) return;
+
+		const sidebar = document.querySelector('.chapter-outline') as HTMLElement | null;
+		let currentActive: Element | null = null;
+		let ticking = false;
+
+		function setActive(link: Element | null) {
+			if (link === currentActive) return;
+			currentActive?.classList.remove('active');
+			link?.classList.add('active');
+			currentActive = link;
+			// Scroll the active link into view within the sidebar using getBoundingClientRect
+			if (link && sidebar) {
+				const linkRect = (link as HTMLElement).getBoundingClientRect();
+				const sidebarRect = sidebar.getBoundingClientRect();
+				const relTop = linkRect.top - sidebarRect.top;
+				const relBottom = relTop + linkRect.height;
+				if (relTop < 24) {
+					sidebar.scrollBy({ top: relTop - 24, behavior: 'smooth' });
+				} else if (relBottom > sidebar.clientHeight - 24) {
+					sidebar.scrollBy({ top: relBottom - sidebar.clientHeight + 24, behavior: 'smooth' });
+				}
+			}
+		}
+
+		function updateActive() {
+			// Find the last heading whose top is at or above 30% of the viewport
+			const threshold = window.innerHeight * 0.3;
+			let active: HTMLElement | null = null;
+			for (const h of headings) {
+				if (h.getBoundingClientRect().top <= threshold) {
+					active = h;
+				} else {
+					break;
+				}
+			}
+			// Default to first heading if none qualifies yet
+			if (!active && headings.length > 0) active = headings[0];
+			const link = active ? nav.querySelector<Element>(`a[href="#${active.id}"]`) : null;
+			setActive(link);
+		}
+
+		function onScroll() {
+			if (!ticking) {
+				requestAnimationFrame(() => {
+					updateActive();
+					ticking = false;
+				});
+				ticking = true;
+			}
+		}
+
+		window.addEventListener('scroll', onScroll, { passive: true });
+		updateActive();
 	}
+
 	buildOutline();
 	document.addEventListener('astro:page-load', buildOutline);
 </script>
@@ -39,37 +108,64 @@
 		top: 88px;
 		font-size: 13px;
 		max-height: calc(100vh - 120px);
-		overflow: auto;
+		overflow-y: auto;
+		scrollbar-width: thin;
 	}
+
 	.outline-heading {
 		font-size: 11px;
 		font-weight: 800;
 		letter-spacing: 0.12em;
 		text-transform: uppercase;
 		color: var(--text-muted);
-		margin: 0 0 12px;
+		margin: 0 0 10px;
 	}
+
 	.outline-nav {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: 2px;
 	}
+
 	.outline-link {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
 		color: var(--secondary);
 		text-decoration: none;
-		line-height: 1.35;
-		padding: 2px 0;
+		line-height: 1.4;
+		padding: 3px 8px 3px 10px;
 		border-left: 2px solid transparent;
-		padding-left: 10px;
 		margin-left: -2px;
+		border-radius: 0 4px 4px 0;
+		transition: color 0.12s, border-color 0.12s, background 0.12s;
 	}
+
 	.outline-link:hover {
+		color: var(--primary);
+		border-left-color: var(--border-light);
+	}
+
+	.outline-link.active {
+		color: var(--accent);
+		border-left-color: var(--accent);
+		background: color-mix(in srgb, var(--accent) 6%, transparent);
+	}
+
+	.outline-link.depth-3 {
+		padding-left: 20px;
+		font-size: 11.5px;
+		color: var(--text-muted);
+	}
+
+	.outline-link.depth-3:hover {
+		color: var(--secondary);
+	}
+
+	.outline-link.depth-3.active {
 		color: var(--accent);
 	}
-	.outline-link.depth-3 {
-		padding-left: 18px;
-		font-size: 12px;
-	}
+
 	@media (max-width: 1080px) {
 		.chapter-outline {
 			display: none;

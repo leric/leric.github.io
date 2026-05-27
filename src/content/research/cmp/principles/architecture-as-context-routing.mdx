@@ -1,0 +1,393 @@
+---
+title: "Architecture as Context Routing"
+description: "Architecture is a routing map for context acquisition. This chapter explains how layers, bounded contexts, framework conventions, and system boundaries make decision placement predictable."
+book: cmp
+part: principles
+order: 3
+status: published
+version: "0.1"
+pubDate: May 26 2026
+updatedDate: May 26 2026
+canonicalUrl: "https://www.contextcost.dev/research/cmp/principles/architecture-as-context-routing/"
+tags: ["CMP", "software-design", "architecture", "DDD", "Clean Architecture", "microservices"]
+lang: en
+---
+
+Software architecture is often described through its visible structures: layers, modules, services, components, dependency directions, interfaces, adapters, and boundaries. These descriptions are useful, but they easily make architecture look like a static arrangement of boxes.
+
+From the perspective of the CMP, architecture is not primarily about what the system looks like. It is about where a modifier should go when the system needs to change.
+
+When a developer or an AI coding agent starts a modification, the architectural question is not abstract. It is immediate:
+
+- Where should this decision live?
+- Which path should I follow to acquire the required context?
+- Which parts of the system should not need to be searched?
+- Which boundary can I trust enough to stop reading?
+- Which owner, module, layer, context, or extension point is responsible for this change?
+
+This is the practical value of architecture.
+
+Architecture is a context-routing system.
+
+It earns its cost when it makes decision placement predictable. It tells future modifiers how to acquire sufficient context without turning every modification into a full-codebase search.
+
+A good architecture does not eliminate context. It routes context. It tells us where to start, which paths are legitimate, where related decisions should be found, and where the search is allowed to stop.
+
+A bad architecture may still have all the visible forms of architecture: layers, folders, modules, interfaces, services, and diagrams. But if those structures no longer predict where decisions actually live, they no longer route context. The map remains visible, but it stops working.
+
+## Architecture Exists to Reduce Unbounded Search
+
+CMP starts from a simple claim: software design exists because software must be modified. Correct modification requires sufficient context. A design is better when the sufficient context required for realistic modifications is cheaper to acquire.
+
+At the local level, boundaries reduce traversal depth when their contracts let modifiers stop reading. Locality reduces breadth when related change surfaces are co-located or indexed. Architecture applies the same logic at system scale.
+
+Architecture reduces the cost of unbounded search.
+
+Without architecture, a modifier often has to ask open-ended questions:
+
+- Is this rule in the controller, the service, the model, the database trigger, or the frontend?
+- Is this validation duplicated in the API, the UI, the import job, and the reporting pipeline?
+- Is this concept shared across the whole company, or does it mean something different in each domain?
+- Is this behavior owned by the core system, a plugin, a workflow, or an integration?
+
+These are not merely comprehension problems. They are modification risks. If the modifier cannot reliably know where a decision belongs, they cannot know when their context acquisition is complete.
+
+Architecture answers these questions by imposing placement rules.
+
+A placement rule says: this kind of decision belongs here, not everywhere. Domain rules belong in the domain owner. Infrastructure details belong behind adapters. Cross-context communication belongs behind published contracts. Feature-specific behavior belongs inside the feature slice. Plugin-specific behavior belongs behind an extension point. Team-owned business capabilities belong inside the owning module or service.
+
+When placement rules hold, the modifier can route their search. They can start in a bounded region. They can ignore unrelated regions. They can stop at trustworthy boundaries. The system becomes cheaper to modify not because there is less code, but because the required context is easier to find.
+
+When placement rules do not hold, the modifier cannot trust the architecture. They first look where the architecture says the decision should be, then search everywhere else anyway. At that point, the architecture has become pure carrying depth: the system still pays the cost of its structure, but loses the search-reduction benefit.
+
+## Architecture Selection Is Modification-Pattern Matching
+
+Architectural styles are often taught as competing ideals. Layered Architecture, Clean Architecture, Hexagonal Architecture, DDD's Bounded Context and Context Map, Vertical Slice Architecture, Microservices, Modular Monoliths, Plugin Architecture, and Entity-Component-System each come with their own vocabulary and structure.
+
+CMP reframes them differently.
+
+Every architectural style embeds a prediction about future modifications.
+
+An architectural style says: future changes will usually have this shape, therefore context should be routed along this topology.
+
+When the prediction is right, the architecture reduces context cost. When the prediction is wrong, the architecture becomes indirection, ceremony, or fragmentation.
+
+This means architecture should not be selected by taste, seniority, fashion, or diagram elegance. It should be selected by matching routing topology to the dominant modification patterns of the system.
+
+The question is not: Which architecture is cleanest?
+
+The question is: What kinds of modifications must this system realistically support, and which architecture makes the required context cheapest to acquire for those modifications?
+
+For example:
+
+- A product team repeatedly adds small fields to admin screens: add a column, expose it in an API, validate it, store it, show it in a table, and update a test. The change always cuts vertically through the stack.
+- A pricing team frequently changes discount, eligibility, tax, or billing rules, while the database, web framework, and UI change for different reasons. Policy and mechanism evolve separately.
+- A marketplace uses the word `Product` differently in catalog, inventory, search, fulfillment, and accounting. The same term appears everywhere, but each area changes its meaning under different business pressure.
+- A growing organization discovers that most changes are delayed not by code complexity, but by finding which team owns the rule, which service owns the data, and which contract other teams are allowed to depend on.
+- A platform keeps adding payment providers, import formats, notification channels, AI tools, or editor extensions. Each new capability follows the same extension path, and the core should not be reopened every time.
+- A game or simulation keeps adding behaviors that cut across object types: movable things, damageable things, inventory holders, temporary status effects, AI-visible objects. The changes do not follow a clean inheritance tree.
+- A reporting or analytics feature repeatedly changes read shapes, filters, projections, and dashboards, while core transaction rules remain stable. Most work is representation change, not domain-policy change.
+- A compliance-heavy workflow fails if one validator, approval step, audit record, or notification is missed. The problem is not just making the change; it is reliably acquiring the whole closure.
+
+These situations are modification patterns. They describe the recurring shape of future work: where changes begin, which artifacts tend to change together, which decisions need stable owners, and which omissions would make the modification incorrect.
+
+With that in view, architectural styles become easier to compare. They are not universal solutions. They are routing topologies optimized for different modification streams.
+
+## Layered, Clean, and Hexagonal Architecture: Routing Policy Away from Mechanism
+
+Layered, Clean, and Hexagonal architectures make a strong prediction: policy and mechanism change under different pressures.
+
+Put more simply, policy is about what the system should do; mechanism is about how the system gets it done. Policy includes business rules, use cases, domain behavior, invariants, and application-specific intent. Mechanism includes the tools and delivery details that execute those decisions: databases, frameworks, user interfaces, transport protocols, queues, file systems, payment providers, and infrastructure APIs.
+
+The routing promise is clear:
+
+- policy changes should route inward;
+- mechanism changes should route outward;
+- domain behavior should not require loading framework, database, UI, or transport context;
+- infrastructure changes should not rewrite domain policy.
+
+This is why these architectures place ports, adapters, interfaces, repositories, controllers, gateways, and use cases around a policy core. The value is not the shape of the diagram. The value is that a modifier can ask: am I changing policy or mechanism?
+
+If the answer is policy, the search should move toward the domain or use-case layer. If the answer is mechanism, the search should move toward adapters and infrastructure. The routing topology works when this distinction is stable.
+
+For example, suppose a pricing rule changes. In a well-routed system, the modifier should not need to inspect HTTP controllers, ORM mapping details, framework annotations, database drivers, or frontend state management. Those may be involved in execution, but they should not own the pricing decision. The architecture lets the modifier stop before acquiring irrelevant mechanism context.
+
+But the same structure can be a bad trade in a simple CRUD system. If most modifications are field-level vertical slices — add a field to the form, validate it, save it, show it in a table — then strict policy/mechanism separation may force every ordinary change through multiple layers, DTOs, ports, mappers, repositories, and adapters. The architecture predicts that policy and mechanism will evolve separately, but the actual modification pattern constantly crosses them together. In that case, the architecture does not route context. It fragments the modification closure.
+
+Clean or Hexagonal Architecture is justified when policy complexity is high enough, and mechanism volatility is independent enough, that separating their acquisition paths reduces more context cost than the boundaries add.
+
+It is over-architecture when the ordinary modification stream is mostly simple vertical CRUD and the added boundaries do not let modifiers stop earlier.
+
+## DDD Bounded Context: Routing Semantic Context
+
+Domain-Driven Design is broader than architecture. It includes a full discipline of domain modeling, ubiquitous language, aggregates, entities, value objects, repositories, domain services, and more. In this article, the architectural part we care about is DDD's strategic design, especially Bounded Context and Context Map.
+
+That part of DDD makes a specific architectural prediction: semantic meaning does not stay globally uniform, and each domain needs room to evolve independently.
+
+In a large enough business, the same word may mean different things in different places. Order in sales, fulfillment, shipping, and accounting may carry different rules, lifecycle states, and invariants. More importantly, those meanings do not change at the same time or for the same reasons. Catalog may refine how products are classified, inventory may change how stock is reserved, billing may change how product charges are recognized, and recommendation may change how products are ranked. A single shared model would force all of these changes through one semantic surface.
+
+A bounded context routes semantic context.
+
+Its promise is not merely modularity. Its promise is that a modifier working inside one domain should not have to load the entire enterprise model. They should be able to rely on the language, model, invariants, and rules of the local context. When they cross into another context, they should do so through an explicit translation boundary: an API, event, published language, anti-corruption layer, or contract.
+
+The routing promise is:
+
+- semantic changes stay inside the owning context;
+- cross-context understanding is routed through explicit contracts;
+- no modifier needs to load a universal model for every local domain change;
+- no external caller should depend on the internal model of another context.
+
+This style is valuable only when the system is large enough for those semantic surfaces to need independent evolution. If the business is small, or if one team can still maintain a single shared model without constant negotiation, bounded contexts may add translation cost before they create real routing value.
+
+One wording trap matters here: DDD also uses the word *context*. In this section, a bounded context is a domain-specific semantic boundary. It is not the same thing as CMP's broader notion of context as the information required for modification. This also demonstrates a typical semantic problem in DDD: the word *context* has different meanings in the DDD bounded context and in the CMP bounded context.
+
+DDD's bounded-context architecture is justified when semantic modification closures are naturally local and would otherwise be polluted by a global model.
+
+It is over-architecture when the system does not have enough semantic fracture to justify the translation cost.
+
+## Vertical Slice Architecture: Routing by Feature-Level Change Surfaces
+
+Vertical Slice Architecture makes almost the opposite prediction from strict layered design.
+
+It predicts that most modifications arrive as feature-level or use-case-level slices. A change does not usually affect only the controller layer, or only the service layer, or only the persistence layer. It affects a complete path: request handling, validation, command or query logic, persistence interaction, response shape, and tests.
+
+The routing promise is:
+
+- a feature change should be found inside one feature slice;
+- use-case-specific behavior should not be scattered across horizontal layers;
+- the modifier should not need to jump through the whole technical stack to understand one product behavior;
+- the closure of a feature-level modification should be local to the slice.
+
+This style is effective in systems where the product is naturally a collection of independent workflows, screens, commands, or user operations. Many internal business applications, SaaS back-office systems, admin panels, workflow tools, approval systems, content-management systems, and reporting portals have this shape. Most changes are not deep changes to a shared domain model. Each change has a recognizable product entry point, a limited rule surface, and a modification closure that mostly belongs to that workflow. The architecture routes context to that slice rather than forcing the modifier through global controller, service, repository, and persistence layers.
+
+Vertical slices become a poor fit when the apparent feature is only the surface of a deeper shared policy. A coupon change, for example, may involve pricing, eligibility, tax, billing, and promotion rules. In such a system, the real owner is not the coupon screen or request handler, but the pricing or promotion policy. Putting that logic into isolated slices would duplicate the decision and make future rule changes harder to acquire.
+
+The advantage is locality. A slice can contain the request model, handler, validation, query, command, tests, and small feature-specific decisions together. For many application systems, this matches the real shape of change better than horizontal layering.
+
+Vertical Slice Architecture is justified when feature-level modification closures dominate and shared domain policy remains small, explicit, or separately owned. It becomes under-architecture when shared domain decisions are copied across slices and no reliable index connects them.
+
+This contrast is important. Clean Architecture and Vertical Slice Architecture are not simply rivals. They optimize for different modification patterns. Clean Architecture routes by policy versus mechanism. Vertical Slice Architecture routes by use case. The better choice depends on which context acquisition path the system will need more often.
+
+## Modular Monolith and Microservices: Routing Ownership Context
+
+This section is close to DDD's bounded-context architecture, but it operates one level lower.
+
+A bounded context is a semantic boundary: it says where a model, language, rule set, and business meaning are allowed to evolve independently. A module or service boundary is an implementation and ownership boundary: it says which code, data, runtime, contract, and team own that area of change.
+
+In a well-aligned system, the implementation boundary often mirrors the semantic boundary. A domain that owns its own language and rules becomes a module in a Modular Monolith, or a service in a Microservice architecture. This is why the two ideas often feel similar. One describes the boundary in domain meaning; the other enforces the boundary in software and organization.
+
+But the mapping is not automatically one-to-one. A small system may contain several semantic contexts inside one deployable monolith. A large system may split one broad domain into several services for scaling, team ownership, operational isolation, or release independence. The important question is not whether each bounded context becomes exactly one service. The question is whether the implementation boundaries preserve the modification routes implied by the domain boundaries.
+
+Modular Monoliths and Microservices both route context through ownership boundaries. Their difference is boundary strength.
+
+A Modular Monolith keeps deployment unified but enforces internal module boundaries. A Microservice architecture strengthens those boundaries through separate deployment, runtime isolation, network contracts, databases, and often team ownership.
+
+The routing promise is:
+
+- a business capability has an owner;
+- most modifications should complete inside the owning module or service;
+- cross-boundary changes should go through contracts, APIs, events, or explicit coordination;
+- modifiers should not need to load unrelated business capabilities to change a local one.
+
+This style becomes valuable when ownership cost dominates modification cost.
+
+In a small system built by one team, a single codebase with clear modules may be enough. The cost of crossing process boundaries, network calls, deployment pipelines, distributed tracing, eventual consistency, and contract versioning may exceed the benefit.
+
+In a larger organization, however, context cost often becomes socio-technical. The modifier does not merely need to read code. They need to know who owns a rule, which team can approve a change, which service may publish an event, which contract is stable, which database is private, and which assumptions are allowed across boundaries.
+
+Microservices are justified when hard technical boundaries reduce organizational context cost more than they add distributed-systems cost. They force modification paths to respect team and capability ownership.
+
+But microservices are a bad trade when the actual modification pattern cuts across many services for ordinary changes. Then every feature becomes distributed modification. The modifier must acquire context across network boundaries, data ownership boundaries, deployment boundaries, monitoring systems, and team responsibilities. The architecture multiplies context cost instead of reducing it.
+
+A Modular Monolith is often the intermediate routing topology. It can make ownership visible without forcing every boundary to become a distributed-systems boundary.
+
+The key CMP judgment is not monolith versus microservices. It is whether implementation boundaries preserve the system's real modification routes. When they do, module and service boundaries reduce context cost. When they do not, they turn local changes into distributed search.
+
+## Plugin Architecture: Routing Repeated Variation Through Extension Points
+
+Plugin Architecture makes a very specific prediction: future modifications will repeatedly arrive along stable extension axes.
+
+Examples include editor plugins, payment providers, import/export formats, authentication strategies, notification channels, workflow actions, AI tools, language integrations, and custom business rules.
+
+The routing promise is:
+
+- new capability should be added through an extension point;
+- the core should not need to be modified for every new variant;
+- plugin metadata, manifests, registries, or contracts should index all participants;
+- the modifier should know exactly where a new extension belongs.
+
+This is a strong context-routing pattern. The architecture turns repeated breadth into indexed extension.
+
+Without a plugin architecture, every new provider or capability may require editing core dispatch logic, configuration, UI options, permission checks, documentation, tests, and deployment logic. The modification closure is broad.
+
+With a plugin architecture, the modifier follows a predictable route: implement the contract, declare metadata, register the plugin, add tests, and let the core discover it through the extension mechanism. The closure may still include several artifacts, but the architecture makes them reachable.
+
+The failure mode is wrong-shape extensibility.
+
+If the future variation axis is not yet known, designing a plugin system too early can freeze the wrong boundary. The extension point exposes the wrong contract, requires the wrong lifecycle, hides the wrong assumptions, or supports the wrong type of variation. Future modifiers then fight the plugin architecture instead of using it.
+
+Plugin Architecture is justified when the variation axis is stable and repeated.
+
+## Entity-Component-System: Routing State and Behavior Through Composition
+
+Entity-Component-System, or ECS, is often discussed in game development and simulation systems, sometimes in relation to performance. But from a CMP perspective, its architectural value is not only performance. It is a routing topology for highly compositional change.
+
+Traditional object-oriented hierarchies predict that future modification follows taxonomy. Behavior is found by walking class hierarchies: Entity, Character, Player, Enemy, Vehicle, Projectile, and so on.
+
+ECS makes a different prediction: future behavior changes will cut across taxonomies.
+
+A game feature may affect all movable things, all damageable things, all entities with health, all entities affected by gravity, all objects with inventory, all temporary status effects, or all objects visible to AI perception. These modification patterns do not map cleanly to inheritance trees.
+
+ECS routes state to components and behavior to systems.
+
+The routing promise is:
+
+- data lives in components;
+- behavior lives in systems;
+- feature modifications follow component-system composition rather than class hierarchy traversal;
+- adding a capability means composing entities with the relevant components and systems.
+
+This reduces context cost when the domain is combinatorial. The modifier does not ask, "Which subclass owns this behavior?" They ask, "Which component represents this state, and which system processes it?"
+
+The architecture is justified when future changes are hard to predict along a single taxonomy but repeatedly combine orthogonal capabilities.
+
+It is a bad fit when the domain is small, stable, and naturally hierarchical. In that case, ECS can add conceptual surface without enough routing benefit.
+
+Again, the decision is modification-pattern matching. ECS works when composition is the real shape of change.
+
+## When Architecture Works
+
+The architectural styles above differ in structure, but they can be judged by the same question: does this architecture route context along the system's real modification patterns?
+
+If most changes separate policy from mechanism, Clean or Hexagonal Architecture can route domain decisions away from framework and infrastructure details. If the hard problem is semantic independence across business domains, DDD's bounded-context architecture can route each domain's language and model into its own semantic boundary. If most work arrives as independent workflows or operational screens, Vertical Slice Architecture can route context by use case. If modification cost is dominated by ownership, team coordination, or business capability boundaries, Modular Monoliths or Microservices can route context through modules or services. If the system repeatedly grows along stable extension axes, Plugin Architecture can route new capabilities through extension points. If behavior is highly compositional and cuts across object taxonomies, ECS can route state and behavior through components and systems.
+
+These choices are not mutually exclusive at every scale. A system may use bounded contexts at the domain level, a modular monolith as its implementation boundary, vertical slices inside a module, and plugin points for repeated extension. The important judgment is whether each boundary answers a real modification pattern, rather than merely adding another architectural shape.
+
+A working architecture therefore makes context bounded, discoverable, and trustworthy.
+
+Bounded means context paths have borders. The modifier knows where to start and where to stop. A pricing rule belongs in the pricing domain. A payment provider belongs behind the payment integration port. A plugin belongs behind an extension point. A shipping concept belongs inside the shipping domain.
+
+Discoverable means related change surfaces are reachable. The modifier can find the rest of the closure through names, types, tests, registries, schemas, contracts, ownership records, dependency rules, or architecture tests. The relationship among artifacts is recorded in the system, not merely remembered by a senior engineer.
+
+Trustworthy means the paths can be relied upon. This is the most important property. If modifiers do not trust the architecture, they will route around it. They will search everywhere, read through every layer, distrust every boundary, and duplicate decisions for local convenience.
+
+Architecture truly works only when it allows modifiers to stop searching.
+
+This stopping power is the real payoff. A boundary that cannot stop traversal is only indirection. A layer that does not predict decision placement is only a folder. A service boundary that does not align with ownership is only distributed overhead. A plugin contract that does not match the real variation axis is only ceremony.
+
+The test of architecture is not whether the diagram looks clean. The test is whether future modifiers can acquire sufficient context through the routes the architecture claims to provide.
+
+## Architectural Corrosion as Routing Failure
+
+Architectural decay is often described as impurity: a domain rule in a controller, an infrastructure concern in the domain, a direct dependency across a boundary, a shared helper that should not be shared, a shortcut around a port, a weakened architecture test.
+
+CMP gives a sharper explanation.
+
+Architectural corrosion is routing failure.
+
+The immediate shortcut often looks harmless. The current diff is smaller. The task finishes faster. No visible disaster occurs. But the placement rule has been weakened.
+
+A domain rule placed in a controller teaches future modifiers that rules might live in controllers. A persistence assumption inside a domain model teaches them that mechanism context may leak inward. A cross-context shortcut through a shared table teaches them that semantic boundaries cannot be trusted. A query projection that duplicates a command invariant teaches them that read models may secretly own correctness.
+
+Each violation does two things.
+
+First, it creates local hidden breadth. The decision now lives in a place where future modifiers may not look.
+
+Second, it weakens the global routing topology. Future modifiers can no longer trust that similar decisions live where the architecture says they should live.
+
+This is why small architectural violations have disproportionate cost. The damage is not only the local line of code. The damage is loss of routing trust.
+
+The effect is similar to trust-based businesses. A bank, an insurer, an exchange, or a certification authority does not survive merely by completing individual transactions. Its value depends on the belief that its promises can be relied upon. A small breach of trust is not evaluated only by the size of that breach; it raises the larger question of whether the whole institution can still be trusted. Architecture has the same property. Once a modifier finds one domain rule hidden in a controller, the question is no longer just about that rule. It becomes: where else might the architecture be lying?
+
+Once trust is lost, modifiers pay twice. They still pay the carrying depth of the architecture: layers, services, interfaces, contracts, adapters, tests, deployment units. But they no longer get the benefit of bounded search. They must search both inside and outside the official route.
+
+## Every Modification Traverses the Architecture
+
+Architecture is not used only during design reviews. It is used during every modification.
+
+A modifier begins from an entry point: a failing test, a bug report, a feature request, an API endpoint, a domain rule, a schema field, a UI behavior, a log message, or an event payload.
+
+Then they acquire context. They follow names, types, tests, call chains, dependency edges, schemas, ownership notes, documentation, registries, and runtime behavior. They encounter boundaries and decide whether to trust them. They cross some boundaries and stop at others. They identify the owner of the decision. Finally, they place the patch somewhere.
+
+That path is not incidental. It is an empirical sample of the architecture's routing behavior.
+
+A modification reveals whether the architecture actually works:
+
+- Did the natural entry point lead to the right owner?
+- Did the boundary contract let the modifier stop?
+- Did the required closure become discoverable?
+- Did the modifier need global search?
+- Did the final patch land where future modifiers will expect it?
+- Did the change strengthen or weaken the placement rule?
+
+Every modification either reinforces the architecture or corrupts it.
+
+This is especially visible with AI coding agents. Agents do not have the same tacit team memory as senior engineers. They rely more heavily on explicit artifacts: file names, tests, types, documentation, dependency structure, and tool feedback. When architecture routes context clearly, agents can follow it. When routing is implicit or corrupted, agents fall back to broad search and local patching.
+
+AI does not remove the need for architecture. It makes the quality of architecture more observable.
+
+## Post-Change Reflection as Routing Maintenance
+
+The best time to evaluate architecture is immediately after a modification.
+
+At that point, the modifier has fresh evidence. They know which files had to be opened, which boundaries failed to stop traversal, which concepts were hard to locate, which relationships were discoverable, which decisions had unclear ownership, and where the final patch landed.
+
+This makes post-change reflection a practical architecture maintenance tool.
+
+The reflection does not need to redesign the system. It only needs to ask whether the modification respected the architecture's routing promises.
+
+A locality check asks whether the modification closure remained reachable through the architecture's intended routes:
+
+- From any meaningful entry point in the change surface, could the rest of the closure be reached by following the system's normal routing paths: module ownership, domain boundary, feature slice, registry, schema, test structure, or dependency rule?
+- Did the modifier have to abandon the architecture and rely on global search, memory, or guesswork?
+- Did the change reveal a missing architecture index, such as an ownership note, contract test, registry entry, schema link, architectural rule, or documentation path?
+
+A boundary check asks whether the touched boundaries still functioned as routing stops:
+
+- Which architectural boundaries did this task touch: layer boundary, domain boundary, module boundary, service boundary, adapter boundary, extension point, or public interface?
+- Did the boundary contract provide enough context for the modifier to stop, or did they have to cross it to recover hidden details?
+- Did caller-specific assumptions reshape a shared boundary and make future routing less predictable?
+
+An ownership check asks:
+
+- Who owns the decision that changed?
+- Did the patch land in that owner's context?
+- Did a helper, abstraction, or shared module gain unclear responsibility?
+- Did a local convenience move a decision away from its rightful home?
+
+A routing integrity check asks:
+
+- Can future modifiers still trust the original route?
+- Did the change introduce a shortcut dependency?
+- Did it weaken an architecture test, contract test, or dependency rule?
+- Did it duplicate a decision across a boundary without indexing the closure?
+
+This kind of reflection is small, but it targets the real mechanism of architectural decay. Architecture usually does not collapse through one grand mistake. It decays through many locally reasonable shortcuts. Post-change reflection catches those shortcuts while they are still small.
+
+This reflection is useful for human developers, but it fits AI coding agents especially well. Human memory is selective and lossy; after a task is done, a developer may remember that a change felt messy but not exactly which searches failed or which boundary first became suspicious. An agent often still has much of its context acquisition history in the context window: inspected files, search attempts, traversal paths, test feedback, corrected assumptions, and crossed boundaries. That makes post-change reflection unusually precise. It can turn the agent's working trace into architectural feedback: which routes worked, which boundaries failed, which ownership was unclear, and which missing index should be added.
+
+For a concrete workflow, see [Post-Change Design Reflection](/blog/post-change-design-reflection/).
+
+## Architecture Is Maintained at Modification Scale
+
+Architecture is often treated as something designed up front, documented in diagrams, and reviewed occasionally. But in a living system, architecture is maintained or corrupted through ordinary modifications.
+
+Every change deposits a decision somewhere. Every change either preserves or weakens a placement rule. Every change either makes future context acquisition cheaper or more expensive.
+
+This is why architecture cannot be judged only by its static structure. A system may look architecturally clean and still be expensive to modify if its routing rules are not trusted. Another system may look less formal but remain highly modifiable because its decision placement is predictable, its ownership is clear, and its modification closures are easy to acquire.
+
+CMP gives architecture a concrete criterion:
+
+An architecture is good when its routing topology matches the system's realistic modification patterns, and when its placement rules remain trustworthy enough to make sufficient context cheaper to acquire.
+
+That criterion explains both the value and the cost of architectural styles.
+
+Clean and Hexagonal architectures work when policy and mechanism changes need separate routes. DDD's bounded-context architecture works when semantic changes are local to different domains. Vertical Slice Architecture works when feature-level changes dominate. Modular Monoliths and Microservices work when ownership boundaries dominate modification cost. Plugin Architecture works when variation repeatedly arrives along stable extension points. ECS works when composition is the real shape of change.
+
+Each style is a prediction about future modification.
+
+When the prediction is right, architecture routes context.
+
+When the prediction is wrong, architecture becomes bad investment.
+
+Architecture is not the diagram of a system. Architecture is context routing.
