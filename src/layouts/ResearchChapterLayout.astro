@@ -117,11 +117,15 @@ const updated = entry.data.updatedDate ?? entry.data.pubDate;
 				margin: 0 auto;
 				padding: 24px var(--content-padding) 64px;
 				display: grid;
-				grid-template-columns: minmax(200px, 240px) minmax(0, 1fr) minmax(180px, 210px);
+				grid-template-columns: minmax(200px, 240px) minmax(0, 1fr) minmax(200px, 230px);
 				gap: 32px;
-				align-items: start;
+				align-items: stretch;
 			}
 			.research-main {
+				min-width: 0;
+			}
+			.research-sidebar-left,
+			.research-sidebar-right {
 				min-width: 0;
 			}
 			.research-chapter-header {

@@ -7,7 +7,14 @@
 </aside>
 
 <script>
+	// Track teardown for the previously-built outline so SPA page transitions
+	// (astro:page-load) don't stack scroll listeners.
+	let outlineCleanup: (() => void) | null = null;
+
 	function buildOutline() {
+		outlineCleanup?.();
+		outlineCleanup = null;
+
 		const root = document.querySelector('.research-chapter-prose');
 		const nav = document.getElementById('chapter-outline-nav');
 		if (!root || !nav) return;
@@ -15,6 +22,7 @@
 		const headings = Array.from(root.querySelectorAll('h2, h3')) as HTMLElement[];
 		nav.innerHTML = '';
 		const frag = document.createDocumentFragment();
+		const linkByHeading = new Map<HTMLElement, HTMLAnchorElement>();
 
 		headings.forEach((el) => {
 			if (!(el instanceof HTMLElement)) return;
@@ -37,65 +45,80 @@
 			a.textContent = displayText;
 			if (displayText !== fullText) a.title = fullText;
 			a.className = el.tagName === 'H3' ? 'outline-link depth-3' : 'outline-link';
+			linkByHeading.set(el, a);
 			frag.appendChild(a);
 		});
 		nav.appendChild(frag);
 
-		// Scroll-aware active highlight via scroll event
 		if (headings.length === 0) return;
 
 		const sidebar = document.querySelector('.chapter-outline') as HTMLElement | null;
-		let currentActive: Element | null = null;
-		let ticking = false;
+		let currentActive: HTMLAnchorElement | null = null;
 
-		function setActive(link: Element | null) {
+		function setActive(link: HTMLAnchorElement | null) {
 			if (link === currentActive) return;
 			currentActive?.classList.remove('active');
 			link?.classList.add('active');
 			currentActive = link;
-			// Scroll the active link into view within the sidebar using getBoundingClientRect
 			if (link && sidebar) {
-				const linkRect = (link as HTMLElement).getBoundingClientRect();
+				const linkRect = link.getBoundingClientRect();
 				const sidebarRect = sidebar.getBoundingClientRect();
 				const relTop = linkRect.top - sidebarRect.top;
 				const relBottom = relTop + linkRect.height;
 				if (relTop < 24) {
 					sidebar.scrollBy({ top: relTop - 24, behavior: 'smooth' });
 				} else if (relBottom > sidebar.clientHeight - 24) {
-					sidebar.scrollBy({ top: relBottom - sidebar.clientHeight + 24, behavior: 'smooth' });
+					sidebar.scrollBy({
+						top: relBottom - sidebar.clientHeight + 24,
+						behavior: 'smooth',
+					});
 				}
 			}
 		}
 
-		function updateActive() {
-			// Find the last heading whose top is at or above 30% of the viewport
-			const threshold = window.innerHeight * 0.3;
-			let active: HTMLElement | null = null;
+		// Pick the last heading whose top has crossed an "active line" near the top
+		// of the viewport (just below the sticky sidebar's top offset).
+		function pickActive() {
+			const activeLine = 96;
+			let active: HTMLElement = headings[0];
 			for (const h of headings) {
-				if (h.getBoundingClientRect().top <= threshold) {
+				if (h.getBoundingClientRect().top - activeLine <= 0) {
 					active = h;
 				} else {
 					break;
 				}
 			}
-			// Default to first heading if none qualifies yet
-			if (!active && headings.length > 0) active = headings[0];
-			const link = active ? nav.querySelector<Element>(`a[href="#${active.id}"]`) : null;
-			setActive(link);
+			// If we've scrolled to the very bottom of the document, force-select the
+			// last heading so the tail of the article still highlights correctly.
+			const nearBottom =
+				window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+			if (nearBottom) active = headings[headings.length - 1];
+			setActive(linkByHeading.get(active) ?? null);
 		}
 
-		function onScroll() {
-			if (!ticking) {
-				requestAnimationFrame(() => {
-					updateActive();
-					ticking = false;
-				});
-				ticking = true;
-			}
+		let rafId = 0;
+		function schedule() {
+			if (rafId) return;
+			rafId = requestAnimationFrame(() => {
+				rafId = 0;
+				pickActive();
+			});
 		}
 
-		window.addEventListener('scroll', onScroll, { passive: true });
-		updateActive();
+		window.addEventListener('scroll', schedule, { passive: true });
+		window.addEventListener('resize', schedule, { passive: true });
+
+		// Initial pick (and one more after layout settles, since fonts/MDX content
+		// can shift heading positions slightly after the first frame).
+		pickActive();
+		const settleTimer = window.setTimeout(pickActive, 120);
+
+		outlineCleanup = () => {
+			window.removeEventListener('scroll', schedule);
+			window.removeEventListener('resize', schedule);
+			window.clearTimeout(settleTimer);
+			if (rafId) cancelAnimationFrame(rafId);
+		};
 	}
 
 	buildOutline();
@@ -105,9 +128,9 @@
 <style>
 	.chapter-outline {
 		position: sticky;
-		top: 88px;
+		top: 24px;
 		font-size: 13px;
-		max-height: calc(100vh - 120px);
+		max-height: calc(100vh - 48px);
 		overflow-y: auto;
 		scrollbar-width: thin;
 	}
@@ -124,45 +147,56 @@
 	.outline-nav {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: 6px;
 	}
 
-	.outline-link {
+	/*
+	 * Outline links are created at runtime by the buildOutline() script below.
+	 * Dynamically created nodes do not receive Astro's scoped-styles data attribute,
+	 * so we use :global() (constrained to .outline-nav descendants) to make sure
+	 * the layout and .active highlight rules actually apply to them.
+	 */
+	.outline-nav :global(.outline-link) {
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
 		overflow: hidden;
-		white-space: nowrap;
-		text-overflow: ellipsis;
+		overflow-wrap: anywhere;
 		color: var(--secondary);
 		text-decoration: none;
 		line-height: 1.4;
-		padding: 3px 8px 3px 10px;
+		padding: 5px 8px 5px 12px;
 		border-left: 2px solid transparent;
 		margin-left: -2px;
 		border-radius: 0 4px 4px 0;
 		transition: color 0.12s, border-color 0.12s, background 0.12s;
 	}
 
-	.outline-link:hover {
+	.outline-nav :global(.outline-link:hover) {
 		color: var(--primary);
 		border-left-color: var(--border-light);
 	}
 
-	.outline-link.active {
+	.outline-nav :global(.outline-link.active) {
 		color: var(--accent);
 		border-left-color: var(--accent);
 		background: color-mix(in srgb, var(--accent) 6%, transparent);
 	}
 
-	.outline-link.depth-3 {
-		padding-left: 20px;
+	.outline-nav :global(.outline-link.depth-3) {
+		padding-left: 22px;
 		font-size: 11.5px;
 		color: var(--text-muted);
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
 	}
 
-	.outline-link.depth-3:hover {
+	.outline-nav :global(.outline-link.depth-3:hover) {
 		color: var(--secondary);
 	}
 
-	.outline-link.depth-3.active {
+	.outline-nav :global(.outline-link.depth-3.active) {
 		color: var(--accent);
 	}
 
