@@ -1,0 +1,94 @@
+---
+title: "Testing: Testability as Context Cost"
+description: "Testability is the cost of acquiring the context needed to verify behavior. This chapter connects testing to CMP through verification context — entry, state, dependency, effect, and observation — and explains why TDD applies testability pressure early."
+book: cmp
+part: principles
+order: 4
+status: published
+version: "0.1"
+pubDate: May 28 2026
+updatedDate: May 28 2026
+canonicalUrl: "https://www.contextcost.dev/research/cmp/principles/testability-as-context-cost/"
+tags: ["CMP", "software-design", "testing", "testability", "TDD"]
+lang: en
+---
+
+Engineers have long observed that hard-to-test code is often hard to maintain. This is usually treated as a practical testing problem: the code has too many dependencies, too much hidden state, or too many side effects. Those observations are correct, but they are symptoms of a deeper structure.
+
+Testing a behavior requires context.
+
+To write a meaningful test, a developer must know how to trigger the behavior, what state must exist, which dependencies influence the result, which side effects must be controlled, and what observable outcome proves the behavior is correct. When that context is small, explicit, and easy to control, the behavior is easy to test. When that context is large, hidden, or unstable, the behavior is hard to test.
+
+This gives testability a direct CMP interpretation:
+
+> Testability is the cost of acquiring the context needed to verify behavior.
+
+This is the main connection between testing and the Context Minimization Principle. Testing itself is a safety net for modification, but testability reveals whether the design has shaped behavior into a form whose verification context is cheap to acquire. This also explains why engineers have long treated testability as a design signal: a design that is easy to test is often easy to modify for the same reason — the relevant behavior can be reached, controlled, and observed through a bounded context.
+
+## Testing Requires Verification Context
+
+Testing is sometimes described as simply checking whether code works. But meaningful testing requires more than executing code. It requires enough context to verify behavior.
+
+That context has several recurring parts.
+
+**Entry context** is the cost of reaching the behavior. Can the behavior be triggered through a clear function, service, API, or component boundary, or must the whole application be started before the behavior appears?
+
+**State context** is the cost of preparing the situation in which the behavior runs. Can the required state be constructed locally, or does it depend on hidden global state, old database records, background jobs, or environment configuration?
+
+**Dependency context** is the cost of controlling collaborators. Can dependencies be provided explicitly, replaced, or isolated, or does the behavior reach directly into infrastructure, clocks, networks, file systems, queues, or external services?
+
+**Effect context** is the cost of isolating side effects. Does the behavior produce a focused result, or does it scatter consequences across logs, caches, events, database writes, background work, and remote calls?
+
+**Observation context** is the cost of knowing whether the behavior was correct. Is there a stable output, state transition, event, or API response to assert, or is the only visible evidence an internal call sequence?
+
+These are not testing details. They are design facts exposed by testing. A testable design makes these contexts cheap to acquire. An untestable design makes the test writer gather too much surrounding context before even reaching the behavior under test.
+
+## Testability as a Design Signal
+
+The design signal appears most clearly in local testability: the ability to verify a unit, function, component, or service behavior at a local boundary.
+
+A local behavior should usually have a local verification path. A small rule should be reachable without starting the whole application. A service behavior should be testable without unrelated setup. A component should expose an outcome that can be asserted without inspecting its private steps.
+
+This gives local testability a simple standard:
+
+> A design is more locally testable when local behavior can be verified locally with enough confidence.
+
+A clear entry point, constructible state, explicit dependencies, limited side effects, and observable results all lower the context cost of local testing. They also indicate that the behavior has been shaped into a boundary that is easier to understand and modify.
+
+Poor local testability also explains many bad tests. When meaningful behavior is expensive to trigger, control, or observe, coverage pressure pushes developers toward cheap substitutes: asserting private helper calls, mocking long collaborator chains, freezing large snapshots, or testing incidental branches. These tests raise coverage numbers, but they do not create a trustworthy safety net. They are symptoms of high verification context cost.
+
+This is why testability is one of the clearest everyday signals of CMP. Code that is easy to test is not automatically well designed, but persistent difficulty in testing ordinary application logic often means the design has made verification context larger than the behavior itself requires. The same excess context usually makes future modification harder as well.
+
+## TDD as Early Testability Pressure
+
+TDD is often presented as a testing technique: write a failing test, make it pass, then refactor. Its deeper design effect is that it exposes verification context cost before implementation convenience takes over.
+
+When tests are written after implementation, the implementation is already present. There are private helpers, branching structures, data flows, collaborators, and incidental details. Tests often follow that shape. They may confirm how the current implementation works rather than what behavior should remain stable.
+
+TDD reverses the order. Before implementation exists, the developer must first ask:
+
+- What behavior should be triggered?
+- What state is needed?
+- Which dependency must be controlled?
+- What result should be observable?
+- What failure would prove the behavior is wrong?
+
+These are questions about verification context. If the answer is hard, the design pressure appears early. The developer needs a better entry point, simpler setup, more explicit dependencies, fewer hidden side effects, or a clearer observable result. TDD makes those needs visible before the implementation hardens around a less testable shape.
+
+That is why TDD often improves design. Not because tests written first have magical power, but because the code must be designed from the outside of the behavior inward. The implementation must serve a testable contract instead of forcing tests to adapt to an accidental implementation structure.
+
+For AI coding agents, this pressure is especially useful. An agent can quickly produce a plausible patch and then generate tests that merely follow the code it just wrote. A test-first workflow changes the order: before changing implementation, the agent must state what behavior should be verified and what observable result will prove it. This does not make the agent reliable by itself, but it reduces one common failure mode of agent-written tests: tests that validate the implementation rather than the behavior.
+
+In CMP terms, TDD is not a new design principle. It is an early pressure toward lower verification context cost.
+
+## Testing as a Side View of CMP
+
+Engineers already use testability as a practical signal of design quality. CMP explains why that signal is reliable: to test behavior, one must acquire the context needed to trigger, control, and observe it. When that cost is low, behavior tends to have clear boundaries, explicit dependencies, local state, stable contracts, and observable effects. These are exactly the design qualities that make modification easier.
+
+So the lesson is simple:
+
+> Testability is not merely about tests. It is an observable form of context cost.
+
+To test behavior, you must acquire the context needed to trigger, control, and observe it. When that context is expensive, tests become brittle, mock-heavy, shallow, or skipped. When that context is cheap, the same behavior is usually easier to understand and modify.
+
+That is the CMP reading of testing. Testing provides the safety net, testability reveals the context cost of building that safety net, and TDD applies that pressure early enough to influence design.
