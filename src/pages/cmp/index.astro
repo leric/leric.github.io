@@ -130,56 +130,71 @@ const parts: RoadmapPart[] = [
 			},
 			{
 				num: 12,
-				title: "Programming Languages as Universal Mechanical Indexes",
+				title: "Programming Languages Are Boundary Infrastructure",
 				description:
-					"Programming languages are the strongest context operators because their mechanisms apply across the entire codebase and are mechanically enforced. Types, modules, visibility, nullability, exhaustive matching, ownership, and effect systems can turn missed modification closures into tool-visible failures.",
-				status: "planned",
+					"A programming language is not just syntax for a machine — it is the base layer of boundary infrastructure. Types, modules, visibility, nullability, exhaustive matching, ownership, and effect systems turn design intent into enforceable boundaries that protect modification.",
+				status: "published",
+				href: "/research/cmp/principles/programming-languages-as-boundary-infrastructure/",
 			},
 		],
 	},
 	{
 		id: "economics",
-		label: "Part IV — The Economics of Design",
+		label: "Part IV — Practice: Design in the Agent Era",
 		chapters: [
 			{
 				num: 13,
-				title: "Over-Engineering Is a Bad Context Trade",
+				title: "Over-Engineering, YAGNI, and Bad Context Bets",
 				description:
-					"Over-engineering is not “too much design.” It is paying present context cost for future savings that do not arrive, arrive along the wrong axis, or would have been cheaper to defer.",
+					"Over-engineering is not \"too much design\" - it is paying present context cost for future savings that do not arrive, arrive along the wrong axis, or would have been cheaper to defer. YAGNI and careless deferral are the opposite failure: refusing to bet when the future modification is reasonably foreseeable. This chapter frames both as wrong bets on expected context cost.",
 				status: "planned",
 			},
 			{
 				num: 14,
-				title: "YAGNI, Deferral, and Wrong Bets",
+				title: "The ROI Has Shifted: How Cheap Code Rewrites Design Bets",
 				description:
-					"Premature abstraction and careless deferral are failed bets in opposite directions. This chapter explains design under uncertainty through expected future context cost.",
+					"When agents make code itself cheap, the cost-benefit math behind every design decision changes. Investments that looked like over-engineering in the human-only era can become positive-ROI once the modifier base shifts. This chapter recalibrates the criterion for \"worth designing for.\"",
+				status: "planned",
+			},
+			{
+				num: 15,
+				title: "Clean Architecture Revisited: From Overhead to Leverage",
+				description:
+					"Clean Architecture, Hexagonal, and Ports & Adapters were long dismissed as ceremony for most teams. In agentic engineering, their boundaries become high-leverage context routing: stable seams, explicit dependencies, and use-case isolation that make agents land changes in the right place. This chapter treats Clean Architecture as a concrete case study of agent-shifted ROI.",
+				status: "planned",
+			},
+			{
+				num: 16,
+				title: "Post-Change Reflection: Closing the Loop One Modification at a Time",
+				description:
+					"The local-optimization trap, why both humans and agents need to reflect on context routing, and a post-change reflection skill that turns each modification into routing-repair feedback for locality and boundaries.",
 				status: "planned",
 			},
 		],
 	},
 	{
 		id: "agents",
-		label: "Part V — Humans, Agents, and Measurement",
+		label: "Part V — Open Frontiers",
 		chapters: [
 			{
-				num: 15,
-				title: "Agents Are Modifiers Too",
-				description:
-					"An AI coding agent is not a magic coder. It is another modifier of the system, and it also needs sufficient context, reliable boundaries, discoverable closures, and executable feedback.",
-				status: "planned",
-			},
-			{
-				num: 16,
-				title: "Agent-Friendly Codebases Are Human-Friendly Codebases",
-				description:
-					"A codebase friendly to agents is one where modification context is explicit, bounded, discoverable, and checkable. The same properties make codebases better for humans.",
-				status: "planned",
-			},
-			{
 				num: 17,
-				title: "Measuring the Shadows of Context Cost",
+				title: "Can Context Cost Be Measured?",
 				description:
-					"Context cost may not be directly measurable, but its traces can be observed: retrieved files, failed localization, missed edits, patch breadth, test failures, review corrections, and static structure. This chapter connects CMP to Context Footprint and future tooling.",
+					"Context cost may not be directly measurable, but its traces can be observed: retrieved files, failed localization, missed edits, patch breadth, test failures, review corrections, and static structure. What would a credible, comparable metric look like?",
+				status: "planned",
+			},
+			{
+				num: 18,
+				title: "What Does an Agent-Native Codebase Look Like?",
+				description:
+					"When the primary modifier of a codebase is no longer human, which design principles bend, break, or invert? This chapter opens the question of designing for non-human modifiers as a first-class audience.",
+				status: "planned",
+			},
+			{
+				num: 19,
+				title: "How to Design a CMP-Native Coding Agent",
+				description:
+					"If CMP describes what makes a codebase modifiable, what does it imply for the agent doing the modifying? This chapter speculates on agent architecture: pre-modification context analysis, design-aware planning, post-change reflection loops, and the tooling surface an agent needs to act on context cost rather than just text.",
 				status: "planned",
 			},
 		],

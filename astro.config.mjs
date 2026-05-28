@@ -17,7 +17,6 @@ export default defineConfig({
   output: "static",
   redirects: {
     "/research/cmp": "/cmp/",
-    "/research/cmp/": "/cmp/",
   },
   markdown: {
     remarkPlugins,
