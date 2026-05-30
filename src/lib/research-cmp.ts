@@ -3,7 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 export const CMP_BOOK_SLUG = 'cmp' as const;
 
 /** URL segment order for Parts (TOC + prev/next). */
-export const CMP_PART_ORDER = ['start', 'foundations', 'shape', 'principles'] as const;
+export const CMP_PART_ORDER = ['start', 'foundations', 'shape', 'principles', 'practice'] as const;
 
 export type CmpPartId = (typeof CMP_PART_ORDER)[number];
 
@@ -14,6 +14,7 @@ export const CMP_PART_LABELS: Record<CmpPartId, string> = {
 	foundations: 'Part I — Foundations',
 	shape: 'Part II — The Shape of Context',
 	principles: 'Part III — Design as Context Engineering',
+	practice: 'Part IV — Practice: Design in the Agent Era',
 };
 
 export function cmpChapterPath(part: string, slug: string) {

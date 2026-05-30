@@ -1,0 +1,106 @@
+---
+title: "Over-Engineering, YAGNI, and Bad Context Bets"
+description: "Over-engineering is not too much design — it is a bad context trade. This chapter frames over-engineering and under-engineering as mispriced bets on expected context cost, with static and temporal criteria for when structure pays for itself."
+book: cmp
+part: practice
+order: 1
+status: published
+version: "0.1"
+pubDate: May 30 2026
+updatedDate: May 30 2026
+canonicalUrl: "https://www.contextcost.dev/research/cmp/practice/over-engineering-yagni-and-bad-context-bets/"
+tags: ["CMP", "software-design", "over-engineering", "YAGNI", "design-tradeoffs"]
+lang: en
+---
+
+A team is building a B2B SaaS product. Someone proposes a multi-tenancy layer before the product has a second customer: tenant-aware queries, tenant-scoped cache keys, tenant-routed background jobs, tenant-specific reporting. One reviewer calls it clean architecture. Another calls it over-engineering. Both are reacting to real costs, but they are pricing different futures.
+
+This is why debates about over-engineering so often feel unresolvable. The argument is rarely just about whether abstraction is good or bad. It is about whether the context cost paid today is worth the context cost that might be avoided tomorrow.
+
+Over-engineering is not "too much design." It is a bad context trade: a design move adds context cost — a new boundary, a new concept, a traversal hop, an index to learn — but fails to remove, relocate, or index enough context cost in return.
+
+To judge whether a design decision is worthwhile, it helps to separate two scenarios. In the first, the relevant modification stream — the kinds of changes we expect to make — is already known or highly constrained, and judging the design is close to an accounting exercise. In the second, we are working in a living system, where future requirements are uncertain and the design decision becomes a wager rather than an accounting entry.
+
+### 1. The Static Criterion: When the Change Is Already Clear
+
+Start with the easy version: suppose we already know what kind of change is coming. Maybe we know this service will need three payment providers. Maybe we know this import pipeline will support ten file formats. In that case, we can ask a very practical question:
+
+> **Does this design pay for itself?**
+
+Abstractions, layers, interfaces, registries, configuration, and design patterns are not automatically good or bad. They are worth adding only when they save more context than they force the next engineer to load.
+
+A design move usually adds cost in three ways:
+
+- **Boundary cost** — Every abstraction gives engineers a new interface to learn: names, inputs, outputs, error behavior, invariants, and edge cases. A good boundary pays for itself by letting people stop there instead of reading the whole implementation. A bad boundary is shallow: the interface costs nearly as much to learn as the implementation it hides, so it barely shrinks the total context you have to load. This is the same intuition behind Ousterhout's deep versus shallow modules in *A Philosophy of Software Design*.
+- **Carrying depth** — Some design choices become a toll booth that many future changes must pass through, even when those changes do not benefit from the design. If every database query goes through a multi-tenant routing layer, then even a simple internal report now has to understand that layer. The setup cost is not paid once; it is paid every time someone touches nearby code.
+- **Conceptual surface** — Some designs add vocabulary to the codebase: new concepts, rules, conventions, registries, generated files, or "the way we do X here." Even engineers working on unrelated features may need to know that vocabulary during naming, refactoring, review, debugging, or onboarding. For example, once a codebase adopts its own error-handling convention — say, a custom Result type that every function is expected to return and every caller must unwrap — engineers have to carry that vocabulary even when working on features that have nothing to do with why it was introduced.
+
+Those costs are fine if the design removes bigger costs elsewhere. The usual ways a design earns its keep are:
+
+- **Depth skipped** — A reliable interface lets you read the contract and avoid reading the internals.
+- **Closure collapsed** — A repeated change pattern gets pulled into one place, so future changes no longer require hunting through scattered sites.
+- **Closure indexed** — The related sites may still be distributed, but they become easy to find through a registry, exhaustive match, generated artifact, naming convention, or just comments.
+- **Implicit context checked** — Tests, types, and language mechanisms catch assumptions that would otherwise live only in people's heads.
+
+So the static rule is simple:
+
+> **A design move is justified when the context it saves, collapses, indexes, or checks is larger than the boundary cost, carrying depth, and conceptual surface it adds.**
+
+### 2. The Temporal Criterion: When the Future Is a Bet
+
+The previous rule works when we know the shape of future changes. Most real codebases do not give us that luxury. We often add structure because we think a future requirement might arrive.
+
+That makes design under uncertainty closer to a bet than to an accounting exercise. We pay a visible cost now for a benefit that may or may not show up later. Over-engineering is what happens when that bet is overpriced.
+
+The clean way to reason about this is to compare two worlds.
+
+In the **build-now world**, we add the structure today. Suppose the team builds the multi-tenancy seam now: every query, cache key, background job, report, and session path becomes tenant-aware. From now on, engineers have to carry that model while working in the codebase. The payoff arrives only if the future SaaS requirement appears in roughly this shape.
+
+In the **defer world**, we do not build the seam yet. The code stays single-tenant and direct. We avoid today's carrying cost. But if SaaS arrives later, someone has to find every place that assumed one tenant: queries, cache keys, URL routing, sessions, reports, tests, logs, permissions, deployment assumptions, and so on.
+
+The question is not "is abstraction good?" The question is:
+
+> **Is the future context cost we avoid likely to be larger than the present context cost we pay?**
+
+YAGNI is the right call when the future change is unlikely, small, local, or easy to solve later. Building structure early is the right call when waiting would leave a large, scattered, hard-to-find set of assumptions for the next engineer to recover.
+
+Two risks matter here.
+
+**Wrong-shape risk** is the risk of building the wrong seam. Maybe we add a row-level `tenant_id` model, but the real requirement later needs physical tenant isolation. In that case, the abstraction did not buy us the future we paid for. Worse, it may become extra machinery that future work must route around.
+
+**Unindexed-closure risk** is the risk of deferring too casually. If every query and cache key quietly assumes one tenant, the single-tenant decision is already spread across the system. If nothing names or indexes that assumption, a future retrofit is hard not only because there are many places to change, but because the engineer does not know when the search is complete.
+
+These risks pull in opposite directions. Wrong-shape risk warns us not to build too early. Unindexed-closure risk warns us not to let important assumptions leak everywhere unnamed. YAGNI and the Rule of three are useful because they help calibrate this timing: wait long enough for the real shape to appear, but not so long that the decision becomes invisible and scattered.
+
+That gives us four common outcomes:
+
+- **Justified eager structuring:** The structure costs something now, but it avoids or indexes a larger future modification closure.
+- **YAGNI-correct deferral:** The future change remains small, local, or discoverable enough that building structure now would cost more than it saves.
+- **Over-engineering:** The interface burden, carrying depth, conceptual surface, and wrong-shape risk are larger than the future cost actually avoided.
+- **Under-engineering:** Today's simplicity leaves a realistic future change scattered and unnamed, making the necessary context expensive or unreliable to recover later.
+
+Good design is not "more abstraction" or "less abstraction." Good design pays visible cost only where it makes present or future changes cheaper to understand.
+
+Under-engineering is the mirror image of over-engineering, and it can hide behind an equally attractive slogan. Over-engineering often presents itself as "clean architecture" or "future-proof design." Under-engineering presents itself as "simple and reliable": fewer abstractions, fewer moving parts, less machinery to explain. That can be exactly right when the future change is small or unlikely. But it becomes under-engineering when "simple" code quietly spreads an important assumption without giving future engineers a name, index, or check for it. The code feels easy today because no abstraction was added and everything works. The future modifier pays the hidden bill later: they must rediscover where the assumption lives, what depends on it, and where the change is allowed to stop.
+
+### 3. Making Hidden Costs Easier to Talk About
+
+This criterion will not give you exact numbers. You usually cannot calculate the probability of a future requirement, or the exact cost of a retrofit. That's fine, though — precision was never the goal. What matters is making the trade visible.
+
+Many design debates get stuck in taste labels:
+
+- "This is clean architecture."
+- "This is over-abstracted."
+- "YAGNI."
+- "We need to make it extensible."
+
+CMP turns that argument into two separate questions:
+
+1. **Prediction question:** What future change does this design assume? Are we betting on more tenants, more payment providers, more file formats, stricter compliance, higher traffic, or some other modification stream?
+2. **Design question:** If that future actually happens, is this design a good way to handle it? Does it save, collapse, index, or check more context than it adds through boundary cost, carrying depth, and conceptual surface?
+
+This split matters because teams often argue about design while silently assuming different futures. One engineer may be evaluating the multi-tenancy layer under the assumption that SaaS is likely. Another may be evaluating the same layer under the assumption that the product will stay internal. They are not really disagreeing about the code yet; they are disagreeing about the prediction behind the code.
+
+Once the prediction is explicit, the design debate becomes more concrete. Under this future assumption, does the design pay for itself? If yes, it may be justified eager structuring. If no, it is over-engineering even if the future does arrive. If the future assumption itself is weak, YAGNI is probably the better call.
+
+Many architectural disputes are arguments about the future disguised as arguments about design style. Over-engineering and under-engineering are not style problems. They are two ways of mispricing context: paying too much too early, or calling it "simple and reliable" while leaving too much unnamed for later.
