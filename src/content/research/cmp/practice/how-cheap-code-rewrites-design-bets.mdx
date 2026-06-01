@@ -1,0 +1,107 @@
+---
+title: "How Cheap Code Rewrites Design Bets"
+description: "When agents make code cheap to produce, the cost-benefit math behind every design decision changes. This chapter explains what actually got cheap, what stayed expensive, and why practices that once looked like over-engineering can flip to positive ROI."
+book: cmp
+part: practice
+order: 2
+status: published
+version: "0.1"
+pubDate: Jun 01 2026
+updatedDate: Jun 01 2026
+canonicalUrl: "https://www.contextcost.dev/research/cmp/practice/how-cheap-code-rewrites-design-bets/"
+tags: ["CMP", "software-design", "AI agents", "verifiability", "TDD", "design-tradeoffs"]
+lang: en
+---
+
+A frontier coding agent today bears almost no resemblance to the autocomplete of a few years ago. Give it a real task and it will work largely on its own — exploring an unfamiliar codebase, editing across many files, running the tests, reading the failures, and iterating for hours until they pass. These agents are already strikingly capable, and they are getting better fast.
+
+The result is a real shift in where the work happens. The default mental model is no longer "open an editor and write code"; it is closer to "express intent, delegate it, and review what comes back." Writing the code — the activity that used to define the job — is increasingly the part you hand off.
+
+From here an obvious conclusion suggests itself, and plenty of people have drawn it. If code is this cheap to produce, does the careful practices we used to ration — architecture design, exhaustive tests, strict types — still matter now. Why invest in keeping code easy to change when you can simply regenerate it?
+
+The most common complaint about these agents points the other way. Across the industry surveys, the defining frustration is not that agents fail to produce code; it is that the code is *almost right* — fluent, plausible, and subtly wrong. It compiles, it passes the happy path, it reads like something a competent engineer would write, and it still does the wrong thing at an edge the agent never considered. Producing code became cheap. Knowing whether that code is correct did not — which is why most teams still hand-review every change an agent proposes.
+
+That gap is what this chapter is about. The previous chapter framed over-engineering and under-engineering as two ways of mispricing context: paying for too much structure too early, or leaving too much unnamed for later. Capable agents do not overturn that framework; they move the prices that feed it — and they move them unevenly, making some long-dismissed practices suddenly worth it while leaving others as wasteful as they ever were. To see which is which, we have to be precise about what actually got cheap.
+
+## Why not just keep the spec?
+
+Take that last question literally. Its most radical form does not just say skip the tests; it says stop maintaining code at all — keep a spec, regenerate the code on demand, and treat the code as disposable build output, the way we already throw away the binary a compiler emits. If that held, there would be no standing artifact to design for, and this chapter would have no subject.
+
+It does not hold, and the compiler analogy is exactly where it breaks. We throw binaries away safely only because compilation is *deterministic, behavior-preserving, and local*: the same source always yields the same binary, the translation never alters what the source already pinned down, and a one-line edit perturbs one place. Generating code from a spec has none of these properties — so calling the model a "compiler" smuggles in guarantees it does not provide. The reason traces to one stubborn fact: a spec never fully pins down the code. Whatever it leaves unsaid, the model fills in — plausibly, but under-determined — and regeneration has no memory. Every run re-rolls each decision the spec does not fix. The behavior you validated last time through real use — the edge case from production, the default that turned out to matter — gets thrown back in the hat and re-sampled. Patch the spec to fix what came out wrong, regenerate, and what was right last time can quietly drift. You buy stability only by writing down more, until the spec pins almost everything.
+
+> But a spec that pins down everything *is* the code — just in a vaguer notation, "compiled" by something neither deterministic nor local.
+
+So the code does not go away. The precise, accumulated record of every decision we have nailed down has to live somewhere, and its most honest home is still the code. It persists — so the central act is *modifying* that standing artifact, not regenerating it from nothing. This is the bedrock CMP rests on: design exists for modification, and there is something to modify only if the artifact stays. So the real question is no longer whether to keep code, but what — now that an agent does the typing — actually got cheaper.
+
+## What just got cheap
+
+It is tempting to say agents made "writing code" cheap, but that is not quite the boundary. Plenty of things involving code are still slow and painful, and a few things that have nothing to do with typing characters became nearly free. The real line runs somewhere else.
+
+> What collapses toward zero is any task where "right" has a **checkable reference** — something the agent can hold its work against and judge itself by, instead of waiting for a person to say.
+
+That reference is broader than a test suite. Sometimes it is a mechanical judge the agent can run at will — a compiler, a type checker, a failing test, a linter — and then it gets the strongest version: a closed feedback loop, where it acts, reads the verdict, corrects, and repeats with no human in between. But just as often it is a concrete target to match: an existing pattern in the codebase to follow, a reference implementation to port, a worked example, a spec precise enough to pin the answer. Wherever a known-good target exists, the agent turns into a tireless generate-and-check engine and converges on it far faster, and far more patiently, than a person — which is exactly why it feels so strong at scaffolding, conventions, and translations, and so much shakier the moment the target goes fuzzy.
+
+So the useful question about any cost is not "does this involve code?" but:
+
+> Does this task come with an **oracle** — a test, a reference, a target — that says whether the work is right yet, without a human having to decide?
+
+Run the same question across the demos that actually go viral — not the modest ones — and the shape is identical:
+
+- An agent one-shotting a playable game — a Snake clone, then a side-scrolling shooter — oracle: it runs, and countless existing implementations already spell out what such a game should be, an endless supply of reference to imitate and check against.
+- Rewriting a system as large as Bun in Rust — oracle: the original runtime itself, diffed behavior for behavior, its existing test suite carried over wholesale. The target is enormous, yet completely pinned down.
+- Solving a Rubik's cube, or any well-posed puzzle — oracle: the solved state, decided mechanically.
+
+These read as raw intelligence, but that is not what they share. A weekend rewrite of Bun and a one-line compiler fix have nothing in common in scale or difficulty — only that in each, "right" is pinned down somewhere the agent can reach and re-check on its own. Impressiveness here is a *symptom* of verifiability, not a counterexample to it. None of these got cheap because "writing" got cheap, or because the agent simply "knows more." They got cheap because each one comes with a target the agent can check itself against, as many times as it likes. The common thread is **verifiability** — and the tighter and more automatic the check, the cheaper the task. That is what AI made abundant: once "right" is pinned down sharply enough to check, covering the distance to it is nearly free — the agent will get there on its own.
+
+## What stayed expensive
+
+The same law, read from the other side, tells you exactly what did not get cheaper.
+
+> A problem with **no automatic oracle** did not get cheaper. And because agents now produce far more change, far faster, the absolute amount of this kind of work is going up, not down.
+
+If nothing can mechanically tell the agent it is wrong, the loop never closes on its own. The agent will still produce something — fluent, plausible, and delivered with the same confidence as the correct version — but "looks done" and "is correct" have come apart, and only a human can tell them apart. This is where the expensive work now lives:
+
+- Whether a change is actually correct, when no test exercises the behavior it touched.
+- Design-level errors: a boundary drawn in the wrong place, a concept that does not match the domain, a modification closure left half-changed.
+- Misread intent — the agent confidently solved a slightly different problem than the one that mattered.
+- The semantic and judgment calls that only surface in human review.
+
+You can feel the same wall outside code entirely — it is how this very chapter got written. There is no oracle for prose: no test goes green when a paragraph finally lands, and nothing can diff a sentence against a known-good answer. So the drafts came fast and fluent, but getting each section right took round after round, paragraph by paragraph — a plausible version proposed, read, judged *not quite*, and reworked, sometimes over several passes before one held. Producing the words was never the bottleneck; deciding which version was actually right was, and only a human could settle it. It is the same wall an agent hits on a subtle correctness question in code, met from the other side.
+
+The expensive residue is **convergence to correct when nothing automatic can tell you that you are wrong.** That, not typing speed, is the real ceiling on how much you can trust an agent's output — and it is exactly the *almost right* problem, seen from the design side.
+
+## The practices that attack the expensive part
+
+Step back, and the last two sections collapse into a single, old distinction: *what* to do versus *how* to do it. The *how* is what got cheap, and it keeps getting cheaper from stronger models, and richer **harnesses**. Each advance makes *how* less and less of the problem. The *what* part of the question stayed expensive, and neither models nor harnesses touch it: defining what to build, and what counts as right, is the part that stays with a human. There is no oracle for it but us.
+
+That points to where the design leverage is. Deciding what counts as correct is a human act; the leverage is in capturing each such decision the moment it is made and writing it down in a form an agent can run — a test, a type, a contract. The judgment happens once; from then on, checking that the code still honors it is cheap and automatic, on every change the agent makes. So the highest-leverage thing a codebase can do is bank those settled decisions as executable checks — **turning correctness a human would otherwise re-verify by hand, on every change, into something the agent verifies on its own.**
+
+This is not a new category of technique. It is a precise description of practices we already have — and have spent years arguing about:
+
+- **Tests and TDD** take behavioral correctness, otherwise checkable only by a human reading carefully, and make it executable. A covered behavior now has an oracle, so a regression in it falls into the cheap region: the agent sees the red test and self-heals.
+- **Strong typing** takes a chunk of the modification closure — the "what else must change when this changes" that breadth is about — and makes omissions mechanically visible. Change the type, and the compiler enumerates the sites you forgot. A whole class of "the thing you forgot to change" stops being silent.
+- **Architecture** is the same move at its largest grain. How a system splits into parts, what each part owns, and which parts may depend on which is a human's call about the *what* — structural design intent that carries no oracle on its own. Written down as enforceable boundaries — dependency direction, module visibility, the contract at each seam — that intent becomes mechanically checkable: a change that reaches across a boundary it should not, or points a dependency the wrong way, trips a check instead of waiting to be caught in review.
+- **The rest of the toolkit** — assertions and contracts, property-based tests, exhaustive matching, schema validation — are the same move under different names: take an assumption that used to live only in someone's head and make it executable, so violating it produces a signal instead of a surprise.
+
+Each of these does the same thing in CMP terms: it converts context that could previously be checked only by an expensive human pass into context that a cheap automatic loop can check. It drags correctness from the expensive side of the border to the cheap side.
+
+None of this is new — these are the same practices we have always had. What an agent changes is their price, and the clearest way to see it is to set the old trade from the previous chapter beside the new one, term by term.
+
+In the human-only era, the cost of these practices was dominated by human labor: writing and maintaining the tests, learning and satisfying the type system, fighting the compiler. The benefit — fewer silent errors later — was real but deferred and diffuse. For a great many teams the visible present cost beat the diffuse future benefit, and the honest verdict was YAGNI. Skipping them was often the correct context bet.
+
+Two of the terms in that bet have now moved:
+
+- **The cost side fell.** Writing the tests, adding the annotations, satisfying the checker — these sit squarely in the cheap region, because each one comes with its own oracle. The agent absorbs most of the labor that used to make these practices "too much trouble."
+- **The benefit side rose.** The payoff of these practices was always "an automatic signal when something is wrong." That signal used to be a nice-to-have for humans who could. It is now the scarce resource — the one thing that decides whether an agent's torrent of cheap changes is trustworthy. The benefit is no longer diffuse and deferred; it is the difference between a change you can merge and one you must stop and hand-audit.
+
+When a practice's cost falls and its benefit becomes the scarce resource, its ROI does not inch up — it flips. What was over-engineering for a human-only team can be the right call when the primary modifier is an agent. The taste did not change; the modifier did, and the prices followed. One caveat rides along: now that checks are cheap to manufacture, the scarce virtue is no longer writing them but deleting the ones that carry no signal — a flaky or tautological check is worse than none, because the agent will dutifully close the loop against a lie.
+
+## The recalibrated criterion
+
+The previous chapter judged a design move by whether the context it saved, collapsed, indexed, or checked outweighed the boundary cost, carrying depth, and conceptual surface it added. That inequality still holds. What this chapter adds is that one term in it — *checked* — just became far more valuable, and far cheaper to obtain, because the modifier doing the work is increasingly an agent running a closed loop.
+
+That gives a sharper version of "worth designing for":
+
+> A practice is worth designing for when it turns un-checkable correctness into an honest automatic signal — because that signal is the one cost AI did not erase, and it is what decides whether cheap code is also reliable code.
+
+That is how cheap code rewrites the design bet. It does not make design matter less; it changes which moves are worth making. Any structure that pins down the *what* — and turns correctness into a signal the agent can check itself against — sees its return jump, because that signal is now what separates a change you can merge from one you must stop and audit. Any structure that pins down nothing stays exactly as skippable as it always was. So the practices we used to ration as too much trouble — tests, strong typing, executable contracts, enforced boundaries — are no longer overhead a disciplined team merely tolerates; they are the infrastructure that makes an agent's cheap output trustworthy. This is the local, practice-level view of a claim the series makes at the top: reliable coding agents need better codebases.
