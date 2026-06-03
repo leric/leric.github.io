@@ -1,0 +1,120 @@
+---
+title: "Clean Architecture Revisited: From Overhead to Leverage"
+description: "Clean Architecture was always strong context-control design; what held it back was ceremony cost. This chapter reads CA through CMP — policy vs. mechanism, placement, and the Dependency Rule — and explains why agents flip its ROI."
+book: cmp
+part: practice
+order: 3
+status: published
+version: "0.1"
+pubDate: Jun 03 2026
+updatedDate: Jun 03 2026
+canonicalUrl: "https://www.contextcost.dev/research/cmp/practice/clean-architecture-revisited-from-overhead-to-leverage/"
+tags: ["CMP", "software-design", "Clean Architecture", "AI agents", "policy", "mechanism"]
+lang: en
+---
+
+import cleanArchitecture from '../../../../assets/clean-architecture.png';
+
+I have always liked Clean Architecture. And in the age of AI coding, I think its advantages have become hard to ignore: judged against CMP's own yardstick — does a design make the sufficient context for realistic modifications cheaper to acquire? — Clean Architecture satisfies nearly everything the principle asks for. It was always good context-control design. What held it back was its price: too high for most teams to collect the payoff. And agents **cut** that price — exactly what CA's structure rewards.
+
+So the chapter does one thing: it reads CA through CMP, dissolving the concentric-ring diagram into a single mechanism — the separation of **policy** from **mechanism**, manufactured by one design discipline, placed by the layout, and protected by one invariant. Seen this way, Clean Architecture is a battle-tested embodiment of what CMP recommends: it lowers the cost of acquiring the sufficient context for the modifications a system actually faces. And the work that earned CA its bad reputation — the ceremony — is exactly the cheap, checkable labor an agent now carries for free.
+
+## 1. The one boundary CA is really about: what vs. how
+
+<figure>
+  <img
+    src={cleanArchitecture.src}
+    alt="Clean Architecture concentric rings diagram: policy at the center, mechanism at the periphery"
+    width={cleanArchitecture.width}
+    height={cleanArchitecture.height}
+    loading="lazy"
+  />
+  <figcaption>
+    Figure 1. Clean Architecture's concentric rings
+  </figcaption>
+</figure>
+
+Clean Architecture exists to separate **policy** — what the system should do, from **mechanism** — how it gets done. This single what/how line is the protagonist of the whole chapter. Layers, the dependency rule, ports, adapters, testability — each exists to manufacture that line, place things on the correct side of it, or keep it trustworthy. Hold onto that.
+
+### The use case: cutting one process into independent sub-problems
+
+CA's primary tool for drawing the line is the **use case**, and the move it makes is worth slowing down on. A use case takes one business process — "place an order," "issue a refund" — and splits it into two things that change for different reasons. First, an **outline**: the ordered narrative of what the process does, in domain language — validate the cart, reserve inventory, charge the customer, record the sale, notify. Second, a set of **ports**: one named hole for each concrete capability the outline calls on — `InventoryReservation`, `PaymentGateway`, `SalesLedger`. The outline is policy: it owns the *what* and the *order*. Each port is a seam, and the *how* behind it — Stripe, Postgres, a queue — stays out of scope while you read the process.
+
+The payoff is decomposition. One tangled process becomes a short, readable policy narrative plus a handful of **independent sub-problems**, each sealed behind its own port, or another smaller use-case. You can grasp the whole *what* from the use case alone, paying nothing for details of *how*; and you can rework any single *how* — swap the payment provider, re-tune persistence — without touching the outline or the other ports. A complex business process stops being one monolith you hold in your head all at once and becomes a set of small problems you route to and solve one at a time.
+
+### The entity: why a static object can carry a business rule
+
+The other half of the policy core is the **entity**, and here CA trips up almost everyone new to it. Entities carry *Enterprise Business Rules* — the rules true of the business itself, independent of any application. But a rule feels like *behavior*, while an entity looks like a *static object*: a bag of fields with getters. How can a noun hold a rule?
+
+The confusion dissolves the moment you stop reading a business rule as a *procedure* and start reading it as **a constraint on which states are allowed to exist**. That reframing is the gift of *Domain Modeling Made Functional*: model the domain so precisely that **illegal states become unrepresentable**. A surprising share of "rules" are really statements about valid values —
+
+- "an order always has at least one line item" → a type that cannot be constructed empty;
+- "you may only ship to a verified email" → *verified* and *unverified* as two distinct types, not a boolean flag, so `ship(VerifiedEmail)` is the only call that type-checks;
+- "an order total is never negative" → a constructor that refuses the bad number.
+
+Read this way, the entity earns its place as the **guardian of an invariant**: its static shape *is* the rule, because the rule is exactly a description of which values count as a valid instance — and a type is exactly a description of a set of valid values. The "dynamic" rules — *place* a draft order, *apply* a discount — are then functions that carry one valid state to another (`Draft → Placed`), each permitted only the transitions the business allows. Behavior is the set of legal moves between states that are valid by construction. (*Domain Modeling Made Functional* makes this vivid in FP terms, but the principle is not functional-only: a private constructor that validates its invariant, plus value objects, does the same job in an OO codebase.)
+
+This is why enterprise rules sit in the innermost ring. An invariant the entity enforces on itself cannot be broken by any use case, controller, or ORM mapping downstream — no code path can manufacture an illegal order. Putting the rule in the type means every outer layer inherits it for free: the deepest, most reused, slowest-changing policy a system owns.
+
+Use cases and entities define the policy side; whatever they hold behind a port is mechanism. With the core named that way, the everyday question becomes classification: for a given piece of existing code, *which side does it belong on?* The signals are stable enough to write down.
+
+| Ask of the code | Policy (route inward) | Mechanism (route outward) |
+| --- | --- | --- |
+| Why would it change? | A business decision changed | A tool, vendor, or delivery detail changed |
+| Could you explain it to a domain expert? | Yes, in their language | No, it is an implementation concern |
+| Does it survive a framework swap? | Yes, unchanged | No, it is the framework |
+| Is it true regardless of how data is stored or shown? | Yes | No |
+
+When the answer is mixed — "this validation is a business rule *and* a database constraint" — you have found a decision that is currently smeared across the boundary. That is not a nuisance; it is the exact place CA earns its keep.
+
+## 2. How CA *manufactures* the boundary: inside-out order → client-authored ports
+
+Boundary Principles: Hiding Context, Not Code already settled what a good boundary requires: a contract authored by the client, naming what the use case needs rather than what the vendor happens to offer. When the contract is client-shaped, LSP, ISP, and OCP arrive as consequences. What that chapter leaves open is procedural: *what actually makes you author from the client's side, with the SDK sitting right there?*
+
+CA's answer is its **entity → use-case → adapter ordering**. You design the policy core first, in its own language, with no database or framework in scope. By the time you need persistence or a payment provider, the use case has already written down what it wants — so the port is authored by its client, and the adapter has to satisfy it. The ordering is the discipline that *forces* client authorship. Reverse it, start from the vendor SDK, and you get provider-shaped wrappers with a clean-sounding name: nominal boundaries that hide code without hiding context.
+
+Clean Architecture gives that principle a concrete execution mechanism. Dependency Inversion hands authorship to the client; inside-out order is what makes you point it the right way every time, instead of only when someone remembers to. That is why substitutability and segregation read as *consequences* in a CA codebase: the order manufactures the client-shaped contract they rest on.
+
+## 3. How CA *places* a change: the two axes that route context
+
+Placement is the locality question: when a change arrives, can you reach its whole modification closure from any natural entry point — an endpoint, a failing test, a domain rule — without searching the tree? CA answers with two axes that together form a coordinate system for routing.
+
+Layers are the **horizontal axis**. They sort every artifact by its distance from policy — domain rule, repository port, adapter, transport — so once you are holding a piece, you know what *kind* of thing it is and which side of the line it sits on. The index is real, cheap, and lintable. What a layer alone cannot tell you is *which feature owns a change*, because a feature change — "add a promo code," "support partial refunds" — is a vertical slice that cuts across every layer at once.
+
+The use case from §1 is the **vertical axis**. It is one coherent piece of application behavior, so a modification shaped like that behavior lands in a single owner: the policy in the use case, at most a line on a port contract, the mechanism untouched behind the port. The use case is the address a feature routes to; the layer is the secondary sort once you are inside it. Cross the two and a change has a coordinate — *this owner, that layer* — instead of a scatter across a controller, an ORM mapping, and a serializer. That is the locality payoff, and it is why an agent can stop searching: it enters one cell of the grid, not the whole repository.
+
+CA builds the grid; it does not place the lines on the vertical axis for you. Which behaviors group into which use case, where one feature ends and the next begins — that carving is the core work of domain modeling: bounded contexts, the shape of the business, the same expensive, un-oracled judgment as "where the what/how line falls" in §1. It is exactly the decision an agent cannot make in your place. CA gives ownership a *home* — a first-class use-case unit to hang a vertical slice on — then indexes it with layers and protects it with the Dependency Rule. It supplies the container, not the judgment.
+
+## 4. How CA *protects* the boundary: the Dependency Rule as a routing oracle
+
+A boundary is only worth its cost if it is *trusted*. An untrusted boundary degrades into nominal indirection — a layer you still have to cross to be sure. The Dependency Rule (source dependencies point only inward) is the single global invariant behind that trust: the policy core never imports a framework, a database client, or a transport type. Its reach is deliberately narrow: it checks the *direction* of dependencies, not whether the boundary sits in the right place or whether the port is client-shaped — a perfectly inward-pointing graph can still surround a badly-drawn boundary. What it guarantees is narrower and real: a boundary you did draw well does not quietly rot.
+
+*Architecture as Context Routing* gives the failure mode its real name: architectural corrosion is routing failure. One inward leak — a domain rule parked in a controller, an ORM type imported into an entity — does local damage *and* teaches every future modifier that the boundary can lie. Once a boundary can lie, people route around it: they search both inside and outside the official path, and the architecture now charges full carrying depth while delivering none of the search reduction it promised.
+
+What lets this guardrail actually hold is that it is mechanically checkable. Dependency direction is structure, and structure can be linted: a check that fires on the leak itself, the moment a source file points the wrong way. Of everything CA asks for, this is the one rule that needs no human judgment to enforce — it never waits on a reviewer to notice, and it never erodes with familiarity. Run on every change, the Dependency Rule becomes an executable **routing oracle**, so the boundary stays trustworthy by construction rather than by vigilance.
+
+## 5. Why it was dismissed, and what agents change
+
+Everything in §2–4 was real value the whole time. The dismissal was never about the design being bad; it was about the price. CA's cost was **manual ceremony** — mappers, DTOs, ports, wiring, parallel models — paid by a team's scarcest resource (human attention), against a benefit that was deferred and probabilistic (most apps never swap their framework or database). For most teams, most of the time, the honest verdict was YAGNI.
+
+Agents move two terms of that bet, and they move them in opposite directions:
+
+- **The cheap half: ceremony collapses.** Mappers, adapters, wiring, and scaffolding are the oracle-checkable region from the previous chapter — work with a clear target to match, which is exactly what an agent does tirelessly and well. The labor that made CA "too much trouble" is now the part you delegate.
+- **The expensive half: CA targets what did *not* get cheap.** The previous chapter's headline example of un-oracled, still-expensive judgment was literally *a boundary drawn in the wrong place* — the payment seam built around swapping providers when the variation that actually arrived was payment *semantics* (BNPL, subscriptions, regional compliance), leaving every real change to pierce or route around it. Placing that line is CA's one job. CA does not make that judgment cheap. It makes it **reusable, concentrated, and legible**:
+  - **Pay the judgment once, then amortize.** Deciding what is policy, what the port promises, where the line falls — CA front-loads it into stable structure, so every later change inherits the answer instead of re-deriving it.
+  - **Quarantine the irreducible.** Business-rule correctness has no automatic oracle. CA concentrates that un-checkable judgment into a small, pure, framework-free policy core instead of letting it scatter across controllers, ORM, and serialization.
+  - **Route scarce attention.** The what/how split tells you where to spend it. The *what* — the entities and use cases — is where business correctness lives, the part no test fully pins down. An agent may well write that code, but it is worth a line-by-line review: the diff is small, and with mechanism noise stripped out it reads in plain domain terms. The *how* behind each port answers only to its contract, so you can hand it to the agent to build it automatically. Review goes to the handful of lines that decide *what* the system does; the *how* is delegated wholesale to the agent under TDD.
+
+That is the turn. The boundary, the inside-out order, and the placement rules are precisely the machinery that separates the expensive, un-outsourceable judgment from the cheap, fully delegable work — and agents are what finally make the cheap half free.
+
+## 6. Where CA fits: a wider range, not a universal default
+
+None of this makes CA the right default everywhere. It pays off only when there is a real what/how boundary to draw. Force layers onto a thin CRUD app that has none and CA just scatters a one-field change across files a vertical slice would keep together — and cheaper agent-written hops do not fix the wrong shape.
+
+What agents move is the break-even point, not the test for when CA fits. They make the ceremony cheap to produce and turn its automated checks into what keeps generated code trustworthy — so CA starts paying off at a lower level of domain complexity than before, and the range of systems worth the structure grows. The test itself is unchanged: does this architecture route context along the changes the system actually gets? Answer that first — by looking at the real stream of modifications — and only then draw the boundaries.
+
+## 7. The general move: re-pricing the designs we called over-engineering
+
+Clean Architecture is one worked example of a larger pattern: a genuinely good practice whose execution cost kept most teams from collecting its payoff, made worthwhile once an agent absorbs that cost. The same lens can surface other lessons software engineering had quietly shelved. Take any discipline once filed under *good idea, too expensive*, state what it actually buys in CMP terms — cheaper context for the changes a system really faces — then check whether agents have moved its price. Property-based testing, formal specification, mutation testing, documentation kept in step with the code — each is a candidate: a sound bet that lost on execution cost, not on the judgment it front-loads, and now worth a fresh look once an agent carries that cost.
+
+And Clean Architecture is unlikely to be the only case. Decades of software-engineering craft were judged under cost assumptions that no longer hold, so some of what we shelved as too expensive may be worth a second look under the new economics — what an agent now makes cheap, and what it still cannot.

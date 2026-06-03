@@ -1,13 +1,13 @@
 ---
 title: "Architecture as Context Routing"
-description: "Architecture is a routing map for context acquisition. This chapter explains how layers, bounded contexts, framework conventions, and system boundaries make decision placement predictable."
+description: "Architecture is a routing map for context acquisition. This chapter explains how architectural styles match modification patterns, why placement rules enable reuse, and how post-change reflection maintains routing trust."
 book: cmp
 part: principles
 order: 3
 status: published
 version: "0.1"
 pubDate: May 26 2026
-updatedDate: May 26 2026
+updatedDate: Jun 03 2026
 canonicalUrl: "https://www.contextcost.dev/research/cmp/principles/architecture-as-context-routing/"
 tags: ["CMP", "software-design", "architecture", "DDD", "Clean Architecture", "microservices"]
 lang: en
@@ -47,6 +47,7 @@ Without architecture, a modifier often has to ask open-ended questions:
 
 - Is this rule in the controller, the service, the model, the database trigger, or the frontend?
 - Is this validation duplicated in the API, the UI, the import job, and the reporting pipeline?
+- Does a reusable implementation of this already exist somewhere, or should I write my own?
 - Is this concept shared across the whole company, or does it mean something different in each domain?
 - Is this behavior owned by the core system, a plugin, a workflow, or an integration?
 
@@ -55,6 +56,10 @@ These are not merely comprehension problems. They are modification risks. If the
 Architecture answers these questions by imposing placement rules.
 
 A placement rule says: this kind of decision belongs here, not everywhere. Domain rules belong in the domain owner. Infrastructure details belong behind adapters. Cross-context communication belongs behind published contracts. Feature-specific behavior belongs inside the feature slice. Plugin-specific behavior belongs behind an extension point. Team-owned business capabilities belong inside the owning module or service.
+
+A placement rule routes in two directions. Forward, it tells a modifier where a new decision belongs, so the patch lands where future modifiers will expect it. Backward, it tells a modifier where an existing capability would already live, so they can look for a reusable implementation before building another one. The same rule that answers "where should this go?" also answers "does this already exist?"
+
+Reuse depends on that backward direction. When a capability has a predictable home, checking whether it already exists is a bounded lookup. When it does not, the question "has someone already built this?" becomes another unbounded search, and a modifier working under context cost will rationally stop searching and write a fresh copy. Duplication is the backward-search failure of a missing placement rule, not a lapse of discipline.
 
 When placement rules hold, the modifier can route their search. They can start in a bounded region. They can ignore unrelated regions. They can stop at trustworthy boundaries. The system becomes cheaper to modify not because there is less code, but because the required context is easier to find.
 
@@ -267,7 +272,7 @@ A working architecture therefore makes context bounded, discoverable, and trustw
 
 Bounded means context paths have borders. The modifier knows where to start and where to stop. A pricing rule belongs in the pricing domain. A payment provider belongs behind the payment integration port. A plugin belongs behind an extension point. A shipping concept belongs inside the shipping domain.
 
-Discoverable means related change surfaces are reachable. The modifier can find the rest of the closure through names, types, tests, registries, schemas, contracts, ownership records, dependency rules, or architecture tests. The relationship among artifacts is recorded in the system, not merely remembered by a senior engineer.
+Discoverable means related surfaces are reachable, in two directions. Forward, the modifier can find the rest of the closure — the artifacts that must change together — through names, types, tests, registries, schemas, contracts, ownership records, dependency rules, or architecture tests. Backward, the modifier can find what already exists before building something new, learning whether a rule, capability, or helper has already been implemented and where. The relationship among artifacts is recorded in the system, not merely remembered by a senior engineer.
 
 Trustworthy means the paths can be relied upon. This is the most important property. If modifiers do not trust the architecture, they will route around it. They will search everywhere, read through every layer, distrust every boundary, and duplicate decisions for local convenience.
 
@@ -276,6 +281,16 @@ Architecture truly works only when it allows modifiers to stop searching.
 This stopping power is the real payoff. A boundary that cannot stop traversal is only indirection. A layer that does not predict decision placement is only a folder. A service boundary that does not align with ownership is only distributed overhead. A plugin contract that does not match the real variation axis is only ceremony.
 
 The test of architecture is not whether the diagram looks clean. The test is whether future modifiers can acquire sufficient context through the routes the architecture claims to provide.
+
+## Reusable Capabilities Need a Home
+
+The discoverable property carries a sharp consequence that is easy to miss. Reuse is only possible when existing capabilities can be found, and finding them depends on placement rules and ownership.
+
+Most of the styles above route domain decisions, and domain decisions come with natural owners: pricing logic lives in the pricing domain, shipping logic in shipping. Cross-cutting capabilities — a date formatter, a retry wrapper, a parsing helper, a validation primitive — have no domain to anchor them. The fix is ordinary: a `tools` or `utility` module with a clear owner usually keeps them findable. The point is that this placement rule and its ownership are themselves part of the architecture. When the architecture defines where such capabilities live and who owns them, a modifier checks one predictable place before writing their own. When it leaves that undefined, there is no first place to check, and duplication becomes the structural default rather than a discipline failure. This predates AI: human-maintained codebases reinvent the same helper for exactly the same reason.
+
+This becomes a concrete requirement on architecture. A reusable capability must have a predictable placement rule and a clear owner, even when it belongs to no domain — a shared kernel, a utility module with a named owner, a registry, or an index that keeps it reachable. Discoverability is the precondition for reuse, and placement and ownership are the precondition for discoverability. An architecture can route every domain decision flawlessly and still accumulate duplication if it leaves its shared capabilities homeless, because the cheapest correct-looking action for each modifier is to build their own.
+
+An agent makes this requirement easy to verify. Whenever a modification searches for an existing capability, fails to find an authoritative one, and creates a fresh implementation, the trace records a homeless responsibility: a capability with no discoverable home. Each occurrence marks a placement rule the architecture has yet to define.
 
 ## Architectural Corrosion as Routing Failure
 
@@ -353,6 +368,7 @@ An ownership check asks:
 - Who owns the decision that changed?
 - Did the patch land in that owner's context?
 - Did a helper, abstraction, or shared module gain unclear responsibility?
+- Did the modification rebuild a capability because no owner or home made the original discoverable?
 - Did a local convenience move a decision away from its rightful home?
 
 A routing integrity check asks:
@@ -365,8 +381,6 @@ A routing integrity check asks:
 This kind of reflection is small, but it targets the real mechanism of architectural decay. Architecture usually does not collapse through one grand mistake. It decays through many locally reasonable shortcuts. Post-change reflection catches those shortcuts while they are still small.
 
 This reflection is useful for human developers, but it fits AI coding agents especially well. Human memory is selective and lossy; after a task is done, a developer may remember that a change felt messy but not exactly which searches failed or which boundary first became suspicious. An agent often still has much of its context acquisition history in the context window: inspected files, search attempts, traversal paths, test feedback, corrected assumptions, and crossed boundaries. That makes post-change reflection unusually precise. It can turn the agent's working trace into architectural feedback: which routes worked, which boundaries failed, which ownership was unclear, and which missing index should be added.
-
-For a concrete workflow, see [Post-Change Design Reflection](/blog/post-change-design-reflection/).
 
 ## Architecture Is Maintained at Modification Scale
 
