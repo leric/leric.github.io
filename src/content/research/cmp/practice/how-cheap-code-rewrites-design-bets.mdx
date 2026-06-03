@@ -7,7 +7,7 @@ order: 2
 status: published
 version: "0.1"
 pubDate: Jun 01 2026
-updatedDate: Jun 01 2026
+updatedDate: Jun 03 2026
 canonicalUrl: "https://www.contextcost.dev/research/cmp/practice/how-cheap-code-rewrites-design-bets/"
 tags: ["CMP", "software-design", "AI agents", "verifiability", "TDD", "design-tradeoffs"]
 lang: en
@@ -96,12 +96,22 @@ Two of the terms in that bet have now moved:
 
 When a practice's cost falls and its benefit becomes the scarce resource, its ROI does not inch up — it flips. What was over-engineering for a human-only team can be the right call when the primary modifier is an agent. The taste did not change; the modifier did, and the prices followed. One caveat rides along: now that checks are cheap to manufacture, the scarce virtue is no longer writing them but deleting the ones that carry no signal — a flaky or tautological check is worse than none, because the agent will dutifully close the loop against a lie.
 
-## The recalibrated criterion
+## The predictions
 
-The previous chapter judged a design move by whether the context it saved, collapsed, indexed, or checked outweighed the boundary cost, carrying depth, and conceptual surface it added. That inequality still holds. What this chapter adds is that one term in it — *checked* — just became far more valuable, and far cheaper to obtain, because the modifier doing the work is increasingly an agent running a closed loop.
+A framework that only explains is a story. One that predicts is a bet you can lose. The mechanism this chapter isolated is sharp enough to make those bets: AI collapsed the cost of any correctness that comes with an oracle and left everything else priced exactly where it was. Read that one law forward and it makes specific calls about where the industry goes — each forecast below follows from it, and the set is meant to be testable, with clear ways the next few years could prove it wrong.
 
-That gives a sharper version of "worth designing for":
+**Typed languages win back the center.** TypeScript over JavaScript, Rust into systems work, the rapid retrofitting of gradual types onto Python and Ruby — adoption climbs fastest exactly where agents do the most writing, because a type is at once the cheapest oracle to manufacture and one of the most precise — it pins a decision down exactly, with no ambiguity left for the model to re-roll, and makes the modification closure mechanically visible. Dynamic ecosystems respond by bolting static layers on, and the direction of travel is one-way. The falsifier is clean: if a decade out the dominant agent stack is untyped and thriving on it, this chapter was wrong.
 
-> A practice is worth designing for when it turns un-checkable correctness into an honest automatic signal — because that signal is the one cost AI did not erase, and it is what decides whether cheap code is also reliable code.
+**Architecture's payoff moves to separating the *what* from the *how*.** The most valuable thing design does at this grain is draw a clean line between the decisions that carry an oracle and the ones that never will — isolating the *what to do*, where only human judgment settles what counts as right, from the *how to do it*, where an agent can check itself and converge. A system carved along that seam hands the agent wide territory it can work cheaply and verify on its own, while concentrating the expensive, un-oracled judgment into a small, legible surface a human can actually hold. Whether those boundaries are also mechanically enforced matters less than where they are drawn: architectures that make the what/how split explicit see their return jump, and ones that smear the two together across every module leave a human auditing everywhere at once.
 
-That is how cheap code rewrites the design bet. It does not make design matter less; it changes which moves are worth making. Any structure that pins down the *what* — and turns correctness into a signal the agent can check itself against — sees its return jump, because that signal is now what separates a change you can merge from one you must stop and audit. Any structure that pins down nothing stays exactly as skippable as it always was. So the practices we used to ration as too much trouble — tests, strong typing, executable contracts, enforced boundaries — are no longer overhead a disciplined team merely tolerates; they are the infrastructure that makes an agent's cheap output trustworthy. This is the local, practice-level view of a claim the series makes at the top: reliable coding agents need better codebases.
+**Spec-driven design plateaus, because code is the most precise spec there is.** The spec-first orthodoxy puts all its weight on the document as the artifact that matters, and that is the wrong bet. A spec in prose pins down *what to do* only loosely; whatever it leaves unsaid, the model re-decides on every run. The most exact and complete expression of intent we have is the code itself. So the forecast is that attention spent on the spec alone stalls exactly where the spec stops fixing the answer, and the pattern that lasts pushes intent *into* the code as executable form, treating the code as the canonical *what* and the spec as a lossy view of it.
+
+**An oracle-manufacturing industry forms.** Contracts, property-based testing, runtime assertions, schema validation, executable architecture checks — tooling whose entire job is to convert a human judgment into an automatic signal becomes a category with its own budget line and its own venture thesis. What it sells is the one resource AI made scarce: output you can trust without reading every line.
+
+**The codebase becomes the moat.** Give two teams the same models, the same agents, and the same headcount, and they diverge on the only thing that matters — how much of the agent's output they can merge without a human audit. The differentiator is the verifiability of the codebase, and a better model does not close the gap. Expect that property to get measured: a verifiability metric on the CI dashboard, in technical due diligence, in the honest valuation of what an acquisition's code is actually worth.
+
+**The engineer's job concentrates on the un-oracled half.** As the *how* falls to the agent, the work that stays human is deciding what to build, defining what counts as right, and catching the *almost right*. Hiring, titles, and seniority tilt toward specification, boundary design, and review. Implementation as a standalone role — typing code from someone else's specification — fades out, because that half of the work now belongs to agents.
+
+One last bet rides on top of all of them. Once checks are cheap to mass-produce, the scarce skill flips from writing them to deleting the ones that lie. Flaky and tautological checks become a dominant failure mode, and managing the signal-to-noise of the check suite turns into a named discipline.
+
+Every one of these reduces to the same claim, now stated as a forecast rather than an observation: the worth of a codebase is migrating toward how much of its correctness an agent can verify on its own. Reliable coding agents need better codebases — and the next few years will make that concrete, team by team, settled by who can trust what their agents ship.

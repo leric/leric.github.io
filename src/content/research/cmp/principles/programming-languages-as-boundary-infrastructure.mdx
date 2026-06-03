@@ -7,7 +7,7 @@ order: 5
 status: published
 version: "0.1"
 pubDate: May 29 2026
-updatedDate: May 29 2026
+updatedDate: Jun 03 2026
 canonicalUrl: "https://www.contextcost.dev/research/cmp/principles/programming-languages-as-boundary-infrastructure/"
 tags: ["CMP", "software-design", "programming-languages", "boundaries", "type-systems", "agents"]
 lang: en
@@ -119,7 +119,15 @@ So the better question is:
 
 ## 4. AI Shifts the Trade-off Toward Expressive Languages
 
-As AI becomes a larger part of everyday programming work, the trade-off around programming languages starts to change.
+This shift did not begin with AI. AI makes it easier to see.
+
+Over the last decade, the direction of language evolution has already been moving toward stronger boundary expression. Newer languages such as Rust, Swift, Kotlin, TypeScript, Zig, and Gleam all make different trade-offs, but they share a broad tendency: more explicit types, more visible failure modes, more structured state spaces, clearer module boundaries, and stronger tool feedback.
+
+Even dynamic language ecosystems have moved in the same direction. Python added type hints and developed tools such as mypy and Pyright. JavaScript was reshaped by TypeScript. Ruby added RBS and Sorbet. PHP has steadily expanded its type system. These ecosystems did not become purely static languages, but they all added ways to express more design intent in forms tools can inspect.
+
+Under CMP, this is not just a fashion in language design. It is a response to scale. As codebases grow larger and live longer, implicit assumptions become expensive. Teams need more of the system's meaning to be carried by source-level structures rather than by memory, convention, documentation, or test failures.
+
+AI-assisted development strengthens the same pressure. Agents can write code quickly, but they are sensitive to hidden semantics. A language that exposes more boundaries in signatures, variants, modules, effects, nullability, ownership, or schemas gives both humans and agents a smaller search space and a stronger feedback loop.
 
 Expressive languages used to ask developers to pay two costs directly. One is learning cost: the team has to understand types, variants, lifetimes, effects, visibility rules, ownership rules, and the way these mechanisms shape code. The other is design-commitment cost: once a boundary is expressed in the language, the codebase has to respect it, and related changes have to move through that constraint.
 
