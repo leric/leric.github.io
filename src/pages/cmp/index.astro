@@ -168,9 +168,17 @@ const parts: RoadmapPart[] = [
 			},
 			{
 				num: 16,
-				title: "Post-Change Reflection: Closing the Loop One Modification at a Time",
+				title: "Post-Task Design Reflection",
 				description:
-					"The local-optimization trap, why both humans and agents need to reflect on context routing, and a post-change reflection skill that turns each modification into routing-repair feedback for locality and boundaries.",
+					"Solving the reliability problem of AI programming through context routing. This chapter explains why agents can erode codebases, and how post-task reflection turns each modification into locality repair, boundary guards, and ownership signals.",
+				status: "published",
+				href: "/research/cmp/practice/post-task-design-reflection/",
+			},
+			{
+				num: 17,
+				title: "How to Design a CMP-aware Coding Agent",
+				description:
+					"Embeds CMP directly into a coding agent's workflow through two mechanisms: a pre-task planner that maps depth, breadth, and modification closure before touching code, and a post-task reflection loop that repairs boundaries and locality after each change. The aim is an agent that reasons about design in terms of boundary, locality, and context cost — actively maintaining and tightening architectural seams so the codebases AI maintains stay cleaner than the ones humans maintain.",
 				status: "planned",
 			},
 		],
@@ -180,24 +188,17 @@ const parts: RoadmapPart[] = [
 		label: "Part V — Open Frontiers",
 		chapters: [
 			{
-				num: 17,
+				num: 18,
 				title: "Can Context Cost Be Measured?",
 				description:
 					"Context cost may not be directly measurable, but its traces can be observed: retrieved files, failed localization, missed edits, patch breadth, test failures, review corrections, and static structure. What would a credible, comparable metric look like?",
 				status: "planned",
 			},
 			{
-				num: 18,
-				title: "What Does an Agent-Native Codebase Look Like?",
-				description:
-					"When the primary modifier of a codebase is no longer human, which design principles bend, break, or invert? This chapter opens the question of designing for non-human modifiers as a first-class audience.",
-				status: "planned",
-			},
-			{
 				num: 19,
-				title: "How to Design a CMP-Native Coding Agent",
+				title: "What Will Software Engineering Become?",
 				description:
-					"If CMP describes what makes a codebase modifiable, what does it imply for the agent doing the modifying? This chapter speculates on agent architecture: pre-modification context analysis, design-aware planning, post-change reflection loops, and the tooling surface an agent needs to act on context cost rather than just text.",
+					"When agents become routine participants in software work, the question extends beyond codebase structure. Deployment, infrastructure, reliability, performance, operations, security, observability, and product iteration all become part of the agent-era engineering system. This chapter asks what software engineering becomes when the whole lifecycle—not just the codebase—must be redesigned around human judgment, machine execution, and continuous feedback.",
 				status: "planned",
 			},
 		],

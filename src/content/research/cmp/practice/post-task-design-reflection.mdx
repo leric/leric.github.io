@@ -1,0 +1,160 @@
+---
+title: "Post-Task Design Reflection"
+description: "Solving the reliability problem of AI programming through context routing. This chapter explains why agents can erode codebases, and how post-task reflection turns each modification into locality repair, boundary guards, and ownership signals."
+book: cmp
+part: practice
+order: 4
+status: published
+version: "0.1"
+pubDate: Jun 04 2026
+updatedDate: Jun 04 2026
+canonicalUrl: "https://www.contextcost.dev/research/cmp/practice/post-task-design-reflection/"
+tags: ["CMP", "software-design", "AI agents", "context-routing", "code review", "maintainability"]
+lang: en
+---
+
+Solving the reliability problem of AI programming through context routing.
+
+## 1. The Fear: "Will AI Turn My Codebase Into a Mess?"
+
+As agentic engineering moves from demos into real codebases, one fear keeps coming back:
+
+**Will AI slowly turn my codebase into a mess?**
+
+This fear has become concrete. Teams have started to recognize the pattern in their own repositories. A feature ships faster. A bug gets patched quickly. A test turns green. The immediate task looks done. Then, a few weeks later, the codebase contains one more awkward helper, one more near-duplicate branch, one more special case, one more path that bypasses the boundary the architecture was trying to protect. Each individual change can look reasonable. The damage comes from accumulation.
+
+Recent evidence gives a qualified yes.
+
+A 2026 large-scale study tracked 304,362 verified AI-authored commits across 6,275 GitHub repositories, covering Copilot, Claude, Cursor, Gemini, and Devin. It found that more than 15% of commits from every assistant introduced at least one detectable issue. Most were code smells, but runtime bugs and security issues also appeared. More importantly, 24.2% of tracked AI-introduced issues still survived at the latest repository revision, with unresolved issues accumulating past 110,000 by February 2026.
+
+That is enough to answer the practical question. AI agents can absolutely make a codebase messier when their changes enter faster than the codebase can absorb, review, and repair them.
+
+The point is not that 2026 agents are bad. They are getting more useful, more autonomous, and more embedded in real workflows. That is exactly why the risk matters more. DORA's 2025 framing is the right one: AI amplifies the surrounding engineering system. If a codebase already has weak locality, unclear boundaries, and missing ownership rules, stronger agents will not magically preserve the design. They will move more code through those weak paths.
+
+This is the dark side of vibe coding. The beginning feels fluid. The ending can become vibe sloping: the system slides from momentum into slop. The speed is immediate. The debt compounds.
+
+So the fear deserves a direct answer.
+
+Yes, AI can make a codebase messier over time.
+
+## 2. The Current Explanations Are Still Fragmented
+
+There is no single accepted explanation for why agentic coding creates reliability problems. The current literature and industry writing point to several adjacent failure surfaces.
+
+Anthropic's 2025 work on context engineering explains the problem as **context reliability**: agents need a small, high-signal working context, because long context can still become noisy, polluted, or hard to reason across. Trajectory-level research on software-engineering agents explains it as **workflow reliability**: successful agents balance exploration, fix generation, and testing, while failed runs fall into repetitive loops, poorly validated fixes, or weak use of tool feedback. Failure-pattern studies of coding agents explain it as **codebase awareness**: agents struggle with business rules, shared state, existing helpers, refactoring obligations, and error handling as applications grow.
+
+Industry reports add two more angles. Code review and quality-control discussions focus on **review overload**: agentic coding makes large diffs cheap, so teams need to decide what humans should review instead of inspecting every implementation detail. Architecture research on "vibe architecting" focuses on **governance**: agents now make framework, decomposition, integration, and boundary decisions that often arrive inside a working patch without an explicit design review.
+
+These explanations are useful because they expose different aspect of the same problem: context, trajectory, codebase awareness, review load, and architecture governance. They are not separate boxes. Trajectory failures and governance failures often appear precisely because the agent did not receive the codebase awareness needed to act within the system's design. CMP gives us a more compact way to connect them: **agentic reliability is a context routing problem**.
+
+The question is not only whether the model is strong enough. It is whether the codebase and its surrounding engineering system help the agent find the right information, modify the right place, respect the right constraints, and learn from the right feedback.
+
+## 3. Why This Is a Context Routing Problem
+
+An agent never modifies a codebase from a complete map. It starts with a request, gathers context, follows names and files, chooses a patch location, runs checks, interprets feedback, and stops when the task appears done. Each step depends on what the codebase makes visible and what it hides.
+
+When the right files, tests, docs, and conventions are easy to discover, the agent can work with a small, high-signal context. When they are scattered or implicit, the agent either misses critical information or compensates by loading too much. That is the context problem.
+
+When the agent can understand how the codebase works as a system — where behavior is defined, how state flows, which business rules constrain the change, what abstractions already exist, which files must evolve together, what boundaries protect the design, and what conventions the codebase expects — it can make changes that fit the surrounding system. That is the broad codebase-awareness problem.
+
+When boundaries, contracts, tests, types, static analysis, and review comments all point back to design intent, they deepen that awareness and guide the next action. When those signals are hidden, noisy, or disconnected, the agent may still write plausible code while missing the system relationship that makes the change correct: it can cross layers, loop on the wrong fix, suppress errors, stop too early, or optimize for "green" without preserving the architecture.
+
+When architecture separates **what** from **how**, humans can review behavior, contracts, boundaries, and design intent while agents use TDD to grind through implementation details. When that separation is weak, every AI-generated diff asks reviewers to inspect both intent and mechanics. That is the review-overload problem.
+
+So "context routing" does not add another category to the list. It names the common structure underneath them: reliability depends on whether the codebase routes the agent toward the context needed to make the right change.
+
+## 4. Read the Action the Agent Just Took
+
+Every code modification produces a diff. It also produces a real context-routing trace.
+
+To complete the task, the agent had to route itself through the codebase. It searched for entry points, opened files, followed names, tests, imports, comments, errors, types, and conventions, then chose one place to patch instead of another. That route is not an abstraction. It is the actual path by which the agent discovered context, selected a modification point, interpreted feedback, and decided the task was done.
+
+Right after the task is finished, that routing trace is still fresh. The agent still has a high-resolution map of how the routing worked in practice: which signals helped it find the right files, which names or tests pointed in the right direction, which conventions made the next step obvious, which paths went nowhere, which boundary was hard to see, and where placement or ownership felt ambiguous.
+
+That makes post-task reflection unusually valuable. It can ask three concrete questions while the evidence is still available:
+
+- Did the codebase provide clear routing information for this change?
+- Did context collection receive enough help from names, tests, docs, types, errors, and local structure?
+- Did the model and harness notice and use those routing signals, or did they wander, over-read, under-read, or take a shortcut?
+
+Human development workflows usually preserve the diff and discard this route. A pull request shows what changed. It rarely shows how the modifier found the change location, what misleading paths were explored, which abstractions were hard to discover, or which boundaries felt expensive to respect.
+
+Agents create an opportunity to keep that context-routing trace before it evaporates.
+
+This opportunity does not depend on a specific model weakness. Stronger models will still need to discover context. Better harnesses will still need routing signals to use. The interesting object is the interaction between the codebase, the model, and the harness: code structure, naming, tests, documentation, ownership rules, module boundaries, tool design, and retrieval behavior all shape the route.
+
+When reflection repairs those routing problems, it improves the next modification. Clearer locality helps the next agent find the relevant context faster. Clearer boundaries help it avoid shortcuts. Clearer ownership helps it place new capability where the design expects it. That is why the agent's struggle to gather context is telemetry: it reveals how the codebase can become easier for future agents to understand and modify reliably.
+
+## 5. What Post-Task Design Reflection Checks
+
+Post-task design reflection can stay small. Section 4 already established the main idea: every completed task leaves a context-routing trace. Reflection reads that trace and checks three concrete things.
+
+### 5.1. Missing Path
+
+Did the agent struggle to find context that should have been easy to reach?
+
+This is a locality signal. The right file, test, registry, helper, or sibling change may already exist, but the codebase did not route the agent there clearly enough. The result is omission risk: related changes drift apart, existing capabilities get reimplemented, and tests that should guide the change stay disconnected from the work.
+
+The repair is **Locality Repair**: add the smallest useful routing signal so the next modifier can find the existing destination. That might be a comment, registry entry, contract test, README note, naming adjustment, better file placement, or nearby pointer to the canonical implementation.
+
+### 5.2. Unauthorized Shortcut
+
+Did the agent complete the task by crossing a boundary the architecture meant to preserve?
+
+This is a boundary signal. The patch may work locally while creating a new access path through internals, private state, implementation details, or the wrong layer. The result is boundary erosion: the system gains one more shortcut that future changes can copy.
+
+The repair is **Boundary Guard**: move the change back through the intended contract and make that contract easier to see. That might mean clarifying an interface, adding a contract test, naming an owner, documenting a forbidden dependency, or moving the patch to the proper layer.
+
+### 5.3. Unowned Capability
+
+Did the task reveal a capability with no clear home?
+
+This is a placement and ownership signal. The agent may need a cross-cutting helper, conversion, policy, or integration point, but the architecture gives no obvious answer for where it belongs. The result is duplication and drift: each future task can place the same capability locally.
+
+The response is **detect and report**. Reflection should mark the ambiguous capability and surface the design decision: where should this live, who owns it, and what path should future changes follow?
+
+## 6. Why Reflection Must Stay Small
+
+Post-task design reflection is deliberately limited. It preserves execution fidelity to the existing design; it does not design the system on behalf of the team.
+
+That limit is the point.
+
+Many AI-caused reliability problems come from decisions being made implicitly. A patch introduces a new abstraction. A helper gains an accidental owner. A boundary moves because the direct edit was easier. A cross-cutting capability lands wherever the current task happened to be. The code works, but a design decision has been made without being named.
+
+Reflection should prevent that silent transfer of authority. It gives the agent a narrow responsibility: recognize whether this task followed the design that already exists, and surface the places where a real design decision is required.
+
+That is why the three checks in Section 5 are intentionally simple:
+
+- **Missing Path**: repair discoverability when the destination already exists.
+- **Unauthorized Shortcut**: guard an existing boundary when the patch crossed it.
+- **Unowned Capability**: report the ownership gap when the destination has not been defined.
+
+The first two can often produce a small fix. The third should usually produce a clear escalation. Reflection can say, "this capability needs a home," but it should not invent that home as if placement were just another implementation detail.
+
+This keeps the **what / how** boundary intact. Humans remain responsible for behavior, contracts, boundaries, ownership, and design intent. Agents can handle the **how** inside those constraints: implement, test, refine, and use TDD to grind through the mechanical details.
+
+Reliable collaboration depends on that division of labor. The agent must learn to recognize where its implementation work ends and where human design authority begins. Post-task reflection is the practice that makes that boundary visible after every modification.
+
+## 7. Why This Answers the Fear
+
+The fear is that AI will mess up the codebase. A patch passes tests, the diff looks reasonable, and the immediate task is done. Over time, the next change becomes harder because the relevant context is harder to find: the right files are less obvious, the right boundary is less visible, the existing capability is harder to reuse, and the human reviewer has to reconstruct more of the system before trusting the change. That is the maintainability failure CMP is built to address: the codebase stops routing future modifiers toward all the context they need.
+
+Post-task design reflection answers that fear by turning every modification into a small context-routing review.
+
+It keeps the loop at the same scale as the risk. Missing Path repairs reduce the context cost of finding the next relevant file, test, helper, or sibling change. Boundary Guards keep existing design constraints visible at the point of change, so future agents can modify through the intended contract. Unowned Capability reports turn unclear placement into explicit design work, so future changes have a stable place to land and avoid duplicate code.
+
+This also keeps the **what / how** boundary intact. The agent can still move fast through implementation: write code, run tests, refine, and handle mechanical details. Reflection keeps behavior, contracts, boundaries, ownership, and design intent in the human-reviewed layer, where maintainability decisions belong.
+
+The rhythm matters most. Codebase maintainability erodes one modification at a time, so the repair loop should run one modification at a time as well. Put reflection at the end of every agentic task, while the context-routing trace is still fresh, and the system can lower the context cost before the next task follows the same weak path.
+
+That is the promise: **keep the codebase modifiable, preserve human design authority, and make the next agentic modification easier to route correctly.**
+
+## Closing — Design in the Agent Era
+
+Agentic engineering changes the unit of software design.
+
+Design used to be judged mostly by how well it helped humans understand and change a system. Now it must also be judged by how well it helps agents discover the right context, follow the right constraints, and leave the system easier to modify after each change.
+
+That makes post-task reflection more than a cleanup habit. It is a new design feedback loop for AI-maintained codebases. The agent's path through the codebase becomes evidence. Its friction becomes a signal. Its uncertainty reveals where the system has not made its own design legible enough.
+
+Post-task design reflection closes that loop one modification at a time.
