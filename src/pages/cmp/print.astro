@@ -1,0 +1,464 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import {
+	CMP_PART_LABELS,
+	CMP_START_PART,
+	getCmpChapters,
+	isCmpChapterPublished,
+	parseCmpEntryId,
+	type CmpPartId,
+} from '../../lib/research-cmp';
+import { AUTHOR, SITE_TITLE } from '../../consts';
+import 'katex/dist/katex.min.css';
+
+const all = await getCollection('research');
+const published = getCmpChapters(all).filter((e) => isCmpChapterPublished(e.data.status));
+
+type PrintChapter = {
+	entry: (typeof published)[number];
+	Content: Awaited<ReturnType<typeof render>>['Content'];
+	part: string;
+	slug: string;
+	showPartLabel: boolean;
+	partLabel: string;
+};
+
+let previousPart: string | null = null;
+const chapters: PrintChapter[] = [];
+
+for (const entry of published) {
+	const { Content } = await render(entry);
+	const parsed = parseCmpEntryId(entry.id);
+	const part = parsed?.part ?? entry.data.part;
+	const slug = parsed?.slug ?? '';
+	const showPartLabel = part !== previousPart && part !== CMP_START_PART;
+	const partLabel = CMP_PART_LABELS[part as CmpPartId] ?? part;
+
+	chapters.push({ entry, Content, part, slug, showPartLabel, partLabel });
+	previousPart = part;
+}
+
+const latestUpdated = published.reduce(
+	(max, e) => {
+		const d = e.data.updatedDate ?? e.data.pubDate;
+		return d > max ? d : max;
+	},
+	published[0]?.data.pubDate ?? new Date(),
+);
+
+const pageTitle = `CMP — Print edition · ${SITE_TITLE}`;
+const pageDescription =
+	'Full Context Minimization Principle book (published chapters) formatted for printing to PDF.';
+const canonicalUrl = new URL('/cmp/print/', Astro.site).href;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={pageTitle} description={pageDescription} canonicalHref={canonicalUrl} />
+		<meta name="robots" content="noindex" />
+	</head>
+	<body class="cmp-print-body">
+		<aside class="cmp-print-toolbar" aria-label="Print actions">
+			<a href="/cmp/">← Back to CMP</a>
+			<p>Use <kbd>Ctrl</kbd>+<kbd>P</kbd> (or <kbd>⌘</kbd>+<kbd>P</kbd>) → Save as PDF. Enable background graphics if code blocks look faded.</p>
+		</aside>
+
+		<main class="cmp-print-main">
+			<header class="cmp-print-cover">
+				<p class="cmp-print-eyebrow">Context Cost · Research</p>
+				<h1 class="cmp-print-book-title">Context Minimization Principle</h1>
+				<p class="cmp-print-book-subtitle">
+					A framework for software design as the discipline of reducing context acquisition cost — for
+					humans and AI agents alike.
+				</p>
+				<div class="cmp-print-cover-meta">
+					<span>{AUTHOR.name}</span>
+					<span>·</span>
+					<span>{published.length} published chapters</span>
+					<span>·</span>
+					<span>Updated <FormattedDate date={latestUpdated} /></span>
+				</div>
+				<p class="cmp-print-cover-note">
+					Exported from <a href="https://www.contextcost.dev/cmp/">contextcost.dev/cmp</a>. Draft chapters are
+					not included.
+				</p>
+			</header>
+
+			<nav class="cmp-print-toc" aria-labelledby="cmp-print-toc-heading">
+				<h2 id="cmp-print-toc-heading">Contents</h2>
+				<ol>
+					{
+						chapters.map(({ entry, slug, part, showPartLabel, partLabel }) => (
+							<li class:list={[{ 'cmp-print-toc-part': showPartLabel }]}>
+								{showPartLabel && <span class="cmp-print-toc-part-label">{partLabel}</span>}
+								<a href={`#chapter-${slug}`}>{entry.data.title}</a>
+							</li>
+						))
+					}
+				</ol>
+			</nav>
+
+			{
+				chapters.map(({ entry, Content, slug, showPartLabel, partLabel }, index) => (
+					<section
+						id={`chapter-${slug}`}
+						class="cmp-print-chapter"
+						aria-labelledby={`chapter-title-${slug}`}
+					>
+						{showPartLabel && <p class="cmp-print-part-label">{partLabel}</p>}
+						<header class="cmp-print-chapter-header">
+							<p class="cmp-print-chapter-num">
+								Chapter {index + 1}
+							</p>
+							<h2 id={`chapter-title-${slug}`} class="cmp-print-chapter-title">
+								{entry.data.title}
+							</h2>
+							<p class="cmp-print-chapter-desc">{entry.data.description}</p>
+						</header>
+						<div class="cmp-print-prose">
+							<Content />
+						</div>
+					</section>
+				))
+			}
+
+			<footer class="cmp-print-footer">
+				<p>
+					Unless otherwise noted, CMP chapters are licensed under
+					<a href="https://creativecommons.org/licenses/by/4.0/" rel="license noopener noreferrer"
+						>CC BY 4.0</a
+					>.
+				</p>
+				<p class="cmp-print-footer-muted">
+					<FormattedDate date={latestUpdated} /> · <a href="/cmp/">contextcost.dev/cmp</a>
+				</p>
+			</footer>
+		</main>
+
+		<style>
+			.cmp-print-body {
+				margin: 0;
+				background: var(--background);
+				color: var(--primary);
+			}
+
+			.cmp-print-toolbar {
+				position: sticky;
+				top: 0;
+				z-index: 10;
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: space-between;
+				gap: 12px 24px;
+				padding: 12px var(--content-padding);
+				background: #1a1a1a;
+				color: #f5f5f3;
+				font-size: 14px;
+			}
+
+			.cmp-print-toolbar a {
+				color: #fff;
+				font-weight: 600;
+			}
+
+			.cmp-print-toolbar p {
+				margin: 0;
+				color: #d4d4d0;
+			}
+
+			.cmp-print-toolbar kbd {
+				font-family: inherit;
+				font-size: 12px;
+				padding: 1px 5px;
+				border-radius: 4px;
+				border: 1px solid #555;
+				background: #2a2a2a;
+			}
+
+			.cmp-print-main {
+				max-width: var(--reading-width);
+				margin: 0 auto;
+				padding: 48px var(--content-padding) 80px;
+			}
+
+			.cmp-print-cover {
+				margin-bottom: 48px;
+				padding-bottom: 32px;
+				border-bottom: 1px solid var(--border);
+			}
+
+			.cmp-print-eyebrow {
+				font-size: 12px;
+				font-weight: 700;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: var(--text-muted);
+				margin: 0 0 12px;
+			}
+
+			.cmp-print-book-title {
+				font-size: clamp(32px, 5vw, 42px);
+				font-weight: 800;
+				letter-spacing: -0.03em;
+				line-height: 1.15;
+				margin: 0 0 16px;
+			}
+
+			.cmp-print-book-subtitle {
+				font-size: 18px;
+				line-height: 1.55;
+				color: var(--secondary);
+				margin: 0 0 20px;
+			}
+
+			.cmp-print-cover-meta,
+			.cmp-print-cover-note {
+				font-size: 14px;
+				color: var(--text-muted);
+				line-height: 1.5;
+			}
+
+			.cmp-print-cover-meta {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 6px;
+				margin-bottom: 12px;
+			}
+
+			.cmp-print-cover-note {
+				margin: 0;
+			}
+
+			.cmp-print-toc {
+				margin-bottom: 56px;
+			}
+
+			.cmp-print-toc h2 {
+				font-size: 20px;
+				margin: 0 0 16px;
+			}
+
+			.cmp-print-toc ol {
+				margin: 0;
+				padding-left: 1.4rem;
+			}
+
+			.cmp-print-toc li {
+				margin-bottom: 8px;
+				line-height: 1.45;
+			}
+
+			.cmp-print-toc-part {
+				margin-top: 14px;
+			}
+
+			.cmp-print-toc-part-label {
+				display: block;
+				font-size: 11px;
+				font-weight: 700;
+				letter-spacing: 0.06em;
+				text-transform: uppercase;
+				color: var(--text-muted);
+				margin-bottom: 4px;
+			}
+
+			.cmp-print-chapter {
+				margin-bottom: 48px;
+			}
+
+			.cmp-print-part-label {
+				font-size: 12px;
+				font-weight: 700;
+				letter-spacing: 0.06em;
+				text-transform: uppercase;
+				color: var(--accent);
+				margin: 0 0 8px;
+			}
+
+			.cmp-print-chapter-header {
+				margin-bottom: 24px;
+				padding-bottom: 20px;
+				border-bottom: 1px solid var(--border);
+			}
+
+			.cmp-print-chapter-num {
+				font-size: 12px;
+				font-weight: 700;
+				letter-spacing: 0.06em;
+				text-transform: uppercase;
+				color: var(--text-muted);
+				margin: 0 0 8px;
+			}
+
+			.cmp-print-chapter-title {
+				font-size: clamp(24px, 3.5vw, 32px);
+				font-weight: 800;
+				letter-spacing: -0.02em;
+				margin: 0 0 10px;
+				line-height: 1.2;
+			}
+
+			.cmp-print-chapter-desc {
+				font-size: 16px;
+				color: var(--secondary);
+				line-height: 1.55;
+				margin: 0;
+			}
+
+			.cmp-print-prose {
+				font-size: 17px;
+				line-height: 1.75;
+			}
+
+			.cmp-print-prose :global(h2) {
+				font-size: 22px;
+				margin-top: 48px;
+				margin-bottom: 10px;
+			}
+
+			.cmp-print-prose :global(h3) {
+				font-size: 18px;
+				margin-top: 32px;
+				margin-bottom: 8px;
+			}
+
+			.cmp-print-prose :global(h4) {
+				font-size: 16px;
+				margin-top: 24px;
+			}
+
+			.cmp-print-prose :global(p) {
+				margin-bottom: 18px;
+			}
+
+			.cmp-print-prose :global(.cmp-tldr) {
+				margin: 0 0 32px;
+				padding: 18px 20px 16px;
+				border: 1px solid var(--border-light);
+				border-left: 4px solid var(--accent);
+				border-radius: 8px;
+				background: var(--background-alt);
+			}
+
+			.cmp-print-prose :global(.cmp-tldr h2) {
+				margin-top: 0;
+				font-size: 12px;
+				font-weight: 800;
+				letter-spacing: 0.1em;
+				text-transform: uppercase;
+				color: var(--accent);
+			}
+
+			.cmp-print-prose :global(figure) {
+				margin: 24px 0;
+				break-inside: avoid;
+			}
+
+			.cmp-print-prose :global(figcaption) {
+				font-size: 14px;
+				color: var(--secondary);
+			}
+
+			.cmp-print-prose :global(pre) {
+				font-size: 13px;
+				white-space: pre-wrap;
+				word-break: break-word;
+			}
+
+			.cmp-print-prose :global(.cmp-code-details summary) {
+				display: none;
+			}
+
+			.cmp-print-prose :global(.cmp-code-details pre) {
+				display: block;
+				border-top: none;
+				border-radius: 8px;
+			}
+
+			.cmp-print-prose :global(a) {
+				color: var(--accent);
+			}
+
+			.cmp-print-footer {
+				margin-top: 48px;
+				padding-top: 24px;
+				border-top: 1px solid var(--border);
+				font-size: 14px;
+				color: var(--secondary);
+				line-height: 1.55;
+			}
+
+			.cmp-print-footer-muted {
+				color: var(--text-muted);
+				margin-top: 8px;
+			}
+
+			@media print {
+				.cmp-print-toolbar {
+					display: none !important;
+				}
+
+				.cmp-print-body {
+					background: #fff;
+					color: #000;
+					font-size: 11pt;
+					line-height: 1.45;
+				}
+
+				.cmp-print-main {
+					max-width: none;
+					padding: 0;
+					margin: 0;
+				}
+
+				.cmp-print-cover {
+					page-break-after: always;
+				}
+
+				.cmp-print-toc {
+					page-break-after: always;
+				}
+
+				.cmp-print-chapter {
+					page-break-before: always;
+					break-before: page;
+				}
+
+				.cmp-print-chapter-header,
+				.cmp-print-prose :global(h2),
+				.cmp-print-prose :global(h3),
+				.cmp-print-prose :global(figcaption),
+				.cmp-print-prose :global(.cmp-tldr) {
+					break-after: avoid;
+				}
+
+				.cmp-print-prose :global(pre),
+				.cmp-print-prose :global(figure),
+				.cmp-print-prose :global(table) {
+					break-inside: avoid;
+				}
+
+				.cmp-print-prose :global(a) {
+					color: #000;
+					text-decoration: none;
+				}
+
+				.cmp-print-prose :global(a[href^='http'])::after {
+					content: ' (' attr(href) ')';
+					font-size: 9pt;
+					color: #444;
+					word-break: break-all;
+				}
+
+				.cmp-print-prose :global(a[href^='#'])::after,
+				.cmp-print-prose :global(a[href^='/'])::after {
+					content: none;
+				}
+			}
+		</style>
+	</body>
+</html>
