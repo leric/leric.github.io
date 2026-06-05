@@ -3,23 +3,46 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
 const projects = [
 	{
-		name: "Context Footprint",
-		summary: "A prototype for estimating context acquisition cost in real codebases.",
+		name: "CMP",
+		summary: "Position paper proposing the Context Minimization Principle: a design is better when it reduces the context a developer or agent must load to answer an engineering query reliably.",
+		status: "position paper",
+		linkLabel: "GitHub",
+		linkHref: "https://github.com/leric/cmp",
+	},
+	{
+		name: "The Attention Cycle",
+		summary: "Position paper on reducing supervision tax through executable documents—a loop where intent, execution, and verification stay in one evolving artifact.",
+		status: "position paper",
+		linkLabel: "GitHub",
+		linkHref: "https://github.com/leric/attention-cycle",
+	},
+	{
+		name: "Metadoc (Airic)",
+		summary: "CLI prototype for a personal AI work partner built around Meta Documents and guided problem decomposition—treating agents, tasks, and workflows as structured Markdown.",
 		status: "experimental",
 		linkLabel: "GitHub",
-		linkHref: "https://github.com/airicdev/context-footprint",
+		linkHref: "https://github.com/leric/metadoc",
 	},
 	{
-		name: "Airic Agent",
-		summary: "Agent workflow experiments for architecture-aware software modification.",
+		name: "HyperAPI",
+		summary: "A performant API gateway in Rust with auth, load balancing, circuit breaking, rate limiting, and realtime config updates.",
+		status: "maintained fork",
+		linkLabel: "GitHub",
+		linkHref: "https://github.com/leric/hyperapi",
+	},
+	{
+		name: "Context Footprint",
+		summary: "Research prototype that computes a Context Footprint metric—approximating how much code context must be traversed to analyze a symbol in a codebase.",
+		status: "research preview",
+		linkLabel: "GitHub",
+		linkHref: "https://github.com/AiricDev/context-footprint",
+	},
+	{
+		name: "AFII",
+		summary: "Agent-Friendly Infrastructure Interface: a read-first operational CLI so agents can observe, diagnose, trigger repository-owned actions, and verify outcomes.",
 		status: "in progress",
 		linkLabel: "GitHub",
-		linkHref: "https://github.com/leric",
-	},
-	{
-		name: "Other experiments",
-		summary: "Small tools and notes that test parts of the CMP research agenda.",
-		status: "planned",
+		linkHref: "https://github.com/AiricDev/AFII",
 	},
 ];
 ---

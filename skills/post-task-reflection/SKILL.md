@@ -9,7 +9,7 @@ Use after completing a coding task that modified an existing codebase. The goal 
 
 A codebase's health is measured by how easily the **next** change can be made. Every completed task leaves a context-routing trace, and that trace is design feedback. Everything in this skill serves one goal: **lower the context cost of future modifications.** Keep the right context easy to find, keep design boundaries intact, and keep capabilities owned — so the next human or agent can modify the system reliably. The three checks below are just concrete ways to spot where the last change made the next change harder.
 
-Reflection may repair routing and guard existing boundaries. It must not invent design authority. See `reference/principles.md`.
+Reflection may repair routing and guard existing boundaries. It must not invent design authority. See `references/principles.md`.
 
 ## Glossary
 
@@ -36,10 +36,10 @@ Do not use for trivial formatting-only edits, typo fixes, generated-only changes
 ## Workflow
 
 1. **Reconstruct the task route** — entry point, files inspected, helpful signals (names, tests, types, docs, imports, errors, conventions), misleading/missing signals, final patch location, verification used.
-2. **Run the three checks** — Missing Path, Unauthorized Shortcut, Unowned Capability. For each: found / not found, evidence, future risk, and whether the response is how-level or what-level. Details and allowed responses: `reference/checks.md`.
+2. **Run the three checks** — Missing Path, Unauthorized Shortcut, Unowned Capability. For each: found / not found, evidence, future risk, and whether the response is how-level or what-level. Details and allowed responses: `references/checks.md`.
 3. **Analyze ownership & placement** if a capability was created, modified, or discovered. If ownership is unclear, escalate — do not resolve silently.
 4. **Decide the response** — propose the smallest safe repair when the fix is how-level; escalate to a human when it is what-level (a new concept, owner, boundary, or placement rule). When unsure, escalate.
-5. **Produce the report** using `reference/report-template.md`. Keep it short; one precise design signal beats many generic comments.
+5. **Produce the report** using `references/report-template.md`. Keep it short; one precise design signal beats many generic comments.
 
 ## The Three Checks (summary)
 
@@ -49,13 +49,13 @@ Do not use for trivial formatting-only edits, typo fixes, generated-only changes
 
 ## Core Rule
 
-Do not introduce a new owned concept, boundary, architectural layer, ownership rule, or shared abstraction unless the user or project instructions explicitly authorize it. When the right design destination is unclear, escalate instead of choosing silently. Full boundary, anti-overreach, and quality criteria: `reference/principles.md`.
+Do not introduce a new owned concept, boundary, architectural layer, ownership rule, or shared abstraction unless the user or project instructions explicitly authorize it. When the right design destination is unclear, escalate instead of choosing silently. Full boundary, anti-overreach, and quality criteria: `references/principles.md`.
 
 ## Reference files
 
-- `reference/checks.md` — detailed signals, allowed responses, and the decision mapping for the three checks.
-- `reference/principles.md` — what/how boundary, anti-overreach rules, and quality bar.
-- `reference/report-template.md` — the reflection report format.
+- `references/checks.md` — detailed signals, allowed responses, and the decision mapping for the three checks.
+- `references/principles.md` — what/how boundary, anti-overreach rules, and quality bar.
+- `references/report-template.md` — the reflection report format.
 
 ## Final Check
 

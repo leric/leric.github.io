@@ -10,7 +10,6 @@ export const AUTHOR = {
 	avatar: 'https://gravatar.com/avatar/f21db36d8141ef33ca88e79852872fb28cad4242979da17e97a8fd3e5e5f5a44',
 	social: {
 		github: 'https://github.com/leric',
-		medium: 'https://medium.com/@lericzhang',
 		email: 'mailto:leric.zhang@gmail.com'
 	}
 };

@@ -7,7 +7,7 @@ category: "Software Architecture"
 tags: ["Architecture", "AI", "Clean Code", "Design Patterns"]
 ---
 
-*This is Part 2 of my series — check out Part 1: "[Beyond Vibe Coding: Why AI Won't Replace Software Engineers.](https://medium.com/@lericzhang/beyond-vibe-coding-why-ai-wont-replace-software-engineers-f92ebac9d436)"*
+*This is Part 2 of my series — check out Part 1: "[Beyond Vibe Coding: Why AI Won't Replace Software Engineers.](https://www.contextcost.dev/blog/beyond-vibe-coding/)"*
 
 At the heart of effective software engineering lies a simple yet profound challenge: managing context. For humans, our cognitive capacity is constrained by working memory — often cited as holding about 7±2 items at a time, per Miller's Law. We find it hard to work with large, complex code or tangled systems unless we break them down into smaller, easier-to-understand parts. Similarly, LLMs, the backbone of modern AI tools, face token limits that restrict how much context they can process in a single interaction. Exceed these limits, and the AI risks "hallucinations" or incoherent outputs due to overwhelmed context.
 

@@ -28,11 +28,6 @@ import { AUTHOR } from "../consts";
 						<a href={AUTHOR.social.github} target="_blank" rel="noopener">GitHub</a>
 					</li>
 				)}
-				{AUTHOR.social.medium && (
-					<li>
-						<a href={AUTHOR.social.medium} target="_blank" rel="noopener">Medium</a>
-					</li>
-				)}
 				<li><a href="/rss.xml">RSS</a></li>
 				{AUTHOR.social.email && (
 					<li>
@@ -42,18 +37,6 @@ import { AUTHOR } from "../consts";
 			</ul>
 		</section>
 
-		<section>
-			<h2>Selected Writing</h2>
-			<ul>
-				<li><a href="/cmp">Context Minimization Principle</a></li>
-				<li><a href="/blog">Essays</a></li>
-			</ul>
-		</section>
-
-		<section>
-			<h2>Current Research Agenda</h2>
-			<p>Context Cost → CMP → Context Footprint → AI-assisted software engineering.</p>
-		</section>
 	</section>
 </BaseLayout>
 

@@ -7,7 +7,7 @@ category: "Domain-Driven Design"
 tags: ["DDD", "AI", "Software Architecture", "Best Practices"]
 ---
 
-This is Part 3 of the series. Check out [Part 1: *Beyond Vibe Coding*](https://medium.com/@lericzhang/beyond-vibe-coding-why-ai-wont-replace-software-engineers-f92ebac9d436) and [Part 2: *The Context Conundrum*](https://medium.com/@lericzhang/the-context-conundrum-a-shared-limit-for-humans-and-ai-261d14284798).
+This is Part 3 of the series. Check out [Part 1: *Beyond Vibe Coding*](https://www.contextcost.dev/blog/beyond-vibe-coding/) and [Part 2: *The Context Conundrum*](https://www.contextcost.dev/blog/context-conundrum/).
 
 This third installment zeros in on DDD as an invaluable tool for taming domain-heavy software development — those intricate systems in finance, healthcare, or logistics where business rules reign supreme. With AI's rise, DDD isn't just relevant; it's a game-changer, enabling maximum AI involvement without descending into chaos. We'll unpack DDD's core concepts, show how they address AI's limitations, and illustrate practical ways to integrate AI for streamlined workflows. As a senior software architect, I've seen DDD transform messy projects into scalable powerhouses — now, let's adapt it for the AI era.
 

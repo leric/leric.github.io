@@ -214,12 +214,8 @@ const parts: RoadmapPart[] = [
 			<p class="lead">Correct modification requires sufficient context.</p>
 			<p class="lead">Good design makes that context cheaper to acquire.</p>
 			<blockquote class="intro">
-				CMP is a framework for understanding software design as the discipline of reducing the cost of
-				acquiring sufficient context for safe modification — for humans and AI agents alike.
+				<strong>For the modifications a system must realistically support, a design is better when the sufficient context required for correct modification is cheaper to acquire.</strong>
 			</blockquote>
-			<p class="print-edition">
-				<a href="/cmp/print/">Print full book</a> — all published chapters on one page, formatted for Save as PDF.
-			</p>
 		</header>
 
 		<nav class="roadmap" aria-label="CMP book roadmap">
@@ -277,6 +273,10 @@ const parts: RoadmapPart[] = [
 				<a href={CMP_SOURCE_REPO} target="_blank" rel="noopener noreferrer">GitHub repository</a>
 			</p>
 		</section>
+
+		<p class="print-edition">
+			<a href="/cmp/print/">Print full book</a> — all published chapters on one page, formatted for Save as PDF.
+		</p>
 	</section>
 </BaseLayout>
 
@@ -301,15 +301,6 @@ const parts: RoadmapPart[] = [
 		margin-bottom: 6px;
 	}
 
-	.print-edition {
-		font-size: 15px;
-		margin: 20px 0 0;
-	}
-
-	.print-edition a {
-		font-weight: 600;
-	}
-
 	.intro {
 		margin: 20px 0 0;
 		padding: 0 0 0 1em;
@@ -317,6 +308,49 @@ const parts: RoadmapPart[] = [
 		color: var(--secondary);
 		font-size: 17px;
 		line-height: 1.6;
+	}
+
+	.definition {
+		padding: 28px 0;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.definition h2 {
+		font-size: 20px;
+		font-weight: 600;
+		margin: 0 0 14px;
+		letter-spacing: -0.01em;
+	}
+
+	.definition > p {
+		margin: 0 0 14px;
+		color: var(--secondary);
+		font-size: 15px;
+		line-height: 1.55;
+	}
+
+	.constraints {
+		margin: 0;
+		display: grid;
+		gap: 14px;
+	}
+
+	.constraints dt {
+		font-size: 15px;
+		font-weight: 600;
+		margin: 0 0 4px;
+	}
+
+	.constraints dd {
+		margin: 0;
+		color: var(--secondary);
+		font-size: 15px;
+		line-height: 1.55;
+	}
+
+	.definition-link {
+		margin: 18px 0 0;
+		font-size: 14px;
 	}
 
 	.roadmap {
@@ -422,6 +456,19 @@ const parts: RoadmapPart[] = [
 
 	.citation-note a {
 		color: var(--secondary);
+	}
+
+	.print-edition {
+		margin: 32px 0 0;
+		padding-top: 28px;
+		border-top: 1px solid var(--border);
+		font-size: 15px;
+		text-align: center;
+		color: var(--secondary);
+	}
+
+	.print-edition a {
+		font-weight: 600;
 	}
 
 	@media (max-width: 700px) {
