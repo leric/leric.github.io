@@ -7,7 +7,40 @@ import { AUTHOR } from "../consts";
 const posts = (await getCollection("blog")).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
-const recentEssays = posts.slice(0, 3);
+const recentEssays = posts.slice(0, 4);
+
+const manifestoHref = "/research/cmp/start/reliable-coding-agents-need-better-codebases/";
+
+const entryCards = [
+	{
+		eyebrow: "Research",
+		title: "Context Minimization Principle",
+		href: "/cmp",
+		description: "The core theory in the Context Cost research program.",
+		linkLabel: "Explore CMP",
+	},
+	{
+		eyebrow: "Writing",
+		title: "Essays",
+		href: "/blog",
+		description: "Short arguments on software architecture, AI coding agents, and context engineering.",
+		linkLabel: "Read the essays",
+	},
+	{
+		eyebrow: "Tools",
+		title: "Projects",
+		href: "/projects",
+		description: "Context Footprint and prototypes that operationalize the theory.",
+		linkLabel: "See the projects",
+	},
+	{
+		eyebrow: "Agents",
+		title: "Skills",
+		href: "/skills",
+		description: "Installable CMP agent skills — a pre-task planner and a post-task design reflection loop.",
+		linkLabel: "Browse skills",
+	},
+];
 
 const pageTitle = "Context Cost";
 const pageDescription =
@@ -19,28 +52,40 @@ const pageDescription =
 		<h1>Context Cost</h1>
 		<p class="subtitle">Insights on software engineering in the AI era.</p>
 		<p class="lead">
-			Essays on software design, context cost, and AI-assisted engineering.
-			<br />
-			By {AUTHOR.name}.
+			Research and writing on software design, context cost, and AI-assisted engineering.
 		</p>
+		<div class="byline">
+			<img
+				class="byline-avatar"
+				src={AUTHOR.avatar}
+				alt=""
+				width="32"
+				height="32"
+				loading="eager"
+			/>
+			<span>By <a href="/about">{AUTHOR.name}</a></span>
+		</div>
+		<div class="intro-actions">
+			<a class="btn-primary" href={manifestoHref}>Start with CMP</a>
+			<a class="btn-secondary" href="/blog">Read the essays</a>
+		</div>
 	</section>
 
-	<section class="primary-links" aria-label="Primary site entry points">
-		<article>
-			<h2><a href="/cmp">Context Minimization Principle</a></h2>
-			<p>The core theory in the Context Cost research program.</p>
-			<a class="text-link" href="/cmp">Start with CMP</a>
-		</article>
-		<article>
-			<h2><a href="/blog">Essays</a></h2>
-			<p>Short arguments around software architecture, AI coding agents, and context engineering.</p>
-			<a class="text-link" href="/blog">Read the essays</a>
-		</article>
-		<article>
-			<h2><a href="/projects">Projects</a></h2>
-			<p>Context Footprint and related prototypes that operationalize the theory.</p>
-			<a class="text-link" href="/projects">See the projects</a>
-		</article>
+	<section class="explore" aria-label="Explore the site">
+		<h2 class="explore-heading">Explore</h2>
+		<div class="entry-grid">
+			{entryCards.map((card) => (
+				<article class="entry-card">
+					<p class="entry-eyebrow">{card.eyebrow}</p>
+					<h3><a href={card.href}>{card.title}</a></h3>
+					<p class="entry-desc">{card.description}</p>
+					<a class="entry-link" href={card.href}>
+						{card.linkLabel}
+						<span aria-hidden="true"> →</span>
+					</a>
+				</article>
+			))}
+		</div>
 	</section>
 
 	<section class="recent-essays">
@@ -51,65 +96,113 @@ const pageDescription =
 		<ul>
 			{recentEssays.map((post) => (
 				<li>
-					<a href={`/blog/${post.id}/`}>{post.data.title}</a>
+					<a class="essay-title" href={`/blog/${post.id}/`}>{post.data.title}</a>
 					<p>{post.data.description}</p>
 					<small><FormattedDate date={post.data.pubDate} /></small>
 				</li>
 			))}
 		</ul>
 	</section>
+
+	<section class="closing-cta" aria-label="About the author">
+		<p>
+			Written by <a href="/about">{AUTHOR.name}</a>.
+			{AUTHOR.social.github && (
+				<>
+					{" "}Find more on <a href={AUTHOR.social.github} target="_blank" rel="noopener noreferrer">GitHub</a>.
+				</>
+			)}
+		</p>
+	</section>
 </BaseLayout>
 
 <style>
 	.intro {
-		padding: 64px 0 36px;
+		padding: 64px 0 40px;
 		max-width: 760px;
 	}
 
 	.subtitle {
 		font-size: 20px;
 		color: var(--secondary);
-		margin-bottom: 20px;
+		margin-bottom: 16px;
 	}
 
 	.intro .lead {
 		font-size: 17px;
 		color: var(--secondary);
-		max-width: 760px;
-		margin-bottom: 0;
+		max-width: 640px;
+		margin-bottom: 20px;
 	}
 
-	.primary-links {
-		border-top: 1px solid var(--border);
-		border-bottom: 1px solid var(--border);
-		padding: 26px 0;
-		display: grid;
-		gap: 20px;
+	.byline {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin-bottom: 24px;
+		font-size: 14px;
+		color: var(--text-muted);
 	}
 
-	.primary-links article {
-		padding-bottom: 18px;
-		border-bottom: 1px solid var(--border-light);
+	.byline-avatar {
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		margin: 0;
+		object-fit: cover;
 	}
 
-	.primary-links article:last-child {
-		padding-bottom: 0;
-		border-bottom: none;
-	}
-
-	.primary-links h2 {
-		font-size: 22px;
-		margin: 0 0 8px;
-	}
-
-	.primary-links h2 a {
-		color: var(--primary);
-		text-decoration: none;
-	}
-
-	.primary-links p {
+	.byline a {
 		color: var(--secondary);
-		margin: 0 0 6px;
+		text-decoration: none;
+		font-weight: 500;
+	}
+
+	.byline a:hover {
+		color: var(--accent);
+	}
+
+	.intro-actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 12px;
+	}
+
+	.btn-primary {
+		display: inline-block;
+		padding: 10px 20px;
+		background: var(--accent);
+		color: #fff;
+		font-size: 14px;
+		font-weight: 500;
+		text-decoration: none;
+		border-radius: var(--card-radius);
+		transition: background 0.15s ease;
+	}
+
+	.btn-primary:hover {
+		background: var(--accent-hover);
+		color: #fff;
+	}
+
+	.btn-secondary {
+		display: inline-block;
+		padding: 10px 20px;
+		font-size: 14px;
+		font-weight: 500;
+		text-decoration: none;
+		color: var(--secondary);
+		border: 1px solid var(--border);
+		border-radius: var(--card-radius);
+		transition:
+			color 0.15s ease,
+			border-color 0.15s ease;
+	}
+
+	.btn-secondary:hover {
+		color: var(--accent);
+		border-color: color-mix(in srgb, var(--accent), transparent 60%);
 	}
 
 	.text-link {
@@ -118,22 +211,91 @@ const pageDescription =
 		text-decoration: none;
 	}
 
-	.brand-chain {
-		margin: 20px 0 0;
-		font-size: 14px;
+	.explore {
+		padding-bottom: 48px;
+	}
+
+	.explore-heading {
+		font-size: 13px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
 		color: var(--text-muted);
+		margin: 0 0 20px;
+	}
+
+	.entry-grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 16px;
+	}
+
+	.entry-card {
+		border: 1px solid var(--border);
+		border-radius: var(--card-radius);
+		padding: 22px 24px;
+		background: var(--background);
+		transition:
+			border-color 0.2s ease,
+			box-shadow 0.2s ease,
+			transform 0.2s ease;
+	}
+
+	.entry-card:hover {
+		border-color: color-mix(in srgb, var(--accent), transparent 55%);
+		box-shadow: 0 2px 8px color-mix(in srgb, var(--primary), transparent 94%);
+		transform: translateY(-1px);
+	}
+
+	.entry-eyebrow {
+		font-size: 11px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--text-muted);
+		margin: 0 0 8px;
+	}
+
+	.entry-card h3 {
+		font-size: 18px;
+		margin: 0 0 8px;
+		line-height: 1.3;
+	}
+
+	.entry-card h3 a {
+		color: var(--primary);
+		text-decoration: none;
+	}
+
+	.entry-card h3 a:hover {
+		color: var(--accent);
+	}
+
+	.entry-desc {
+		font-size: 14px;
+		line-height: 1.6;
+		color: var(--secondary);
+		margin: 0 0 12px;
+	}
+
+	.entry-link {
+		font-size: 13px;
+		font-weight: 500;
+		text-decoration: none;
 	}
 
 	.recent-essays {
-		padding: 38px 0 8px;
+		padding: 0 0 40px;
 		max-width: 860px;
+		border-top: 1px solid var(--border);
+		padding-top: 40px;
 	}
 
 	.section-head {
 		display: flex;
 		align-items: baseline;
 		justify-content: space-between;
-		margin-bottom: 12px;
+		margin-bottom: 16px;
 	}
 
 	.recent-essays h2 {
@@ -148,22 +310,40 @@ const pageDescription =
 	}
 
 	.recent-essays li {
-		padding: 15px 0;
+		padding: 18px 0;
 		margin: 0;
 		border-bottom: 1px solid var(--border-light);
+		transition: background 0.15s ease;
 	}
 
-	.recent-essays li a {
+	.recent-essays li:first-child {
+		padding-top: 0;
+	}
+
+	.recent-essays li:last-child {
+		border-bottom: none;
+		padding-bottom: 0;
+	}
+
+	.essay-title {
 		display: inline-block;
 		color: var(--primary);
 		font-size: 18px;
+		font-weight: 600;
 		text-decoration: none;
 		margin-bottom: 4px;
+		transition: color 0.15s ease;
+	}
+
+	.essay-title:hover {
+		color: var(--accent);
 	}
 
 	.recent-essays li p {
 		margin: 0 0 4px;
 		color: var(--secondary);
+		font-size: 15px;
+		line-height: 1.6;
 	}
 
 	.recent-essays small {
@@ -171,25 +351,46 @@ const pageDescription =
 		font-size: 13px;
 	}
 
+	.closing-cta {
+		padding: 32px 0 16px;
+		border-top: 1px solid var(--border-light);
+		max-width: 860px;
+	}
+
+	.closing-cta p {
+		font-size: 14px;
+		color: var(--text-muted);
+		margin: 0;
+	}
+
+	.closing-cta a {
+		font-weight: 500;
+	}
+
 	@media (max-width: 720px) {
 		.intro {
-			padding: 44px 0 24px;
+			padding: 44px 0 28px;
 		}
 
 		.subtitle {
 			font-size: 18px;
 		}
 
-		.primary-links {
-			padding: 20px 0;
+		.entry-grid {
+			grid-template-columns: 1fr;
 		}
 
-		.primary-links h2 {
-			font-size: 20px;
+		.entry-card {
+			padding: 18px 20px;
 		}
 
-		.recent-essays li a {
+		.essay-title {
 			font-size: 17px;
+		}
+
+		.recent-essays {
+			padding-top: 32px;
+			padding-bottom: 32px;
 		}
 	}
 </style>
