@@ -1,3 +1,4 @@
+
 # Full Plan Template
 
 Use when the workflow calls for a full plan. Fill each section; keep cells terse.
@@ -67,9 +68,7 @@ Trust ∈ trusted / verify / untrusted
 Follow CA direction; drop steps with no change.
 
 ```
-
 delivery input → input boundary / DTO mapping → use case policy → entity invariant → port contract → adapter mechanism → output boundary / presenter / response mapping → tests
-
 ```
 
 1.
@@ -87,4 +86,6 @@ delivery input → input boundary / DTO mapping → use case policy → entity i
 - Agent must NOT change without human approval:
 
 ## 11. Next step
-One of: proceed with implementation / ask human to resolve a design gate first / inspect more context first.
+One of: proceed with implementation / submit the plan for human confirmation (including any flagged design gates) / ask the human to clarify an unclear requirement / inspect more context first.
+
+

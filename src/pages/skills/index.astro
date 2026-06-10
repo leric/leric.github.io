@@ -52,7 +52,7 @@ const skillCards: SkillCard[] = [
 		produces: [
 			"Quick plan (inline) or full plan from references/plan-template.md",
 			"Bootstrap or update architecture-map.md in the project root",
-			"Human design gates when what-level decisions appear",
+			"What-level decisions resolved in the plan, in domain-layer terms, for you to confirm on review",
 		],
 		files: [
 			"SKILL.md",
@@ -120,10 +120,9 @@ const skills = skillCards.map((card) => {
 			<ol class="workflow-steps">
 				<li>
 					<strong>Before the task</strong> — the planner separates <em>policy</em> (what the system
-					does) from <em>mechanism</em> (how it does it), so the agent can't quietly make business
-					decisions for you. Mechanism work — adapters, mappers, DTOs, wiring, tests — it does freely;
-					policy decisions — new use cases, entity fields, port semantics, ownership, invariants,
-					failure handling — surface as human design gates for you to confirm.
+					does) from <em>mechanism</em> (how it does it). The agent handles mechanism freely, but
+					writes every policy decision into the plan for you to confirm — instead of quietly baking
+					it into the implementation.
 				</li>
 				<li>
 					<strong>After the task</strong> — reflection inspects the context-routing trace; repairs

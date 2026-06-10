@@ -1,6 +1,6 @@
 ---
 name: cmp-clean-architecture-planner
-description: Use before implementing a non-trivial coding task — features, bug fixes, refactors, business-rule changes, new external integrations, or any change touching use cases, entities, ports, adapters, controllers, mappers, repositories, or tests. Produces a modification plan that separates policy from mechanism, locates the owning use case and layer, plans ports/adapters/tests, and escalates human-owned design decisions. Skip trivial formatting-only, comment-only, mechanical dependency-bump, or generated-only changes.
+description: Use before implementing a non-trivial coding task — features, bug fixes, refactors, business-rule changes, new external integrations, or any change touching use cases, entities, ports, adapters, controllers, mappers, repositories, or tests. Produces a modification plan that separates policy from mechanism, locates the owning use case and layer, plans ports/adapters/tests, and makes human-owned design decisions explicit in the plan for review. Skip trivial formatting-only, comment-only, mechanical dependency-bump, or generated-only changes.
 ---
 
 # CMP Clean Architecture Planner
@@ -42,7 +42,7 @@ Keep policy out of outer mechanism; keep mechanism out of inner layers.
 
 **Human owns (what-level — propose, do not decide silently):** new use case boundary, new owned concept, new port or port contract, ownership of a cross-cutting capability, moving policy across modules, changing dependency direction, new placement convention, promoting duplicated logic to shared policy, promoting a local helper to a domain concept, redrawing layer responsibility.
 
-When a what-level decision appears, mark it a human design gate, propose options, and ask before implementing it.
+When a what-level decision appears, mark it a human design gate: resolve it in the plan by naming the concept / port / boundary in domain-layer terms and proposing the specific design, so the human can confirm it by reading the plan. Do not implement it silently, and do not turn it into a question. Questions are reserved for unclear requirements (see step 1), never for design decisions.
 
 ## When to Use & Which Mode
 
@@ -57,16 +57,16 @@ If unsure, start full and collapse to quick once you confirm no gate triggers.
 
 ## Planning Workflow
 
-Run in order. Stop and ask the human if intent is unclear or a design gate triggers.
+Run in order. Ask the human only when intent or requirements are unclear (step 1). A design gate does not call for a question — surface the decision explicitly in the plan and let the human confirm it on review.
 
-1. **Clarify intent.** Behavior to change, behavior to preserve, success criteria, task type. Do not guess product or domain ambiguity.
+1. **Clarify intent.** Behavior to change, behavior to preserve, success criteria, task type. If the product or domain *requirement* is ambiguous, ask — this is the one place a question belongs. Do not guess product or domain ambiguity. Design decisions are handled differently: you resolve those in the plan rather than by asking (see step 8).
 2. **Classify the change.** Tag each item: entity-invariant / use-case-policy / port-contract / adapter-mechanism / delivery-mechanism / persistence-mechanism / mapping-dto-serialization / test-verification / ownership-placement / architecture-boundary. Policy routes inward; mechanism stays outward.
 3. **Locate in CA coordinates.** Give each change a vertical owner (which use case/process) and a horizontal layer (entity / use case / port / adapter / delivery / persistence / mapper / test). No clear vertical owner → ownership-needed; unclear layer → placement-review.
 4. **Plan context acquisition.** Start from the root `architecture-map.md` (create it from `references/architecture-map-template.md` if it does not exist), then inspect in order: tests → owning use case → entities → existing ports → adapters → delivery entry points → persistence/external details → mappers/DTOs/fixtures → conventions. Mark each must-inspect / may-inspect / do-not-need. Do not read the whole repo unless the route is missing.
 5. **Predict the modification closure.** List artifacts that change or must be verified together. Update as you learn more.
-6. **Check boundary trust.** For each boundary: is the port use-case-shaped (not provider-shaped)? failure modes and side effects explicit? dependency pointing inward? Mark trusted / verify / untrusted. Repair an untrusted boundary as how-level work, or escalate if it must be redrawn.
-7. **Plan ports & adapters.** Existing port fits → use it, keep provider details behind the adapter. Almost fits → propose adjustment, mark how- vs what-level. None fits → new-port-needed, propose in use-case language, ask before creating. Never shape a port by copying the provider; never import SDK/ORM/HTTP/persistence types inward.
-8. **Run human design gates.** Check each gate (new use case / new owned concept / new port / port contract semantics / capability ownership / placement rule / dependency-direction change / shared-policy extraction). Any triggered gate → do not implement silently; continue only with clearly safe how-level work, or ask first.
+6. **Check boundary trust.** For each boundary: is the port use-case-shaped (not provider-shaped)? failure modes and side effects explicit? dependency pointing inward? Mark trusted / verify / untrusted. Repair an untrusted boundary as how-level work, or, if it must be redrawn, handle it as a design gate (step 8) — propose the redraw in the plan for confirmation.
+7. **Plan ports & adapters.** Existing port fits → use it, keep provider details behind the adapter. Almost fits → propose adjustment, mark how- vs what-level. None fits → new-port-needed; propose it in use-case language in the plan and mark it for human confirmation on review, rather than asking mid-plan. Never shape a port by copying the provider; never import SDK/ORM/HTTP/persistence types inward.
+8. **Run human design gates.** Check each gate (new use case / new owned concept / new port / port contract semantics / capability ownership / placement rule / dependency-direction change / shared-policy extraction). Any triggered gate → resolve it in the plan: name it and propose the specific decision in domain-layer terms (the entity field, the use-case step, the port and its contract) so it lands where the human reviews. Do not implement a what-level decision silently, and do not raise it as a question — the human confirms it by reading the plan. Only an unclear *requirement* behind the gate goes back as a question (step 1).
 9. **Produce the implementation route.** Follow CA direction; drop steps with no real change, and do not skip a step that has one.
 10. **Plan verification at the right level.** Entity invariant → entity tests; use case policy → use case tests with fake ports; port contract → contract tests; adapter → integration/mechanism tests; delivery/persistence mapping → controller/repo/mapper tests; dependency rule → lint/static check. Avoid leaning only on E2E when a local test expresses the policy better.
 11. **Update the architecture map.** If this change created or moved a route, update the root `architecture-map.md` per the rules in "Architecture Map". Record only approved structural decisions; if nothing structural changed, leave it untouched.
@@ -75,6 +75,7 @@ Run in order. Stop and ask the human if intent is unclear or a design gate trigg
 
 - **Quick plan:** intent + change classification + one-line verification, inline.
 - **Full plan:** fill `references/plan-template.md`.
+- A filled end-to-end example is in `references/worked-example.md`.
 
 ## Architecture Map
 
@@ -101,4 +102,4 @@ The blank format lives in `references/architecture-map-template.md`.
 10. Does the plan improve future context routing, not just finish the task?
 11. Architecture map updated if a route changed?
 
-If a gate is triggered, stop and ask before implementing that decision.
+If a gate is triggered, capture the decision explicitly in the plan and get the human's confirmation on the plan before implementing it — no question needed unless the requirement behind it is unclear.

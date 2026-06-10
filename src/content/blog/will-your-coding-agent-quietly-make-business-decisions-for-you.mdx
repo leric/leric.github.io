@@ -1,0 +1,103 @@
+---
+title: "Will Your Coding Agent Quietly Make Business Decisions for You?"
+description: "When policy and mechanism sit mixed together, an agent can rewrite business rules while it rewrites implementation — and you may never see it. Clean Architecture Planner splits the two before any code is written."
+pubDate: "Jun 10 2026"
+category: "AI Agents"
+tags: ["AI Agents", "CMP", "Skills", "Clean Architecture", "Software Design", "Context Cost"]
+---
+
+The previous blog [**Post-Change Design Reflection**](/blog/post-change-design-reflection/) dug into something a lot of engineers quietly worry about: will a coding agent slowly turn my codebase into a mess? That concern is really about long-term maintainability. Underneath it there's another risk — quieter, and more dangerous — that I haven't got into: **will the AI quietly make business decisions for you while it codes?**
+
+A messy codebase is at least something you can see: duplicated logic, docs that no longer match the code, naming that drifts all over the place. A business decision the agent slips in leaves no such trace. The code runs, the tests pass, the linter is green. You can go whole sprints before you notice that in your payment flow, "notify the customer" has quietly come to mean "send an email"; that whether to keep retrying after an order fails was the agent's call, not yours; that whether a dead notification channel should block the entire flow was something it simply decided. You never made those calls. Your system is already running on them.
+
+That is what this essay is about, and it runs deeper than "will the codebase rot." It comes down to who owns the decisions.
+
+## A simple request hides decisions you never made
+
+Start with an example everyone knows. You tell the agent: **"Build me a team chat system."** It gets to work — a messages table, send and receive APIs, a chat UI on the front end. The code runs. The tests pass.
+
+During review you notice a little checkmark to the right of each message: one tick when it sends, two blue ticks once the other side has seen it. Read receipts. The agent threw them in for free.
+
+It feels thoughtful. Then think for one more second: you never asked for read receipts. You never even weighed whether the product should have them. The agent, building a "chat system," filled in that detail on its own. And inside those two little ticks hides at least a dozen product decisions, each one enough to start a roomful of people arguing:
+
+- **What counts as "read"?** Opening the chat window, or scrolling to that specific message? In a group with 200 unread messages, if you glance at the latest 3, are the other 197 read?
+- **Who can see the read status?** Only the sender, or everyone in the group watching everyone else's? One protects privacy; the other prioritizes transparency — two entirely different product philosophies.
+- **Can the recipient turn it off?** The question here is power: your boss would prefer you couldn't, and you would prefer you could.
+- **After a message is read, does the sender get told?** A silent icon update, or a push that says "so-and-so read your message"?
+- **Is "read" a property of a single message or of the whole conversation?** You read the latest message in a group — does the unread count zero out? Then does the one just above, which you never saw, sink forever?
+
+Every one of these is a product decision — about how relationships between people get mediated by technology. How transparent should the line between a boss and an employee be? How forceful should an urgent notification be next to an everyday one? Where does the boundary sit between privacy and the efficiency of working together?
+
+And you never asked for the feature. You did not even know these decisions were waiting to be made. The agent, building a "chat system," treated a `read_at` column on the messages table as the obvious thing to do, and added it. It made a whole suite of product decisions, and you never got the chance to review them — because they were never your stated requirement. They were a sub-requirement the agent imagined inside the requirement you did state.
+
+This is the subtlest and most dangerous risk of agentic coding. It comes precisely from how capable the agent is: capable of filling every blank you leave, including the blanks you never realized were there.
+
+## I have always liked Clean Architecture, but…
+
+I have always liked Clean Architecture, but it carried an awkward problem: interfaces, ports, adapters, a pile of dependency injection — in theory this builds the ideal boundary, separating **what** to do from **how** it does it, but in practice the separation rarely paid its way. The freedom to swap a port implementation stayed theoretical; few projects ever switch databases or change vendors. So Clean Architecture earned a reputation for over-engineering: great in theory, rarely worth it in practice.
+
+AI flips that equation by making the ceremony cheap. Writing a stack of interfaces costs almost nothing now; the agent produces them automatically, with comments, tests alongside. The DTOs and mappers between layers, the dependency-injection wiring, all the glue the structure forces you to write — the boilerplate that once ate hours of human time, the agent now generates reliably in seconds.
+
+Cheaper ceremony is only half of it. Clean Architecture also answers the other problem from above: **the agent is too good at filling blanks, and too willing to decide on your behalf.**
+
+In Clean Architecture's vocabulary, "what" is policy and "how" is mechanism. Policy is what you want the system to do — in the read-receipt example, "when a message is seen, mark it read and let the sender know." Mechanism is how that happens — polling or WebSocket, marking one message or the whole conversation, storing the state on the messages table or in a separate receipts table.
+
+Traditional software engineering sold this distinction as replaceability: swap a payment provider without touching business logic. In the age of AI coding, its real value becomes **reviewability.**
+
+Here is why. When policy and mechanism sit mixed together, the agent can rewrite a piece of policy while it rewrites the mechanism, and you will never see it. They live in the same file, the same function, the same diff — one line swaps polling for WebSocket, the next drops the notification to the sender after a read.
+
+Clean Architecture does something simple: it gives policy and mechanism each a home. Policy lives in domain entities and use cases. Mechanism lives in adapters. Between them, a port states the contract — it names the capability it needs and stays silent on who supplies it or how.
+
+That structure gives review a clear target. The changes you truly need to read sit in the domain layer; for everything else, the agent can use TDD to keep the implementation honest against the contract the port defines.
+
+## Clean Architecture Planner: decide who gets to decide what, before any code
+
+This is the second skill I built: [**Clean Architecture Planner**](/skills/) ([source on GitHub](https://github.com/leric/leric.github.io/tree/main/skills/clean-architecture-planner)).
+
+Plan-before-code is standard procedure now — every agent ships some version of it. The plan's goal is the same as always: get the task done. What this skill changes is the route the agent takes to get there. On the way to a working implementation, it pulls this change's policy apart from its mechanism and settles who owns which decision before a line gets written — a different way of working toward the same result, sharper than a general "think it through first" and more targeted than an architecture diagram.
+
+Concretely, the plan makes the agent work through a set of questions and answer each one in writing, placing the decision in the domain layer where you will review it:
+
+- In this change, which parts are policy and which are mechanism?
+- Which use case is the vertical owner of the change? Which layer does it land in?
+- Is there a new port? If so, what are its contract semantics?
+- Is a new owned concept surfacing? Is "read," for instance, a property of the message module or a standalone, system-level capability?
+- Is there a business invariant to state outright? "A read receipt cannot revert to unread," "you cannot mark your own message as read" — these are product rules, and they belong in the domain layer.
+- Are any failure semantics being settled on the quiet? What should happen when a read-status update fails?
+- Is there a use-case boundary in question? Is "mark as read" its own action, or a side effect of "open the conversation"?
+- Which parts may the agent change directly, and which must pass through a human design gate first?
+
+Every one of these circles one boundary:
+
+**Mechanism work — adapter implementations, mappers, DTOs, wiring, test scaffolding — the agent may do directly.**
+
+**Policy decisions — a new use case, a change to a domain entity's fields, port semantics, capability ownership, placement rules, flow boundaries — the agent settles in the plan and hands to a human to confirm.**
+
+And it settles them the same way it surfaces them: by writing each decision into the domain layer, where the plan lays it out in plain view. You confirm the whole set by reading the plan.
+
+The boundary exists to set the agent loose. It lets the agent run hard at the work it does well, and it saves the human's judgment for the handful of decisions that actually need it.
+
+Back to the example. You say "build me a team chat system." It goes ahead and builds, but the Planner forces every product decision it makes into the domain layer, out in the open. The read receipt becomes a named concept with explicit states; "what counts as read" becomes a rule on an entity; "who gets told, and when" becomes a step in a use case rather than a line buried in an adapter; the capability itself becomes a port with a stated contract; even the failure cases — what happens when a read update doesn't land — get spelled out instead of left to whatever the adapter happened to do.
+
+That turns your review into a focused reading of the domain layer. You ask it three things: do these entities and use cases match what you actually meant? Which business details did the agent commit to that you never spelled out? Did any port quietly swallow something that should have been your call? The adapters, the wiring, the tests you can skim; the domain diff alone shows every decision the agent made on your behalf.
+
+## In the AI era, architecture gains a new value: decision visibility
+
+Traditional software engineering describes the value of architecture as maintainability, extensibility, testability. All true. In the context of agentic coding, architecture takes on one more:
+
+> **Architecture gives every business decision a clear location, a clear owner, and a clear place to be reviewed.**
+
+Concentrate policy into use cases and domain entities, seal mechanism behind adapters, and what you gain is operational. When the agent opens a 50-file PR, you read three files with care. Every line in those three maps to a business decision. The other 47 are adapter implementations, mappers, or tests — none of them shifts the meaning of the system. That is why Clean Architecture deserves a fresh look in the AI era.
+
+The earlier piece's [Post-Change Design Reflection](/blog/post-change-design-reflection/) answers a question at the end: after the task, is the codebase's context routing still correct? Clean Architecture Planner answers one at the start: before the task, does the ownership of each business decision sit where it should? One guards the exit, the other the entrance. Put together, the two skills form a single protective system:
+
+- **Before:** [Clean Architecture Planner](/skills/) splits policy from mechanism, holds business decisions out in the open, and hands mechanism to the agent.
+- **After:** [Post-Task Design Reflection](/skills/) checks how the change touched the codebase's routing signals and clears away debt that should not stay.
+
+Together they answer one question: AI writes faster and faster, so who keeps the system — after countless AI edits — a system that can still be understood correctly and changed correctly?
+
+The mainstream way to make AI coding more reliable right now is probabilistic: run the agent several times across different models and pick the best of the batch. At heart it raises the odds of a good result by rolling the dice more times.
+
+This approach goes straight at the hard part — the complexity of the codebase and its business logic. It invents nothing new; it draws on decades of accumulated architectural wisdom — Clean Architecture's split of policy from mechanism, interfaces defined by the needs of the client that uses them, and ports that seal mechanism behind stated contracts. These are old ideas. Once the agent drives the upfront cost of all that structure to near zero, the economics flip entirely.
+
+Vibe coding opened the era of AI programming: code, fast. AI software engineering begins later — when fast turns into good, and good into reliable. That is the harder part, and where AI really starts to reshape software engineering.

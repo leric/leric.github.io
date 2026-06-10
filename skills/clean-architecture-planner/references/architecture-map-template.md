@@ -1,8 +1,8 @@
-# Architecture Map
+# Architecture Map — Template
 
-Routing index for this codebase. CMP treats architecture as a context-routing system; this file is the map that keeps routes cheap to find. Read it before planning a change (it is the entry point for Planning Workflow step 4), and update it when a change creates or moves a route (see "Maintaining this map").
+Blank scaffold for a codebase's routing index. The skill copies this to `architecture-map.md` in the project root when no map exists yet, then fills and maintains that root copy. Do not edit this template per task — edit the root `architecture-map.md`. Maintenance rules live in SKILL.md ("Architecture Map").
 
-This is an index, not a mirror of the code. Record stable, high-value navigation only: where things live, who owns what, which boundaries to trust. Leave out implementation detail the code already states and that would drift.
+When generating the root file, replace this header with the project name and:
 
 - Last updated:
 - Architectural decision owners:
@@ -71,12 +71,3 @@ Capabilities whose owner is not yet settled. Route here to escalate consistently
 | Capability / concern | Candidate owners | Decision needed |
 |---|---|---|
 |  |  |  |
-
-## Maintaining this map
-
-The skill keeps this file current as part of every change that moves or creates a route.
-
-- **Read first.** At Workflow step 4, start from this map, then drill into code. If the map disagrees with the code you inspect, correct the stale entry (cheap, how-level) and note it; if the discrepancy touches a design gate, escalate instead.
-- **Update last.** As the final step of a change, update the map when — and only when — a structural fact changed: a use case added/removed/renamed or its ports/entities changed; a port or adapter added/removed, or a port contract's semantics changed; an entity gained/lost an owned invariant; a placement convention or dependency rule changed; a boundary debt introduced, resolved, or reclassified; an ownership question opened or closed. If nothing structural changed, leave the map untouched.
-- **Record, don't decide.** Recording an already-approved structural decision is how-level bookkeeping. Adding an entry for a new use case, port, owned concept, or convention that has NOT been approved is a what-level decision behind a human design gate. Never use a map edit as a backdoor to introduce a boundary.
-- **Keep it an index.** Every entry must lower the context cost of a future change. Drop entries that only duplicate what the code already makes obvious.
