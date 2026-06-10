@@ -1,284 +1,103 @@
 ---
-title: "Post-Change Design Reflection: Turning Agent Work Into Design Feedback"
-description: "A skill for turning the context an agent just acquired during a task into focused design feedback, locality repair, and architecture anti-corruption."
+title: "Post-Change Design Reflection: Making Every Task Leave the Codebase Cleaner"
+description: "How a CMP practice turns the context an agent just acquired into design feedback—syncing docs, flagging duplication, and leaving ownership decisions for humans—so each change leaves the codebase easier to modify."
 pubDate: "May 26 2026"
+updatedDate: "Jun 09 2026"
 category: "AI Agents"
 tags: ["AI Agents", "CMP", "Skills", "Software Design", "Context Cost"]
 ---
 
-import GistEmbed from '../../components/GistEmbed.astro';
+One of the most common worries about coding agents has little to do with whether they can write a correct function. It is longer-term and harder:
 
+> Will a coding agent slowly turn my codebase into a mess?
 
-One of the most common fears about AI coding is simple:
+The worry is reasonable. An agent can finish the task in front of it quickly. But real projects are never written once — they are modified round after round. When every change means only "the feature runs, the tests pass, the task is done," while a boundary quietly gets bypassed, a doc drifts out of sync, and duplicate logic scatters across the tree, the codebase turns into its own kind of AI slop.
 
-> Will coding agents make my codebase a mess?
+The damage stays hidden at first. Each step is just a small shortcut, a temporary helper, an OpenAPI spec that never got synced, a doc still describing the old architecture, a business rule parked under the wrong owner. Any one of them looks harmless. A few dozen of them later, the codebase has become steadily harder to change.
 
-The fear is reasonable. A coding agent can complete many small tasks quickly, but each task is usually optimized locally. The agent sees the current request, follows the shortest path to a working patch, gets the tests green, and moves on. Each individual change may look acceptable. Over time, those local changes can still erode the structure that made the codebase understandable.
+I recently finished a [series on the **Context Minimization Principle (CMP)**](/cmp/), which proposes a practice for exactly this: **Post-Change Design Reflection** — have the agent run a short design reflection the moment a task is complete, while the entire execution path still sits in its context window.
 
-A domain rule is duplicated in a controller because that was the easiest place to fix the bug. A repository from another module is imported directly because the official path felt too long. A shared helper is created without a clear owner. An architecture test is weakened because it blocked the patch. None of these changes has to look catastrophic in isolation. But together they can make the architecture stop doing its job.
+### What is Post-Change Design Reflection?
 
-The problem is not that AI writes bad code by nature. The problem is that a coding agent, like a rushed human developer, can optimize for the current task while ignoring the architecture’s intent.
+A normal task summary reports which files changed, what shipped, which tests ran, and whether they passed. That is useful, and it discards something valuable. Post-Change Design Reflection asks a different class of question:
 
-**Post-Change Design Reflection** turns the context an agent just acquired during a task into focused design feedback after the change is complete. It helps the agent notice when related pieces of a change surface were disconnected, hard to discover, or likely to be missed next time.
+> What context was hard to find during this change?
+> Did this change leave behind a spot that the next change will forget?
+> Did it bypass an existing boundary?
+> Did it create an ownership or placement inconsistency?
+> Will it mislead future work through a stale doc, a wrong comment, or an old schema?
 
-It also gives each completed modification an architecture-preserving checkpoint:
+The focus shifts from "is the task finished?" to a sharper question: **after this change, is the codebase still easy to change correctly?**
 
-> Did this change preserve the architecture’s existing intent?
+That is the heart of CMP. The core of software development is modifying existing systems, and the hard part of a correct modification is acquiring enough context; the final few lines of code are the easy part. A maintainable codebase is simply one where that context is cheap to acquire.
 
-This does not mean the skill redesigns the macro architecture. Macro architecture still requires deliberate design judgment. The role of this skill is narrower and more operational: after every modification, it checks whether the change respected existing boundaries, ownership, and placement rules.
+Working from that idea, I wrote a skill around it. The full text lives on GitHub: [post-task-reflection/SKILL.md](https://github.com/leric/leric.github.io/blob/main/skills/post-task-reflection/SKILL.md). It has the agent check three kinds of problems.
 
-Good architecture is not only designed at the beginning. It is either respected or corroded during every modification.
+### Three checks
 
-## The skill
+**Missing Path.** Did the agent work hard to find context that should have been easy to reach? Or, among the several places this change had to keep consistent, will a future change miss one of them for lack of a clue?
 
-Here is the full skill text.
+**Unauthorized Shortcut.** To finish the task, did the agent route around a boundary that was supposed to hold? Business logic dropped into a controller, a use case reaching straight for an external SDK, adapter details leaking into an inner layer, a block of existing logic copied instead of called through its proper boundary. The tests can still pass while a hole gets dug in the architecture.
 
-<GistEmbed
-	gistId="5157c03de6f327631829e34cb24e2731"
-	user="leric"
-	file="skill.md"
-	display="raw"
-	maxHeight="70vh"
-/>
+**Unowned Capability.** Did the task introduce a new capability with no clear owner — a new formatter, renderer, mapper, policy, validator, or converter? When you cannot say where a function belongs as you write it, then the next time the same logic is needed, you will not know where to look to see whether it already exists. That is how duplication is born.
 
+One rule here matters as much as the checks. When a fix would touch a design decision — inventing a new abstraction, moving a rule to a different owner, redrawing a boundary, creating a shared helper — the agent must not make that call on its own. It flags the problem and stops: this rule may need a clearer owner, this capability's current spot may be only a temporary fit, this boundary may be under pressure. Settling any of them is the human's call.
 
-## The CMP lens
+That is the boundary of post-change reflection. The agent stays out of the architect's chair. After each change it lays out the context path it just walked, fixes the small problems that already have a clear design purpose, and raises the genuine design decisions — ownership, boundaries, new concepts — for a person to settle.
 
-The Context Minimization Principle says:
+### The first task already showed a change
 
-> For the modifications a system must realistically support, a design is better when the sufficient context required for correct modification is cheaper to acquire.
+The first real task came from an internal project, `CertReporter`. CertReporter is a structured collaboration system for large certification and testing reports. These reports run dozens or hundreds of pages as formal certification documents. Content is filled in, reviewed, and tracked clause by clause against a standard, then rendered into a strictly formatted Word report. The problem it solves is structural: break the report into sections, clauses, and work items so many people can fill, review, and track in parallel, then let the system render the final document.
 
-In practice, a developer or agent does not modify code by reading everything. They start from an entry point, follow names, types, tests, call chains, schemas, docs, ownership rules, and conventions, and try to acquire enough context to make a safe change.
+This task was a structural change. In the old model, `Standard` owned both the clause schema and the clause render template, and one `ReportType` linked to exactly one `Standard`. That model was inaccurate. `Standard` should describe the data structure of a standard's clauses. The render template should belong to a specific section under a `ReportType`. And different sections under one `ReportType` should be free to link to different standards.
 
-Good design does not mean “less code” or “more abstraction.” It means the required context for realistic changes is easier to find, trust, and verify.
+Old model:
 
-That context cost often appears in two forms:
+```
+ReportType ──points to one──► Standard
+                              ├─ owns ─► Clause schema
+                              └─ owns ─► Rendering template
+```
 
-* **Depth**: how far the modifier must traverse to understand behavior behind a focal point.
-* **Breadth**: how many related places must be found because they belong to the same change.
+New model:
 
-A boundary helps when it lets the modifier stop reading. A test helps when it makes a rule executable. A type helps when it turns a hidden assumption into a check. A registry, convention, or module structure helps when it makes related pieces discoverable.
+```
+ReportType ──► Section A              ReportType ──► Section B
+                 ├─ owns ─► Template A                 ├─ owns ─► Template B
+                 └─ chooses ─► Standard 1              └─ chooses ─► Standard 2
+                                    └─ owns ─► Schema 1              └─ owns ─► Schema 2
+```
 
-Architecture works at a larger scale. It tells modifiers where decisions should live, which boundaries should be respected, which dependencies are allowed, and which parts of the system should not need to be searched.
+This is a change in ownership and in the data model. An agent that cared only about shipping the feature might delete a few fields, fix the API, get the tests green, and stop. This time Codex did more.
 
-That is the key point: architecture is a context-routing system.
+### Why did it change the docs too?
 
-When architecture works, a modifier does not have to search everywhere. They know where a domain rule belongs. They know which module owns a decision. They know whether a caller may depend on an implementation detail. They know which boundary should be trusted and which protocol should be used.
+The task touched 46 files (6 of them in the domain layer), and it updated the relevant descriptions across four markdown docs — a behavior I had not seen before. So I asked why.
 
-When architecture decays, the codebase may still have layers, modules, interfaces, folders, and naming conventions. But those structures no longer predict where decisions live. A developer first follows the architecture, fails to find the decision, and then searches globally anyway. The architecture still imposes carrying cost, but its routing benefit has disappeared.
+The answer was the interesting part. It treated the docs as part of the architecture — routing signals for future development. Whether the next contributor is a human or another agent, they will read the system's structure through its docs. When the ownership described in a doc is wrong, future changes get routed to the wrong place. A wrong doc carries real cost: wrong docs produce wrong routing.
 
-That is what “AI made the codebase messy” really means in CMP terms: ordinary local changes silently weakened the architecture’s context-routing function.
+I asked directly whether this came from the new skill. It did. The skill never told the agent to "always update docs." It made the agent ask one more layer after finishing: is the context routing this change left behind still correct? Where it was not, fix it.
 
-## Why the post-change moment matters
+### It also held back from refactoring
 
-Design feedback is often too early or too late.
+Another detail mattered just as much. In the reflection, Codex noticed that the frontend had multiple helpers, in several places, that find the `Standard` from a section or work item. If multi-standard reports keep growing, that logic might eventually deserve a shared selector. It recorded the point as a future convergence item and left the code alone.
 
-Before the task, the agent does not yet know where the real difficulty is. It may guess that a module is complex, but it has not yet discovered which parts of the system actually mattered for the change.
+This restraint is the whole point. Some changes are implementation details safe to hand to the agent. Others touch how the business is abstracted and where module boundaries sit — things a human needs to know and confirm, and that the agent should never change quietly. A mature agent asks first: does this duplication already amount to a real ownership problem, or is it just a signal that may need converging later?
 
-Much later, only the diff remains. The reasoning path is gone. We can see which files changed, but not which files had to be read, which assumptions were confusing, which contracts were too weak, which related pieces were only found through search, or which boundary was almost bypassed.
+That is the change I wanted from post-change reflection: a more restrained agent. It recognizes design problems while leaving new owned concepts for a human to name. It spots duplication risk while resisting the urge to abstract on sight. It reports placement problems while keeping human design decisions out in the open instead of buried in implementation details.
 
-Immediately after the task, the agent still has the richest evidence:
+### Agents can keep a codebase cleaner
 
-* the original change request
-* the natural starting point
-* the files and modules it inspected
-* the reason each file mattered
-* the rules or behaviors it had to reconstruct
-* the final change surface
-* the tests or checks that confirmed the change
-* the places that were hard to discover
-* the boundaries it had to cross
-* the ownership rules it had to respect
-* the design friction that slowed the modification down
+AI coding agents already write code well. Writing fast is only the first stage. The value that lasts is a codebase that grows clearer as it changes.
 
-This is a rare window. The agent has just experienced the codebase as a modifier. That experience can be turned into design feedback. More importantly, it can be turned into an architecture-preserving check:
+That asks the agent to understand the design state after a change, not just to generate code. It needs to know which artifacts belong to the same modification closure. It needs to treat docs, tests, OpenAPI specs, and mocks as routing signals for future work. It needs to know which design decisions are not its to make. And it needs to know when to hold still rather than refactor.
 
-> Did this change respect the architecture’s existing intent?
+This experiment sent a strong signal: under an explicit design-reflection mechanism, an agent can hold architectural consistency more steadily than many human developers. It manages this for a plain reason — after every change it reliably does the closing-up work that people so often find too tedious to bother with.
 
-## What the skill should produce
+People cut corners. The docs can wait. The mock does not touch the main flow. The seed data is fine where it is. Arguing with a teammate over this helper's style is not worth it, so writing my own again won't hurt.
 
-The skill should not produce generic comments like:
+But an agent told to close the modification closure could do that same tedious work every time, and this is AI-assisted continuous refactoring. Every development task also completes one more step of closing up the design — boundaries reconfirmed, docs synced to the latest facts, duplication flagged, ownership brought into the open. Each change adds to the system and recalibrates its design at the same time.
 
-> This module should be refactored to improve maintainability.
+Pushed to its limit, the practice answers the biggest fear about agentic coding. A codebase maintained this way can stay cleaner, more consistent, and more ready for the next change than most codebases kept by human teams.
 
-That kind of feedback is almost useless. It names a broad quality without explaining the mechanism.
-
-A better reflection looks like this:
-
-> This change required checking four places to understand one validation rule. The rule has no clear owner. The smallest useful improvement is to move the rule into the existing validator that already owns this input contract, and add a focused test around that validator.
-
-That statement is useful because it contains a concrete chain:
-
-1. What happened: the change required checking four places.
-2. Why it was expensive: one rule had no clear owner.
-3. What to improve: move it into an existing owner, not an arbitrary new abstraction.
-4. Why it helps: future changes can start from the validator instead of reconstructing the rule from scattered behavior.
-
-The output should be a design observation grounded in the completed task, not a speculative architecture opinion.
-
-The skill is not asking the agent to become an architect after every patch. It is asking the agent to preserve what the architecture already claims.
-
-## From task context to design signal
-
-A coding task exposes design quality because the modifier must acquire the context needed to change the system correctly.
-
-When the context is cheap, the path feels bounded:
-
-* the starting point leads to the owner of the behavior
-* the boundary contract is clear enough to trust
-* related pieces are connected by types, tests, names, schemas, or conventions
-* tests explain the rule being preserved
-* the final change is close to the understanding path
-* dependency direction is respected without special effort
-
-When the context is expensive, the agent often has to compensate:
-
-* search globally for a rule that should have had an owner
-* inspect implementation details behind a boundary that should have been trustworthy
-* find related artifacts by naming guess or test failure
-* reconstruct behavior from scattered tests
-* infer framework conventions that are not visible at the entry point
-* update multiple representations of the same decision that do not point to each other
-* route around an existing boundary because the official path was unclear
-* introduce a shortcut dependency because ownership was not visible
-
-These are not just annoyances. They are design signals.
-
-Two questions are especially useful:
-
-> If a future developer or agent starts from any meaningful part of this change surface, can they discover the other parts that must be considered together?
-> If they encounter a boundary on the way, can they trust its contract and stop there, or do they still need to read through the implementation behind it?
-
-These two questions point to two different kinds of design problems—locality and boundary. Let's take each in turn.
-
-## Locality repair and boundary guard
-
-The two call for very different responses. Locality can often be fixed; boundaries must not be casually reshaped. Mix them up, and you'll either leave real issues unfixed or break things that shouldn't be touched.
-
-### Locality repair
-
-A locality issue means the task revealed a change surface whose related parts were not discoverable from each other.
-
-Examples:
-
-* a frontend field, backend validator, schema, and test all encoded the same input rule, but nothing linked them
-* an event producer and consumers had to change together, but the consumer list existed only in tribal knowledge
-* a config option affected runtime behavior, but the only way to find it was a failing integration test
-* a rule was represented in code, test fixtures, and documentation, but no artifact identified the rule as one decision
-
-For these cases, the skill may suggest a focused improvement:
-
-* add a test name that states the rule
-* add an ownership note near the rule
-* add a registry or consumer list
-* add a contract test
-* make an existing type more precise
-* add a small reference between artifacts that must change together
-* move a scattered rule into an existing owner when the task clearly showed the same decision is duplicated
-
-The goal is not to make the code “cleaner.” The goal is to make the next similar modification less likely to miss part of the closure.
-
-### Boundary guard
-
-A boundary issue means the task crossed or touched an architectural boundary: a module boundary, layer boundary, ownership boundary, public interface, protocol, package dependency, bounded context, or extension point.
-
-Here the skill must be conservative.
-
-It should ask:
-
-* Which existing boundary was this change supposed to respect?
-* Who owns the rule, behavior, data, or decision touched by this change?
-* Did the final patch move a decision away from its owner?
-* Did the change introduce a new boundary? If so, is its owner clear under the higher-level architecture?
-* Did the task reveal a weak boundary whose contract failed to stop traversal?
-* Did the task introduce a shortcut dependency, shared abstraction, or contract change that weakens architecture routing?
-
-The default rule is:
-
-> Respect existing boundaries unless the current task explicitly includes an architecture change.
-
-A post-change reflection may strengthen a boundary in small ways when ownership does not change:
-
-* clarify an interface contract
-* add a contract test
-* document an invariant near the boundary
-* narrow a type to express the real constraint
-* rename a method to reveal responsibility
-* add an ownership note
-* make an implicit protocol assumption explicit
-
-But it should not perform boundary redesign as ordinary task cleanup:
-
-* do not move a domain rule into a caller just because the caller was the current entry point
-* do not merge concepts across ownership boundaries based on one observed co-change
-* do not reshape a shared public interface around one consumer
-* do not bypass dependency direction to reduce local traversal
-* do not delete an adapter, registry, or layer before checking whether it serves as an ownership boundary, protocol boundary, extension point, or architecture index
-* do not weaken an architecture test or dependency rule just to make the patch pass
-
-If the current patch introduced a boundary violation, correcting it is not optional cleanup. It is part of making the change correct.
-
-If the boundary was weak but not violated, record it as boundary pressure. That pressure may justify a later architecture-focused change, but it should not be silently resolved inside a task-local refactor.
-
-
-## Why agents are especially useful here
-
-Human developers can do this reflection too. In fact, experienced developers often do it implicitly.
-
-But coding agents make the process more observable.
-
-An agent’s work often leaves traces: searches, files opened, failed assumptions, test failures, localization attempts, patch revisions, and tool calls. These traces are imperfect, but they expose part of the context acquisition process that usually lives inside a human developer’s head.
-
-That makes agents useful not only as code generators, but also as design observers.
-
-A coding agent can report:
-
-* “I had to inspect these files to understand one rule.”
-* “The boundary existed, but I could not infer its behavior without reading the implementation.”
-* “The tests checked the behavior but did not reveal the domain rule.”
-* “The frontend and backend represented the same decision, but nothing linked them.”
-* “A future change is likely to miss this config because it was only found by global search.”
-* “The easiest patch would have introduced a dependency across an ownership boundary.”
-* “This change added a helper, but its owner is unclear under the current architecture.”
-* “The patch originally placed the rule near the caller, but the existing owner is the domain service.”
-
-This turns agent work into design telemetry.
-
-Not a metric. Not a score. Not a replacement for engineering judgment. But a practical feedback loop: each real modification can reveal where the system made required context harder to acquire than it needed to be, and whether the change preserved the architecture’s intent.
-
-## A small trial
-
-I tried this skill after a concrete task: replacing demo authentication with real authentication.
-
-The reflection did not produce a grand architecture proposal. It found smaller issues that were easier to miss. The auth entry point was not expressed as a single visible convention. Legacy and new routes handled authentication through different paths. The test setup hid the real login/session contract, so passing tests did not clearly explain how authenticated and anonymous clients should be created.
-
-The suggested improvement was correspondingly small: introduce explicit `login_client()` and `anonymous_client()` test helpers, and add a short note near the authorization module to make the expected auth entry point visible.
-
-That is the scale this skill is meant to operate at. It catches the missing connection, hidden convention, or weak contract that would normally be too small for an architecture review, but large enough to become an omission risk in the next similar change.
-
-## Closing the loop
-
-So, will AI coding ruin your codebase?
-
-Not inevitably. The real risk is not that coding agents are incapable of architectural reasoning. Modern coding agents always plan before changing code: they inspect the existing structure, infer the architecture, decide where the change should land, and try to implement the task in a way that fits the codebase.
-
-That planning step matters. But it is not enough.
-
-Pre-change planning works from an anticipated understanding of the task. Post-change reflection works from the actual modification path. After the change is complete, the agent knows which files it truly had to inspect, which boundary looked clear but failed to stop traversal, which related artifact was only found through search, which ownership rule was almost bypassed, and which tiny shortcut slipped into the patch because it made the local change easier.
-
-Those small details are where architecture decay often begins.
-
-A codebase is rarely ruined by one obviously bad architectural decision. It is more often weakened by small, plausible modifications that leave behind tiny violations. These are the ant holes in the dike. Each one looks too small to justify an architecture discussion. Together, they make the architecture less trustworthy as a context-routing system.
-
-Post-change design reflection exists for exactly this scale of problem. It does not replace macro architecture design. It does not decide the best bounded contexts, rewrite the dependency graph, or prove that existing boundaries are still the right ones. Its job is narrower and more continuous:
-
-- notice the small violations that planning missed
-- repair locality when a real task exposes a disconnected change surface
-- strengthen weak boundaries through small contract clarifications when safe
-- correct boundary violations introduced by the current patch
-- record boundary pressure when the architecture made the task harder but should not be changed locally
-- keep architecture intent visible inside the modification loop
-
-That is enough to matter. A good architecture is not preserved by planning alone. It is preserved when every modification is checked against where decisions belong, which boundaries are trustworthy, and how future modifiers are supposed to acquire context.
-
-Add the skill to your coding agent, run it after a real task is complete, and see what kind of design feedback it gives you. You may find that the most valuable suggestions are not grand refactorings, but small observations: a missing connection, a weak contract, an unclear owner, or a tiny boundary violation that would otherwise become part of the codebase unnoticed.
+Writing code fast is the starting line of AI programming. Making every task leave the codebase cleaner is where AI begins to rewrite software engineering.

@@ -21,6 +21,9 @@ export default defineConfig({
   markdown: {
     remarkPlugins,
     rehypePlugins,
+    shikiConfig: {
+      theme: "github-light",
+    },
   },
   integrations: [
     mdx({

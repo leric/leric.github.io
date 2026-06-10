@@ -1,0 +1,629 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { SITE_REPO, SITE_TITLE } from "../../consts";
+
+const pageTitle = `CMP Skills — ${SITE_TITLE}`;
+const pageDescription =
+	"Download and install CMP agent skills: a pre-task Clean Architecture planner and a post-task design reflection loop for coding agents.";
+
+const skillSources = import.meta.glob("../../../skills/**/SKILL.md", {
+	query: "?raw",
+	import: "default",
+	eager: true,
+}) as Record<string, string>;
+
+function parseSkillMd(raw: string) {
+	const match = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+	if (!match) {
+		return { name: "", description: "", body: raw.trim() };
+	}
+	const frontmatter = match[1];
+	const name = frontmatter.match(/^name:\s*(.+)$/m)?.[1]?.trim() ?? "";
+	const description = frontmatter.match(/^description:\s*(.+)$/m)?.[1]?.trim() ?? "";
+	return { name, description, body: match[2].trim() };
+}
+
+function githubTreeUrl(relativePath: string) {
+	return `https://github.com/${SITE_REPO.owner}/${SITE_REPO.repo}/tree/${SITE_REPO.branch}/${relativePath}`;
+}
+
+interface SkillCard {
+	dirName: string;
+	title: string;
+	summary: string;
+	whenToUse: string[];
+	produces: string[];
+	files: string[];
+	chapterHref?: string;
+	chapterLabel?: string;
+}
+
+const skillCards: SkillCard[] = [
+	{
+		dirName: "clean-architecture-planner",
+		title: "CMP Clean Architecture Planner",
+		summary:
+			"Run before non-trivial changes in a Clean Architecture (or ports-and-adapters) codebase. Forces the agent to separate policy from mechanism before coding, so business decisions stay visible and owned by humans instead of being silently baked into the implementation.",
+		whenToUse: [
+			"Features, bug fixes, refactors, or business-rule changes",
+			"Changes touching use cases, entities, ports, adapters, controllers, mappers, repositories, or tests",
+			"Skip trivial formatting-only, comment-only, dependency bumps, or generated-only edits",
+		],
+		produces: [
+			"Quick plan (inline) or full plan from references/plan-template.md",
+			"Bootstrap or update architecture-map.md in the project root",
+			"Human design gates when what-level decisions appear",
+		],
+		files: [
+			"SKILL.md",
+			"references/plan-template.md",
+			"references/architecture-map-template.md",
+		],
+		chapterHref: "/research/cmp/practice/clean-architecture-revisited-from-overhead-to-leverage/",
+		chapterLabel: "Ch. 15 — Clean Architecture Revisited",
+	},
+	{
+		dirName: "post-task-reflection",
+		title: "CMP Post-Task Reflection",
+		summary:
+			"Run after completing a coding task. Inspects the agent's context-routing trace and checks for missing paths, unauthorized shortcuts, and unowned capabilities.",
+		whenToUse: [
+			"Modifying existing behavior or adding to an existing flow",
+			"Bug fixes that required codebase investigation",
+			"Refactors, multi-file consistency edits, or new helpers/abstractions",
+			"Skip trivial formatting-only edits, typos, or isolated dependency bumps",
+		],
+		produces: [
+			"Reflection report from references/report-template.md",
+			"Three checks: Missing Path, Unauthorized Shortcut, Unowned Capability",
+			"Safe locality/boundary repairs; escalates what-level design decisions",
+		],
+		files: [
+			"SKILL.md",
+			"references/checks.md",
+			"references/principles.md",
+			"references/report-template.md",
+		],
+		chapterHref: "/research/cmp/practice/post-task-design-reflection/",
+		chapterLabel: "Ch. 16 — Post-Task Design Reflection",
+	},
+];
+
+const skills = skillCards.map((card) => {
+	const raw = skillSources[`../../../skills/${card.dirName}/SKILL.md`] ?? "";
+	const parsed = parseSkillMd(raw);
+	return {
+		...card,
+		name: parsed.name,
+		description: parsed.description,
+		body: parsed.body,
+		githubUrl: githubTreeUrl(`skills/${card.dirName}`),
+		downloadUrl: `/downloads/${parsed.name}.zip`,
+	};
+});
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+	<section class="skills-page">
+		<header>
+			<h1>CMP Skills</h1>
+			<p class="lead">Put CMP theory into your coding agent's workflow.</p>
+		</header>
+
+		<section class="workflow" aria-labelledby="workflow-heading">
+			<h2 id="workflow-heading">Why these two skills</h2>
+			<p>
+				CMP is a design framework. These skills are its operational form for coding agents — the
+				implementation described in
+				<strong>Ch. 17 — How to Design a CMP-aware Coding Agent</strong> (planned in the CMP book).
+			</p>
+			<ol class="workflow-steps">
+				<li>
+					<strong>Before the task</strong> — the planner separates <em>policy</em> (what the system
+					does) from <em>mechanism</em> (how it does it), so the agent can't quietly make business
+					decisions for you. Mechanism work — adapters, mappers, DTOs, wiring, tests — it does freely;
+					policy decisions — new use cases, entity fields, port semantics, ownership, invariants,
+					failure handling — surface as human design gates for you to confirm.
+				</li>
+				<li>
+					<strong>After the task</strong> — reflection inspects the context-routing trace; repairs
+					locality and boundary issues; escalates ownership decisions to humans.
+				</li>
+			</ol>
+			<p class="chapter-links">
+				Related chapters:
+				<a href="/research/cmp/practice/clean-architecture-revisited-from-overhead-to-leverage/">
+					Clean Architecture Revisited
+				</a>
+				·
+				<a href="/research/cmp/practice/post-task-design-reflection/">Post-Task Design Reflection</a>
+			</p>
+		</section>
+
+		<section class="skill-list" aria-labelledby="skills-heading">
+			<h2 id="skills-heading">Skills</h2>
+			{
+				skills.map((skill) => (
+					<article class="skill-card">
+						<div class="skill-card-header">
+							<h3>{skill.title}</h3>
+							<code class="skill-slug">{skill.name}</code>
+						</div>
+						<p>{skill.summary}</p>
+						{skill.chapterHref && skill.chapterLabel && (
+							<p class="chapter-ref">
+								<a href={skill.chapterHref}>{skill.chapterLabel}</a>
+							</p>
+						)}
+
+						<div class="skill-meta">
+							<div>
+								<h4>When to use</h4>
+								<ul>
+									{skill.whenToUse.map((item) => (
+										<li>{item}</li>
+									))}
+								</ul>
+							</div>
+							<div>
+								<h4>What it produces</h4>
+								<ul>
+									{skill.produces.map((item) => (
+										<li>{item}</li>
+									))}
+								</ul>
+							</div>
+						</div>
+
+						<div class="file-tree">
+							<h4>Package contents</h4>
+							<ul>
+								{skill.files.map((file) => (
+									<li>
+										<code>{skill.name}/{file}</code>
+									</li>
+								))}
+							</ul>
+						</div>
+
+						<div class="skill-actions">
+							<a class="download-btn" href={skill.downloadUrl} download>
+								Download {skill.name}.zip
+							</a>
+							<a
+								class="source-link"
+								href={skill.githubUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								View source on GitHub
+							</a>
+						</div>
+
+						<details class="skill-source">
+							<summary>View full SKILL.md</summary>
+							<div class="copy-block">
+								<button
+									type="button"
+									class="copy-btn"
+									data-copy-target={`skill-md-${skill.name}`}
+									aria-label={`Copy ${skill.name} SKILL.md`}
+								>
+									Copy
+								</button>
+								<pre id={`skill-md-${skill.name}`}><code>{skillSources[`../../../skills/${skill.dirName}/SKILL.md`]?.trim() ?? ""}</code></pre>
+							</div>
+						</details>
+					</article>
+				))
+			}
+		</section>
+
+		<section class="install" aria-labelledby="install-heading">
+			<h2 id="install-heading">Installation</h2>
+			<p>
+				These are <strong>Agent Skills</strong>: directories containing a <code>SKILL.md</code> at
+				the top level and optional <code>references/</code> files. Download the zip, unzip so
+				<code>&lt;name&gt;/SKILL.md</code> sits inside your tool's skills directory, then restart
+				or reload the agent.
+			</p>
+
+			<ol class="install-steps">
+				<li>Download the zip for the skill you need (buttons above).</li>
+				<li>
+					Unzip into your agent's skills directory (see paths below). The archive already contains
+					the correct top-level folder name.
+				</li>
+				<li>Restart the agent session or reload skills so it picks up the new files.</li>
+			</ol>
+
+			<h3>Where to install</h3>
+			<ul class="install-paths">
+				<li>
+					<strong>Cursor (global):</strong>
+					<div class="copy-block inline">
+						<button type="button" class="copy-btn" data-copy-text="~/.cursor/skills/" aria-label="Copy Cursor global path">
+							Copy
+						</button>
+						<code>~/.cursor/skills/&lt;name&gt;/</code>
+					</div>
+				</li>
+				<li>
+					<strong>Cursor (project):</strong>
+					<div class="copy-block inline">
+						<button type="button" class="copy-btn" data-copy-text=".cursor/skills/" aria-label="Copy Cursor project path">
+							Copy
+						</button>
+						<code>&lt;project&gt;/.cursor/skills/&lt;name&gt;/</code>
+					</div>
+				</li>
+				<li>
+					<strong>Claude Code (global):</strong>
+					<div class="copy-block inline">
+						<button type="button" class="copy-btn" data-copy-text="~/.claude/skills/" aria-label="Copy Claude Code global path">
+							Copy
+						</button>
+						<code>~/.claude/skills/&lt;name&gt;/</code>
+					</div>
+				</li>
+				<li>
+					<strong>Claude Code (project):</strong>
+					<div class="copy-block inline">
+						<button type="button" class="copy-btn" data-copy-text=".claude/skills/" aria-label="Copy Claude Code project path">
+							Copy
+						</button>
+						<code>&lt;project&gt;/.claude/skills/&lt;name&gt;/</code>
+					</div>
+				</li>
+				<li>
+					<strong>Other Agent Skills tools:</strong> place the unzipped folder in that tool's
+					conventional skills directory. Keep <code>SKILL.md</code> at the skill folder root.
+				</li>
+			</ul>
+
+			<p class="install-example">
+				Example after unzip (planner):
+			</p>
+			<div class="copy-block">
+				<button
+					type="button"
+					class="copy-btn"
+					data-copy-target="install-example"
+					aria-label="Copy install example"
+				>
+					Copy
+				</button>
+				<pre id="install-example"><code>{`~/.cursor/skills/cmp-clean-architecture-planner/
+├── SKILL.md
+└── references/
+    ├── plan-template.md
+    └── architecture-map-template.md`}</code></pre>
+			</div>
+		</section>
+	</section>
+</BaseLayout>
+
+<script>
+	function getCopyText(button: HTMLButtonElement): string {
+		const targetId = button.dataset.copyTarget;
+		if (targetId) {
+			const el = document.getElementById(targetId);
+			return el?.textContent?.trim() ?? "";
+		}
+		return button.dataset.copyText?.trim() ?? "";
+	}
+
+	document.querySelectorAll<HTMLButtonElement>(".copy-btn").forEach((button) => {
+		button.addEventListener("click", async () => {
+			const text = getCopyText(button);
+			if (!text) return;
+
+			try {
+				await navigator.clipboard.writeText(text);
+				const original = button.textContent;
+				button.textContent = "Copied";
+				window.setTimeout(() => {
+					button.textContent = original;
+				}, 1500);
+			} catch {
+				button.textContent = "Failed";
+				window.setTimeout(() => {
+					button.textContent = "Copy";
+				}, 1500);
+			}
+		});
+	});
+</script>
+
+<style>
+	.skills-page {
+		max-width: 860px;
+		padding: 56px 0 8px;
+	}
+
+	.skills-page header {
+		padding-bottom: 18px;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.skills-page h1 {
+		margin-bottom: 16px;
+	}
+
+	.lead {
+		font-size: 20px;
+		line-height: 1.6;
+		margin-bottom: 6px;
+	}
+
+	.intro {
+		margin: 20px 0 0;
+		padding: 0 0 0 1em;
+		border-left: 3px solid var(--border);
+		color: var(--secondary);
+		font-size: 17px;
+		line-height: 1.6;
+	}
+
+	.workflow,
+	.skill-list,
+	.install {
+		padding-top: 28px;
+	}
+
+	.workflow h2,
+	.skill-list h2,
+	.install h2 {
+		font-size: 20px;
+		font-weight: 600;
+		margin: 0 0 14px;
+		letter-spacing: -0.01em;
+	}
+
+	.workflow > p,
+	.install > p {
+		color: var(--secondary);
+		font-size: 15px;
+		line-height: 1.55;
+	}
+
+	.workflow-steps {
+		margin: 14px 0;
+		padding-left: 24px;
+		color: var(--secondary);
+		font-size: 15px;
+		line-height: 1.55;
+	}
+
+	.workflow-steps li {
+		margin-bottom: 10px;
+	}
+
+	.chapter-links {
+		font-size: 14px;
+		color: var(--text-muted);
+	}
+
+	.skill-card {
+		margin-bottom: 36px;
+		padding-bottom: 28px;
+		border-bottom: 1px solid var(--border-light);
+	}
+
+	.skill-card:last-child {
+		border-bottom: none;
+		margin-bottom: 0;
+		padding-bottom: 0;
+	}
+
+	.skill-card-header {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 8px 14px;
+		margin-bottom: 10px;
+	}
+
+	.skill-card h3 {
+		font-size: 22px;
+		margin: 0;
+	}
+
+	.skill-slug {
+		font-size: 13px;
+		color: var(--text-muted);
+		background: var(--bg-subtle, #f8f9fa);
+		padding: 2px 8px;
+		border-radius: 4px;
+	}
+
+	.skill-card > p {
+		color: var(--secondary);
+		font-size: 15px;
+		line-height: 1.55;
+		margin: 0 0 12px;
+	}
+
+	.chapter-ref {
+		font-size: 14px;
+		margin: 0 0 16px;
+	}
+
+	.skill-meta {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 20px;
+		margin-bottom: 16px;
+	}
+
+	.skill-meta h4,
+	.file-tree h4,
+	.install h3 {
+		font-size: 14px;
+		font-weight: 600;
+		margin: 0 0 8px;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--text-muted);
+	}
+
+	.skill-meta ul,
+	.file-tree ul,
+	.install-steps,
+	.install-paths {
+		margin: 0;
+		padding-left: 20px;
+		color: var(--secondary);
+		font-size: 15px;
+		line-height: 1.55;
+	}
+
+	.skill-meta li,
+	.file-tree li,
+	.install-steps li,
+	.install-paths li {
+		margin-bottom: 6px;
+	}
+
+	.file-tree {
+		margin-bottom: 18px;
+	}
+
+	.file-tree code {
+		font-size: 13px;
+	}
+
+	.skill-actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 12px 18px;
+		margin-bottom: 16px;
+	}
+
+	.download-btn {
+		display: inline-block;
+		padding: 10px 18px;
+		background: var(--primary);
+		color: var(--background);
+		text-decoration: none;
+		font-size: 14px;
+		font-weight: 600;
+		border-radius: 8px;
+		transition: opacity 0.15s ease;
+	}
+
+	.download-btn:hover {
+		opacity: 0.88;
+		color: var(--background);
+	}
+
+	.source-link {
+		font-size: 14px;
+		color: var(--secondary);
+	}
+
+	.skill-source summary {
+		cursor: pointer;
+		font-size: 14px;
+		font-weight: 500;
+		color: var(--secondary);
+		margin-bottom: 10px;
+	}
+
+	.copy-block {
+		position: relative;
+	}
+
+	.copy-block.inline {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		margin-top: 4px;
+	}
+
+	.copy-btn {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+		z-index: 1;
+		padding: 4px 10px;
+		font-size: 12px;
+		font-weight: 500;
+		border: 1px solid var(--border-light);
+		border-radius: 6px;
+		background: var(--background);
+		color: var(--secondary);
+		cursor: pointer;
+	}
+
+	.copy-block.inline .copy-btn {
+		position: static;
+	}
+
+	.copy-block pre {
+		margin: 0;
+		padding: 14px 16px;
+		padding-top: 40px;
+		border: 1px solid var(--border-light);
+		border-radius: 8px;
+		background: var(--bg-subtle, #f8f9fa);
+		overflow-x: auto;
+		font-size: 13px;
+		line-height: 1.55;
+	}
+
+	.copy-block.inline pre,
+	.copy-block.inline code {
+		padding: 0;
+		border: none;
+		background: none;
+	}
+
+	.copy-block pre code {
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+		color: var(--secondary);
+		white-space: pre;
+	}
+
+	.install-steps {
+		margin: 16px 0 24px;
+	}
+
+	.install-paths {
+		list-style: none;
+		padding-left: 0;
+	}
+
+	.install-paths > li {
+		margin-bottom: 14px;
+	}
+
+	.install-example {
+		margin: 18px 0 8px;
+		font-size: 14px;
+		color: var(--text-muted);
+	}
+
+	@media (max-width: 700px) {
+		.skills-page {
+			padding-top: 40px;
+		}
+
+		.lead {
+			font-size: 18px;
+		}
+
+		.intro {
+			font-size: 16px;
+		}
+
+		.skill-meta {
+			grid-template-columns: 1fr;
+		}
+
+		.skill-card h3 {
+			font-size: 20px;
+		}
+	}
+</style>
