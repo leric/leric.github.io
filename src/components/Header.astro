@@ -1,6 +1,6 @@
 ---
 import HeaderLink from './HeaderLink.astro';
-import { SITE_TITLE, SITE_DESCRIPTION, AUTHOR } from '../consts';
+import { SITE_TITLE, SITE_DESCRIPTION, AUTHOR, AIRIC_URL } from '../consts';
 ---
 
 <header class="site-header">
@@ -16,7 +16,7 @@ import { SITE_TITLE, SITE_DESCRIPTION, AUTHOR } from '../consts';
 			<HeaderLink href="/cmp">CMP</HeaderLink>
 			<HeaderLink href="/skills">Skills</HeaderLink>
 			<HeaderLink href="/blog">Essays</HeaderLink>
-			<HeaderLink href="/projects">Projects</HeaderLink>
+			<HeaderLink href={AIRIC_URL} target="_blank" rel="noopener noreferrer">Airic</HeaderLink>
 		</nav>
 		<div class="header-actions">
 			{

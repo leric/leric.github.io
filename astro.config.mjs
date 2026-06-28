@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from "astro/config";
+import { unified } from "@astrojs/markdown-remark";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import remarkGfm from "remark-gfm";
@@ -19,16 +20,13 @@ export default defineConfig({
     "/research/cmp": "/cmp/",
   },
   markdown: {
-    remarkPlugins,
-    rehypePlugins,
+    processor: unified({ remarkPlugins, rehypePlugins }),
     shikiConfig: {
       theme: "github-light",
     },
   },
   integrations: [
     mdx({
-      remarkPlugins,
-      rehypePlugins,
       optimize: true,
     }),
     sitemap(),

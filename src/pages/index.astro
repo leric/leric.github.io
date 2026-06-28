@@ -2,7 +2,7 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import FormattedDate from "../components/FormattedDate.astro";
-import { AUTHOR } from "../consts";
+import { AUTHOR, AIRIC_URL } from "../consts";
 
 const posts = (await getCollection("blog")).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
@@ -27,11 +27,13 @@ const entryCards = [
 		linkLabel: "Read the essays",
 	},
 	{
-		eyebrow: "Tools",
-		title: "Projects",
-		href: "/projects",
-		description: "Context Footprint and prototypes that operationalize the theory.",
-		linkLabel: "See the projects",
+		eyebrow: "Project",
+		title: "Airic",
+		href: AIRIC_URL,
+		external: true,
+		description:
+			"Markdown-configured agent kernel for your workspace via ACP — modes, processes, and tool guidance in editable `.airic/` specs.",
+		linkLabel: "Visit Airic",
 	},
 	{
 		eyebrow: "Agents",
@@ -77,9 +79,20 @@ const pageDescription =
 			{entryCards.map((card) => (
 				<article class="entry-card">
 					<p class="entry-eyebrow">{card.eyebrow}</p>
-					<h3><a href={card.href}>{card.title}</a></h3>
+					<h3>
+						<a
+							href={card.href}
+							{...(card.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+						>
+							{card.title}
+						</a>
+					</h3>
 					<p class="entry-desc">{card.description}</p>
-					<a class="entry-link" href={card.href}>
+					<a
+						class="entry-link"
+						href={card.href}
+						{...(card.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+					>
 						{card.linkLabel}
 						<span aria-hidden="true"> →</span>
 					</a>

@@ -26,6 +26,9 @@ export const CMP_RSS_PATH = '/research/cmp/rss.xml';
 /** Primary CMP paper / research source repository */
 export const CMP_SOURCE_REPO = 'https://github.com/leric/cmp';
 
+/** Airic project site — switch to https://airic.dev when the dedicated site launches */
+export const AIRIC_URL = 'https://github.com/leric/airic';
+
 export function githubEditUrl(relativePathFromRepoRoot: string) {
 	const clean = relativePathFromRepoRoot.replace(/^\/+/, '');
 	return `https://github.com/${SITE_REPO.owner}/${SITE_REPO.repo}/edit/${SITE_REPO.branch}/${clean}`;
