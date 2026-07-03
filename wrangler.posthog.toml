@@ -1,0 +1,8 @@
+# PostHog reverse proxy (ph.contextcost.dev) — deploy separately from the site:
+#   npx wrangler deploy --config wrangler.posthog.toml
+name = "posthog-proxy"
+main = "ph_proxy.js"
+compatibility_date = "2024-01-01"
+
+[env.production]
+vars = { }
