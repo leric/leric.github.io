@@ -10,10 +10,11 @@ interface Props {
 	image?: string;
 	canonicalHref?: string;
 	ogType?: 'website' | 'article';
+	robots?: string;
 	jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
-const { title, description, image, canonicalHref, ogType, jsonLd } = Astro.props;
+const { title, description, image, canonicalHref, ogType, robots, jsonLd } = Astro.props;
 ---
 
 <!doctype html>
@@ -25,6 +26,7 @@ const { title, description, image, canonicalHref, ogType, jsonLd } = Astro.props
 			image={image}
 			canonicalHref={canonicalHref}
 			ogType={ogType}
+			robots={robots}
 			jsonLd={jsonLd}
 		/>
 		<PostHog />

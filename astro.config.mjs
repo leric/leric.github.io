@@ -29,6 +29,10 @@ export default defineConfig({
     mdx({
       optimize: true,
     }),
-    sitemap(),
+    sitemap({
+      filter: (page) =>
+        page !== "https://www.contextcost.dev/cmp/print/" &&
+        !page.startsWith("https://www.contextcost.dev/blog/tag/"),
+    }),
   ],
 });

@@ -8,13 +8,14 @@ interface Props {
 	image?: string;
 	headerTitle?: string;
 	headerSubtitle?: string;
+	robots?: string;
 }
 
-const { title, description, image, headerTitle, headerSubtitle } = Astro.props;
+const { title, description, image, headerTitle, headerSubtitle, robots } = Astro.props;
 const showHeader = Boolean(headerTitle || headerSubtitle);
 ---
 
-<BaseLayout title={title} description={description} image={image}>
+<BaseLayout title={title} description={description} image={image} robots={robots}>
 	{
 		showHeader && (
 			<div class="archive-header">

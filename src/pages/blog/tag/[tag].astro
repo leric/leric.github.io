@@ -33,6 +33,7 @@ const sortedPosts = posts.sort(
     description={`Posts tagged with ${tag}`}
     headerTitle={`Topic: ${tag}`}
     headerSubtitle={`${posts.length} articles tagged with "${tag}"`}
+    robots="noindex,follow"
 >
     <div class="posts-archive">
         {

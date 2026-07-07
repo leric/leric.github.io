@@ -1,14 +1,53 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import type { ImageMetadata } from "astro";
 import BaseLayout from "./BaseLayout.astro";
 import FormattedDate from "../components/FormattedDate.astro";
+import { AUTHOR, SITE_TITLE } from "../consts";
 
 type Props = CollectionEntry<"blog">["data"];
 
 const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+
+const canonicalHref = new URL(Astro.url.pathname, Astro.site).href;
+const imageUrl = heroImage
+	? new URL(typeof heroImage === "string" ? heroImage : heroImage.src, Astro.site).href
+	: undefined;
+const toDateOnly = (date: Date) =>
+	`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+		date.getDate(),
+	).padStart(2, "0")}`;
+
+const jsonLd = {
+	"@context": "https://schema.org",
+	"@type": "BlogPosting",
+	headline: title,
+	description,
+	datePublished: toDateOnly(pubDate),
+	dateModified: toDateOnly(updatedDate ?? pubDate),
+	url: canonicalHref,
+	mainEntityOfPage: canonicalHref,
+	author: {
+		"@type": "Person",
+		name: AUTHOR.name,
+		url: AUTHOR.social.github,
+	},
+	publisher: {
+		"@type": "Organization",
+		name: SITE_TITLE,
+	},
+	...(imageUrl ? { image: imageUrl } : {}),
+};
 ---
 
-<BaseLayout title={title} description={description} ogType="article">
+<BaseLayout
+	title={title}
+	description={description}
+	image={heroImage as ImageMetadata | string | undefined}
+	canonicalHref={canonicalHref}
+	ogType="article"
+	jsonLd={jsonLd}
+>
 	<article class="essay">
 		<header class="essay-header">
 			<h1>{title}</h1>

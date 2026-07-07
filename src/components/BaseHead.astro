@@ -12,6 +12,7 @@ interface Props {
 	/** Full canonical URL (e.g. frontmatter canonicalUrl). Defaults to current path on this site. */
 	canonicalHref?: string;
 	ogType?: 'website' | 'article';
+	robots?: string;
 	jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
@@ -19,7 +20,7 @@ const canonicalFromProp = Astro.props.canonicalHref
 	? new URL(Astro.props.canonicalHref)
 	: new URL(Astro.url.pathname, Astro.site);
 
-const { title, description, image, ogType = 'website', jsonLd } = Astro.props;
+const { title, description, image, ogType = 'website', robots, jsonLd } = Astro.props;
 const fallbackImage = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1920&q=80';
 const imageUrl = image
 	? (typeof image === 'string' ? image : image.src)
@@ -65,6 +66,7 @@ const jsonLdBlocks = jsonLd
 <title>{title}</title>
 <meta name="title" content={title} />
 <meta name="description" content={description} />
+{robots && <meta name="robots" content={robots} />}
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content={ogType} />
