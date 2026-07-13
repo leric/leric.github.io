@@ -2,6 +2,9 @@ cff-version: 1.2.0
 message: "If you use the Context Minimization Principle, please cite it as below."
 type: article
 title: "Context Minimization Principle"
+version: "v1.0.1"
+date-released: 2026-07-13
+doi: 10.5281/zenodo.21331759
 authors:
   - family-names: Zhang
     given-names: Lianghui

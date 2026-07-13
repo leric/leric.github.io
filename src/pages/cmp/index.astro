@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { AUTHOR_JSON_LD, CMP_SOURCE_REPO, SITE_TITLE } from "../../consts";
+import { AUTHOR_JSON_LD, CMP_PUBLICATION, CMP_SOURCE_REPO, SITE_TITLE } from "../../consts";
 
 const pageTitle = `Context Minimization Principle — ${SITE_TITLE}`;
 const pageDescription =
@@ -15,7 +15,13 @@ const jsonLd = {
 	author: AUTHOR_JSON_LD,
 	license: 'https://creativecommons.org/licenses/by/4.0/',
 	inLanguage: 'en',
-	sameAs: CMP_SOURCE_REPO,
+	identifier: {
+		'@type': 'PropertyValue',
+		propertyID: 'DOI',
+		value: CMP_PUBLICATION.doi,
+		url: CMP_PUBLICATION.url,
+	},
+	sameAs: [CMP_SOURCE_REPO, CMP_PUBLICATION.url],
 };
 
 type ChapterStatus = "published" | "planned";
@@ -279,14 +285,19 @@ const parts: RoadmapPart[] = [
 
 		<section class="citation" aria-labelledby="citation-heading">
 			<h2 id="citation-heading">Citation</h2>
-			<p>If you reference this work in academic or technical writing, please cite:</p>
-			<pre class="citation-bibtex" aria-label="BibTeX entry"><code>{`@online{zhang2026cmp,
+			<p>For academic or technical writing, cite the fixed Zenodo preprint:</p>
+			<pre class="citation-bibtex" aria-label="BibTeX entry"><code>{`@misc{zhang2026cmp,
   author  = {Zhang, Lianghui},
   title   = {Context Minimization Principle},
   year    = {2026},
-  url     = {https://www.contextcost.dev/cmp/},
+  version = {${CMP_PUBLICATION.version}},
+  doi     = {${CMP_PUBLICATION.doi}},
+  url     = {${CMP_PUBLICATION.url}},
+  note    = {Preprint},
 }`}</code></pre>
 			<p class="citation-note">
+				<a href={CMP_PUBLICATION.url} target="_blank" rel="noopener noreferrer">Zenodo preprint (DOI)</a>
+				{' · '}
 				<a href={CMP_SOURCE_REPO} target="_blank" rel="noopener noreferrer">GitHub repository</a>
 				{' · '}
 				<a href="/CITATION.cff">CITATION.cff</a>

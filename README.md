@@ -1,6 +1,7 @@
 # Context Cost
 
 [![Site](https://img.shields.io/badge/site-www.contextcost.dev-2563eb)](https://www.contextcost.dev)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21331759.svg)](https://doi.org/10.5281/zenodo.21331759)
 
 Source repository for **[Context Cost](https://www.contextcost.dev)** — essays on software design, context cost, and AI-assisted engineering, plus the online book [**Context Minimization Principle (CMP)**](https://www.contextcost.dev/cmp/).
 
@@ -42,10 +43,6 @@ Topics include software architecture, domain-driven design, AI coding agents, co
 - MDX, [GFM](https://github.github.com/gfm/), math via `remark-math` + KaTeX
 - Sitemap and RSS integrations
 
-## Related repositories
-
-- **[leric/cmp](https://github.com/leric/cmp)** — primary CMP paper / research source (canonical development may happen there; this repo hosts the published web edition).
-
 ## License
 
 | Scope | License |
@@ -55,7 +52,7 @@ Topics include software architecture, domain-driven design, AI coding agents, co
 
 ## Citation
 
-See [CITATION.cff](./CITATION.cff) for machine-readable citation metadata for the Context Minimization Principle.
+The citable CMP preprint is archived on Zenodo: [10.5281/zenodo.21331759](https://doi.org/10.5281/zenodo.21331759). See [CITATION.cff](./CITATION.cff) for machine-readable metadata.
 
 ## Publishing a CMP PDF
 

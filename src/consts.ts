@@ -33,8 +33,15 @@ export const SITE_REPO = {
 
 export const CMP_RSS_PATH = '/research/cmp/rss.xml';
 
-/** Primary CMP paper / research source repository */
-export const CMP_SOURCE_REPO = 'https://github.com/leric/cmp';
+/** Canonical source repository for CMP chapters and the published web edition */
+export const CMP_SOURCE_REPO = 'https://github.com/leric/leric.github.io';
+
+/** Fixed, citable CMP preprint edition */
+export const CMP_PUBLICATION = {
+	version: 'v1.0.1',
+	doi: '10.5281/zenodo.21331759',
+	url: 'https://doi.org/10.5281/zenodo.21331759',
+} as const;
 
 /** Airic project site — switch to https://airic.dev when the dedicated site launches */
 export const AIRIC_URL = 'https://github.com/leric/airic';

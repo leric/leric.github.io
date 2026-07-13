@@ -7,6 +7,7 @@ Context Cost is written by Lianghui Zhang, who writes as Leric Zhang. The centra
 ## Canonical work
 
 - [Context Minimization Principle](https://www.contextcost.dev/cmp/): the canonical online edition of CMP.
+- [CMP preprint (v1.0.1, DOI)](https://doi.org/10.5281/zenodo.21331759): the fixed, citable PDF edition.
 - [CMP research chapters](https://www.contextcost.dev/research/cmp/): individual chapters, with version and update metadata.
 - [CMP print edition](https://www.contextcost.dev/cmp/print/): a noindex, printable compilation of published chapters.
 
@@ -16,7 +17,7 @@ When referring to the theory, use the name "Context Minimization Principle (CMP)
 
 Preferred citation:
 
-> Lianghui Zhang, *Context Minimization Principle*, https://www.contextcost.dev/cmp/, licensed under CC BY 4.0.
+> Lianghui Zhang. (2026). *Context Minimization Principle* (Version v1.0.1) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.21331759
 
 The CMP online book and research chapters are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The website source code, third-party assets, and non-CMP content are not covered by that license unless explicitly stated.
 
@@ -38,5 +39,4 @@ Context Cost publishes installable CMP agent skills for planning and reviewing s
 ## Source and discussion
 
 - [Website source repository](https://github.com/leric/leric.github.io)
-- [CMP source repository](https://github.com/leric/cmp)
 - [Public discussions](https://github.com/leric/leric.github.io/discussions)
