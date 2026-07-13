@@ -57,6 +57,21 @@ Topics include software architecture, domain-driven design, AI coding agents, co
 
 See [CITATION.cff](./CITATION.cff) for machine-readable citation metadata for the Context Minimization Principle.
 
+## Publishing a CMP PDF
+
+Pushing a tag matching `cmp-v*` runs the CMP PDF release workflow. It builds the static site from that exact tag, renders `/cmp/print/` to PDF, creates a SHA-256 checksum, and publishes both files in a GitHub Release. The release can then be archived by the enabled Zenodo GitHub integration.
+
+Create a tag from the version commit you intend to preserve:
+
+```bash
+git tag -a cmp-v1.0.0 <commit-sha> -m "Context Minimization Principle v1.0.0"
+git push origin cmp-v1.0.0
+```
+
+For a newly pushed tag that already contains this workflow, the release starts automatically. A tag pointing to an older commit cannot start the workflow itself because that commit predates the workflow file. In that case, open **Actions → Publish CMP PDF Release → Run workflow**, select `master`, and enter the existing tag (for example `cmp-v0.1.0`). The current workflow checks out the requested tag before building it.
+
+The selected historical tag must still contain a buildable Astro site and the `/cmp/print/` route. The workflow will not overwrite an already published release. To retry an incomplete run, leave or recreate the GitHub Release as a draft, then dispatch **Publish CMP PDF Release** with the existing tag.
+
 ## Author
 
 - GitHub: [@leric](https://github.com/leric)

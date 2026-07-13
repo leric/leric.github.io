@@ -1,0 +1,93 @@
+name: Publish CMP PDF Release
+
+on:
+  push:
+    tags:
+      - 'cmp-v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing CMP tag to build and publish, for example cmp-v1.0.0
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build CMP PDF and publish release
+    runs-on: ubuntu-latest
+    env:
+      CMP_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+
+    steps:
+      - name: Check out the tagged source
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Show project toolchain versions
+        run: node --version && npm --version
+
+      - name: Install dependencies and build site
+        run: npm ci && npm run build
+
+      - name: Start the static preview server
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4321 > /tmp/cmp-preview.log 2>&1 &
+          echo $! > /tmp/cmp-preview.pid
+
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error http://127.0.0.1:4321/cmp/print/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+
+          cat /tmp/cmp-preview.log
+          exit 1
+
+      - name: Render the print edition to PDF
+        run: |
+          mkdir -p release
+          PDF="release/Context-Minimization-Principle-${CMP_TAG}.pdf"
+
+          google-chrome \
+            --headless=new \
+            --no-sandbox \
+            --disable-gpu \
+            --no-pdf-header-footer \
+            --print-to-pdf="$PDF" \
+            http://127.0.0.1:4321/cmp/print/
+
+          test -s "$PDF"
+          sha256sum "$PDF" > release/SHA256SUMS.txt
+
+      - name: Create a draft release and attach publication files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$CMP_TAG" --json isDraft --jq '.isDraft' > /tmp/cmp-release-state 2> /dev/null; then
+            if [ "$(cat /tmp/cmp-release-state)" = "false" ]; then
+              echo "Release $CMP_TAG is already published; refusing to replace its archival files."
+              exit 1
+            fi
+            gh release upload "$CMP_TAG" release/* --clobber
+          else
+            gh release create "$CMP_TAG" release/* \
+              --draft \
+              --title "Context Minimization Principle $CMP_TAG" \
+              --generate-notes
+          fi
+
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "$CMP_TAG" --draft=false
