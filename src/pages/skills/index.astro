@@ -4,7 +4,7 @@ import { SITE_REPO, SITE_TITLE } from "../../consts";
 
 const pageTitle = `CMP Skills — ${SITE_TITLE}`;
 const pageDescription =
-	"Download and install CMP agent skills: a pre-task Clean Architecture planner and a post-task design reflection loop for coding agents.";
+	"Download and install CMP agent skills: a pre-task Clean Architecture planner and a post-change design reflection loop for coding agents.";
 
 const skillSources = import.meta.glob("../../../skills/**/SKILL.md", {
 	query: "?raw",
@@ -41,9 +41,9 @@ interface SkillCard {
 const skillCards: SkillCard[] = [
 	{
 		dirName: "clean-architecture-planner",
-		title: "CMP Clean Architecture Planner",
+		title: "Clean Architecture Planner",
 		summary:
-			"Run before non-trivial changes in a Clean Architecture (or ports-and-adapters) codebase. Forces the agent to separate policy from mechanism before coding, so business decisions stay visible and owned by humans instead of being silently baked into the implementation.",
+			"Run before non-trivial changes in a Clean Architecture (or ports-and-adapters) codebase. It follows the codebase's existing routes, separates policy from mechanism, and surfaces only unresolved design decisions instead of silently baking them into implementation.",
 		whenToUse: [
 			"Features, bug fixes, refactors, or business-rule changes",
 			"Changes touching use cases, entities, ports, adapters, controllers, mappers, repositories, or tests",
@@ -51,11 +51,12 @@ const skillCards: SkillCard[] = [
 		],
 		produces: [
 			"Quick plan (inline) or full plan from references/plan-template.md",
-			"Bootstrap or update architecture-map.md in the project root",
-			"What-level decisions resolved in the plan, in domain-layer terms, for you to confirm on review",
+			"An evidence-backed modification closure and inside-out implementation route",
+			"Unresolved what-level decisions, with options and safe independent work made explicit",
 		],
 		files: [
 			"SKILL.md",
+			"agents/openai.yaml",
 			"references/plan-template.md",
 			"references/architecture-map-template.md",
 		],
@@ -63,10 +64,10 @@ const skillCards: SkillCard[] = [
 		chapterLabel: "Ch. 15 — Clean Architecture Revisited",
 	},
 	{
-		dirName: "post-task-reflection",
-		title: "CMP Post-Task Reflection",
+		dirName: "post-change-design-reflection",
+		title: "Post-Change Design Reflection",
 		summary:
-			"Run after completing a coding task. Inspects the agent's context-routing trace and checks for missing paths, unauthorized shortcuts, and unowned capabilities.",
+			"Run immediately after completing a non-trivial code change. It reflects on the live task context and checks for missing paths, boundary bypasses, and unowned capabilities without reconstructing a fictional route from the diff.",
 		whenToUse: [
 			"Modifying existing behavior or adding to an existing flow",
 			"Bug fixes that required codebase investigation",
@@ -75,11 +76,12 @@ const skillCards: SkillCard[] = [
 		],
 		produces: [
 			"Reflection report from references/report-template.md",
-			"Three checks: Missing Path, Unauthorized Shortcut, Unowned Capability",
-			"Safe locality/boundary repairs; escalates what-level design decisions",
+			"Three checks: Missing Path, Boundary Bypass, Unowned Capability",
+			"Evidence-backed recommendations by default; approved how-level repairs in repair mode",
 		],
 		files: [
 			"SKILL.md",
+			"agents/openai.yaml",
 			"references/checks.md",
 			"references/principles.md",
 			"references/report-template.md",
@@ -120,13 +122,12 @@ const skills = skillCards.map((card) => {
 			<ol class="workflow-steps">
 				<li>
 					<strong>Before the task</strong> — the planner separates <em>policy</em> (what the system
-					does) from <em>mechanism</em> (how it does it). The agent handles mechanism freely, but
-					writes every policy decision into the plan for you to confirm — instead of quietly baking
-					it into the implementation.
+					does) from <em>mechanism</em> (how it does it), follows the existing architecture, and
+					surfaces only the what-level decisions that are not already authorized.
 				</li>
 				<li>
-					<strong>After the task</strong> — reflection inspects the context-routing trace; repairs
-					locality and boundary issues; escalates ownership decisions to humans.
+					<strong>After the task</strong> — reflection inspects the live context-routing trace,
+					reports locality and boundary issues, and leaves ownership decisions with humans.
 				</li>
 			</ol>
 			<p class="chapter-links">
@@ -292,8 +293,10 @@ const skills = skillCards.map((card) => {
 				>
 					Copy
 				</button>
-				<pre id="install-example"><code>{`~/.cursor/skills/cmp-clean-architecture-planner/
+				<pre id="install-example"><code>{`~/.cursor/skills/clean-architecture-planner/
 ├── SKILL.md
+├── agents/
+│   └── openai.yaml
 └── references/
     ├── plan-template.md
     └── architecture-map-template.md`}</code></pre>

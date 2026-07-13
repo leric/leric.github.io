@@ -1,91 +1,68 @@
-
 # Full Plan Template
 
-Use when the workflow calls for a full plan. Fill each section; keep cells terse.
+Keep the plan decision-focused. Omit empty rows and sections that add no information.
 
-## 1. Intent
-- Task type:
+## 1. Intent and authority
+
 - Intended behavior change:
 - Behavior to preserve:
 - Success criteria:
-- Ambiguities:
+- Settled product or design decisions:
+- Genuine ambiguities:
 
-## 2. Change classification
+## 2. Context route and modification closure
 
-| Item | Classification | Policy / mechanism / boundary / placement | Reason |
+- Natural entry point:
+- Routing signals followed:
+- Sufficient context acquired:
+- Trustworthy stopping boundaries:
+- Intentionally excluded regions and why:
+- Routing gaps found:
+
+| Artifact | Role | Change or verify | Why it belongs to the closure |
 |---|---|---|---|
-|  |  |  |  |
+|  | primary / sibling / downstream / verification |  |  |
 
-Classification ∈ entity-invariant / use-case-policy / port-contract / adapter-mechanism / delivery-mechanism / persistence-mechanism / mapping-dto-serialization / test-verification / ownership-placement / architecture-boundary
+## 3. Policy and mechanism placement
 
-## 3. CA coordinates
+| Concern | Classification | Vertical owner | Horizontal layer | Policy / mechanism / boundary / placement | Evidence |
+|---|---|---|---|---|---|
+|  |  |  |  |  |  |
 
-| Planned change | Vertical owner (use case) | Horizontal layer | Reason |
-|---|---|---|---|
-|  |  |  |  |
+Classification: entity-invariant, use-case-policy, port-contract, adapter-mechanism, delivery-mechanism, persistence-mechanism, mapping-dto-serialization, test-verification, ownership-placement, or architecture-boundary.
 
-Layer ∈ entity / use case / port / adapter / delivery / persistence / mapper / test. No vertical owner → ownership-needed; unclear layer → placement-review.
+Use ownership-needed when no vertical owner is established and placement-review when the layer is unresolved.
 
-## 4. Context acquisition plan
+## 4. Boundaries and human decisions
 
-| Context target | Inspect level | Why |
-|---|---|---|
-|  |  |  |
+| Boundary or capability | Trust | Existing contract or owner | Planned action | Authority |
+|---|---|---|---|---|
+|  | trusted / verify / untrusted |  |  | how-level / resolved what-level / unresolved what-level |
 
-Inspect level ∈ must-inspect / may-inspect / do-not-need
+Unresolved human design gates only:
 
-## 5. Predicted modification closure
+- Decision:
+- Options and trade-offs:
+- Safe work that can continue independently:
 
-| Artifact | Role | Required? | Why |
-|---|---|---|---|
-|  |  |  |  |
+Write None when no unresolved gate exists.
 
-Role ∈ primary / sibling / downstream / verification. Required ∈ yes / maybe / no.
+## 5. Inside-out implementation and verification
 
-## 6. Boundary trust check
+Pair tests with the behavior they own. Use only the applicable steps:
 
-| Boundary | Trust level | Need to cross? | Reason |
-|---|---|---|---|
-|  |  |  |  |
+1. Specify or test the relevant invariant or use-case behavior.
+2. Implement entity invariant changes.
+3. Implement the use-case policy narrative.
+4. Define or adjust the client-authored port.
+5. Implement adapter mechanism and contract/integration tests.
+6. Implement delivery, mapping, persistence, and wiring changes.
+7. Run focused tests, dependency checks, and necessary E2E coverage.
 
-Trust ∈ trusted / verify / untrusted
-
-## 7. Human design gates
-
-| Gate | Triggered? | Required human decision |
-|---|---|---|
-| New use case |  |  |
-| New owned concept |  |  |
-| New port |  |  |
-| Port contract semantics |  |  |
-| Capability ownership |  |  |
-| Placement rule |  |  |
-| Dependency-direction change |  |  |
-| Shared-policy extraction |  |  |
-
-## 8. Implementation route
-
-Follow CA direction; drop steps with no change.
-
-```
-delivery input → input boundary / DTO mapping → use case policy → entity invariant → port contract → adapter mechanism → output boundary / presenter / response mapping → tests
-```
-
-1.
-2.
-3.
-
-## 9. Verification plan
-- Tests to add/update:
-- Tests to run:
-- Architecture checks to run:
-- Manual review focus:
-
-## 10. Agent permissions
-- Agent may change:
-- Agent must NOT change without human approval:
-
-## 11. Next step
-One of: proceed with implementation / submit the plan for human confirmation (including any flagged design gates) / ask the human to clarify an unclear requirement / inspect more context first.
-
-
+- Concrete implementation steps:
+- Tests and checks:
+- Manual review focus on policy or contract decisions:
+- Later architecture-map.md update, if an approved route changes:
+- Agent may implement:
+- Agent must not decide without approval:
+- Next step: proceed / resolve gate / inspect more context

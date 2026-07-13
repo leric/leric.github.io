@@ -1,73 +1,67 @@
-# Architecture Map — Template
+# Architecture Map
 
-Blank scaffold for a codebase's routing index. The skill copies this to `architecture-map.md` in the project root when no map exists yet, then fills and maintains that root copy. Do not edit this template per task — edit the root `architecture-map.md`. Maintenance rules live in SKILL.md ("Architecture Map").
+Use this template only for an explicitly authorized architecture-map bootstrap task. The planner reads an existing root architecture-map.md; it does not create or fill one as a planning side effect.
 
-When generating the root file, replace this header with the project name and:
+Keep the map a stable routing index, not a mirror of implementation detail.
 
 - Last updated:
 - Architectural decision owners:
 
 ## Layer layout
 
-Where each layer physically lives.
-
-| Layer | Location (path / module) | Notes |
+| Layer | Location | Notes |
 |---|---|---|
 | Entities / domain |  |  |
 | Use cases / application |  |  |
-| Ports (interfaces) |  |  |
-| Adapters (infrastructure) |  |  |
-| Delivery (controllers / UI / API) |  |  |
+| Ports |  |  |
+| Adapters / infrastructure |  |  |
+| Delivery |  |  |
 | Persistence |  |  |
 | Tests |  |  |
 
-## Use case catalog (vertical owners)
+## Use case catalog
 
-The primary routing table: which business process owns which behavior. Workflow step 3 starts here.
-
-| Use case | Purpose (one line) | Location | Ports used | Key entities |
+| Use case | Purpose | Location | Ports used | Key entities |
 |---|---|---|---|---|
 |  |  |  |  |  |
 
-## Ports & adapters registry
+## Ports and adapters
 
-Check here before creating a new port (Workflow step 7).
-
-| Port | Capability (use-case language) | Location | Adapters | Contract test |
+| Port | Capability in client language | Location | Adapters | Contract test |
 |---|---|---|---|---|
 |  |  |  |  |  |
 
-## Core entities & invariants
+## Core entities and invariants
 
-Where stable business rules live.
-
-| Entity / value object | Owns (invariant) | Location |
+| Entity or value object | Owned invariant | Location |
 |---|---|---|
 |  |  |  |
 
-## Conventions & placement rules
+## Conventions and placement rules
 
-How new things are placed, so changes follow existing routes (Workflow steps 4 and 8).
+- New use case:
+- New port:
+- New adapter:
+- Naming:
+- Dependency-rule enforcement:
+- Other:
 
-- New use case →
-- New port →
-- New adapter →
-- Naming conventions →
-- Dependency-rule enforcement (lint / arch test) →
-- Other →
+## Known boundary debts
 
-## Boundary debts (known untrusted routes)
-
-Boundaries to not trust casually (Workflow step 6). Recording them prevents re-discovery and silent bypass.
-
-| Boundary | Problem | Risk if bypassed | Owner / status |
+| Boundary | Problem | Risk | Owner / status |
 |---|---|---|---|
-|  | provider-shaped / leak / missing contract / wrong dependency direction |  |  |
+|  |  |  |  |
 
 ## Open ownership questions
 
-Capabilities whose owner is not yet settled. Route here to escalate consistently instead of guessing.
-
-| Capability / concern | Candidate owners | Decision needed |
+| Capability | Candidate owners | Decision needed |
 |---|---|---|
 |  |  |  |
+
+## Maintenance rules
+
+- Record only approved, durable structural facts that make future navigation cheaper.
+- Verify task-relevant entries against code before relying on them.
+- Update the map after authorized implementation creates, moves, or resolves a route.
+- Report an unresolved owner or boundary; do not settle it through documentation.
+- Remove entries that merely duplicate obvious code or are too detailed to remain stable.

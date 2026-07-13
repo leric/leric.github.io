@@ -2,7 +2,7 @@
 title: "Post-Change Design Reflection: Making Every Task Leave the Codebase Cleaner"
 description: "How a CMP practice turns the context an agent just acquired into design feedback—syncing docs, flagging duplication, and leaving ownership decisions for humans—so each change leaves the codebase easier to modify."
 pubDate: "May 26 2026"
-updatedDate: "Jun 09 2026"
+updatedDate: "Jul 13 2026"
 category: "AI Agents"
 tags: ["AI Agents", "CMP", "Skills", "Software Design", "Context Cost"]
 ---
@@ -31,19 +31,19 @@ The focus shifts from "is the task finished?" to a sharper question: **after thi
 
 That is the heart of CMP. The core of software development is modifying existing systems, and the hard part of a correct modification is acquiring enough context; the final few lines of code are the easy part. A maintainable codebase is simply one where that context is cheap to acquire.
 
-Working from that idea, I wrote a skill around it. The full text lives on GitHub: [post-task-reflection/SKILL.md](https://github.com/leric/leric.github.io/blob/main/skills/post-task-reflection/SKILL.md). It has the agent check three kinds of problems.
+Working from that idea, I wrote a skill around it. The full text lives on GitHub: [post-change-design-reflection/SKILL.md](https://github.com/leric/leric.github.io/blob/main/skills/post-change-design-reflection/SKILL.md). It has the agent check three kinds of problems.
 
 ### Three checks
 
 **Missing Path.** Did the agent work hard to find context that should have been easy to reach? Or, among the several places this change had to keep consistent, will a future change miss one of them for lack of a clue?
 
-**Unauthorized Shortcut.** To finish the task, did the agent route around a boundary that was supposed to hold? Business logic dropped into a controller, a use case reaching straight for an external SDK, adapter details leaking into an inner layer, a block of existing logic copied instead of called through its proper boundary. The tests can still pass while a hole gets dug in the architecture.
+**Boundary Bypass.** To finish the task, did the agent route around a boundary that was supposed to hold? Business logic dropped into a controller, a use case reaching straight for an external SDK, adapter details leaking into an inner layer, a block of existing logic copied instead of called through its proper boundary. The tests can still pass while a hole gets dug in the architecture.
 
 **Unowned Capability.** Did the task introduce a new capability with no clear owner — a new formatter, renderer, mapper, policy, validator, or converter? When you cannot say where a function belongs as you write it, then the next time the same logic is needed, you will not know where to look to see whether it already exists. That is how duplication is born.
 
 One rule here matters as much as the checks. When a fix would touch a design decision — inventing a new abstraction, moving a rule to a different owner, redrawing a boundary, creating a shared helper — the agent must not make that call on its own. It flags the problem and stops: this rule may need a clearer owner, this capability's current spot may be only a temporary fit, this boundary may be under pressure. Settling any of them is the human's call.
 
-That is the boundary of post-change reflection. The agent stays out of the architect's chair. After each change it lays out the context path it just walked, fixes the small problems that already have a clear design purpose, and raises the genuine design decisions — ownership, boundaries, new concepts — for a person to settle.
+That is the boundary of post-change reflection. The agent stays out of the architect's chair. After each change it lays out the context path it just walked and recommends the smallest safe response. It applies a how-level repair only when explicitly asked, and raises genuine design decisions — ownership, boundaries, new concepts — for a person to settle.
 
 ### The first task already showed a change
 

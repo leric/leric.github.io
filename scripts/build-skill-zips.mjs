@@ -12,7 +12,7 @@ const agentSkillsDir = join(root, "public", ".well-known", "agent-skills");
 
 const skillDirs = [
 	"clean-architecture-planner",
-	"post-task-reflection",
+	"post-change-design-reflection",
 ];
 
 function parseSkillMetadata(skillDir) {
@@ -21,6 +21,11 @@ function parseSkillMetadata(skillDir) {
 	const description = skillMd.match(/^description:\s*(.+)$/m)?.[1]?.trim();
 	if (!name || !description) {
 		throw new Error(`Could not parse skill metadata from ${skillDir}/SKILL.md`);
+	}
+	if (name !== skillDir) {
+		throw new Error(
+			`Skill name mismatch: ${skillDir}/SKILL.md declares "${name}"; the folder and frontmatter name must match`,
+		);
 	}
 	return { name, description };
 }
