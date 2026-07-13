@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use the Context Minimization Principle, please cite it as below."
+type: article
+title: "Context Minimization Principle"
+authors:
+  - family-names: Zhang
+    given-names: Lianghui
+abstract: "A framework for software design as the discipline of reducing context acquisition cost for humans and AI agents."
+url: "https://www.contextcost.dev/cmp/"
+repository-code: "https://github.com/leric/leric.github.io"
+license: CC-BY-4.0
+keywords:
+  - "software design"
+  - "software architecture"
+  - "AI agents"
+  - "context engineering"

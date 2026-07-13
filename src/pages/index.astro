@@ -2,7 +2,7 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import FormattedDate from "../components/FormattedDate.astro";
-import { AUTHOR, AIRIC_URL } from "../consts";
+import { AUTHOR, AUTHOR_JSON_LD, AIRIC_URL, SITE_TITLE } from "../consts";
 
 const posts = (await getCollection("blog")).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
@@ -47,9 +47,23 @@ const entryCards = [
 const pageTitle = "Context Cost";
 const pageDescription =
 	"Essays on software design, context cost, and AI-assisted engineering.";
+const canonicalUrl = new URL("/", Astro.site).href;
+const jsonLd = {
+	"@context": "https://schema.org",
+	"@type": "WebSite",
+	name: SITE_TITLE,
+	url: canonicalUrl,
+	description: pageDescription,
+	creator: AUTHOR_JSON_LD,
+	about: {
+		"@type": "Thing",
+		name: "Context Minimization Principle",
+		url: new URL("/cmp/", Astro.site).href,
+	},
+};
 ---
 
-<BaseLayout title={pageTitle} description={pageDescription}>
+<BaseLayout title={pageTitle} description={pageDescription} canonicalHref={canonicalUrl} jsonLd={jsonLd}>
 	<section class="intro">
 		<h1>Context Cost</h1>
 		<p class="subtitle">Insights on software engineering in the AI era.</p>

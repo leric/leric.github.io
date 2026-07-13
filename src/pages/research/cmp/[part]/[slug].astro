@@ -7,7 +7,7 @@ import {
 	isCmpChapterRenderable,
 	parseCmpEntryId,
 } from '../../../../lib/research-cmp';
-import { AUTHOR } from '../../../../consts';
+import { AUTHOR_JSON_LD } from '../../../../consts';
 
 export async function getStaticPaths() {
 	const all = await getCollection('research');
@@ -41,11 +41,7 @@ const jsonLd = {
 	datePublished: entry.data.pubDate.toISOString(),
 	dateModified: (entry.data.updatedDate ?? entry.data.pubDate).toISOString(),
 	url: entry.data.canonicalUrl,
-	author: {
-		'@type': 'Person',
-		name: AUTHOR.name,
-		url: AUTHOR.social.github,
-	},
+	author: AUTHOR_JSON_LD,
 	isPartOf: {
 		'@type': 'Book',
 		name: 'Context Minimization Principle',

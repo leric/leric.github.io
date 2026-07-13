@@ -1,10 +1,22 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { CMP_SOURCE_REPO, SITE_TITLE } from "../../consts";
+import { AUTHOR_JSON_LD, CMP_SOURCE_REPO, SITE_TITLE } from "../../consts";
 
 const pageTitle = `Context Minimization Principle — ${SITE_TITLE}`;
 const pageDescription =
 	"CMP is a framework for software design as the discipline of reducing context acquisition cost — for humans and AI agents alike.";
+const canonicalUrl = new URL('/cmp/', Astro.site).href;
+const jsonLd = {
+	'@context': 'https://schema.org',
+	'@type': 'Book',
+	name: 'Context Minimization Principle',
+	description: pageDescription,
+	url: canonicalUrl,
+	author: AUTHOR_JSON_LD,
+	license: 'https://creativecommons.org/licenses/by/4.0/',
+	inLanguage: 'en',
+	sameAs: CMP_SOURCE_REPO,
+};
 
 type ChapterStatus = "published" | "planned";
 
@@ -206,7 +218,12 @@ const parts: RoadmapPart[] = [
 ];
 ---
 
-<BaseLayout title={pageTitle} description={pageDescription}>
+<BaseLayout
+	title={pageTitle}
+	description={pageDescription}
+	canonicalHref={canonicalUrl}
+	jsonLd={jsonLd}
+>
 	<section class="cmp-page">
 		<header>
 			<h1>Context Minimization Principle</h1>
@@ -271,6 +288,8 @@ const parts: RoadmapPart[] = [
 }`}</code></pre>
 			<p class="citation-note">
 				<a href={CMP_SOURCE_REPO} target="_blank" rel="noopener noreferrer">GitHub repository</a>
+				{' · '}
+				<a href="/CITATION.cff">CITATION.cff</a>
 			</p>
 		</section>
 

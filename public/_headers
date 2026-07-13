@@ -1,3 +1,9 @@
+/
+  Link: </rss.xml>; rel="alternate"; type="application/rss+xml"
+  Link: </research/cmp/rss.xml>; rel="alternate"; type="application/rss+xml"
+  Link: </llms.txt>; rel="describedby"; type="text/plain"
+  Link: </.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"
+
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
 
@@ -6,3 +12,10 @@
 
 /downloads/*
   Cache-Control: public, max-age=86400
+
+/.well-known/agent-skills/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=86400
+
+/CITATION.cff
+  Content-Type: text/plain; charset=utf-8

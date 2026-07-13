@@ -6,6 +6,8 @@ export const SITE_DESCRIPTION = "Insights on software engineering in the AI era.
 
 export const AUTHOR = {
 	name: 'Leric Zhang',
+	formalName: 'Lianghui Zhang',
+	citationName: 'Lianghui Zhang (Leric Zhang)',
 	bio: 'Software architect and independent researcher focused on software design for modification.',
 	avatar: 'https://gravatar.com/avatar/f21db36d8141ef33ca88e79852872fb28cad4242979da17e97a8fd3e5e5f5a44',
 	social: {
@@ -14,11 +16,19 @@ export const AUTHOR = {
 	}
 };
 
+export const AUTHOR_JSON_LD = {
+	'@type': 'Person',
+	name: AUTHOR.formalName,
+	alternateName: AUTHOR.name,
+	url: AUTHOR.social.github,
+	sameAs: [AUTHOR.social.github],
+};
+
 /** Source repo for “Edit on GitHub” / discussions links */
 export const SITE_REPO = {
 	owner: 'leric',
 	repo: 'leric.github.io',
-	branch: 'main',
+	branch: 'master',
 } as const;
 
 export const CMP_RSS_PATH = '/research/cmp/rss.xml';

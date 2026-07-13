@@ -1,6 +1,8 @@
 # build output
 dist/
 public/downloads/
+public/.well-known/agent-skills/
+public/CITATION.cff
 # generated types
 .astro/
 

@@ -4,7 +4,7 @@
 
 Source repository for **[Context Cost](https://www.contextcost.dev)** — essays on software design, context cost, and AI-assisted engineering, plus the online book [**Context Minimization Principle (CMP)**](https://www.contextcost.dev/cmp/).
 
-By [Leric Zhang](https://github.com/leric).
+By [Lianghui Zhang (Leric Zhang)](https://github.com/leric).
 
 ## Discussions — comments & feedback
 
@@ -52,6 +52,10 @@ Topics include software architecture, domain-driven design, AI coding agents, co
 |-------|---------|
 | CMP book content (`src/content/research/cmp/`, `/cmp/` pages) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — see [LICENSE-CMP.md](./LICENSE-CMP.md) |
 | Site code, config, and non-CMP content | All rights reserved unless otherwise noted in file headers |
+
+## Citation
+
+See [CITATION.cff](./CITATION.cff) for machine-readable citation metadata for the Context Minimization Principle.
 
 ## Author
 

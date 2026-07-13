@@ -3,7 +3,7 @@ import type { CollectionEntry } from "astro:content";
 import type { ImageMetadata } from "astro";
 import BaseLayout from "./BaseLayout.astro";
 import FormattedDate from "../components/FormattedDate.astro";
-import { AUTHOR, SITE_TITLE } from "../consts";
+import { AUTHOR_JSON_LD, SITE_TITLE } from "../consts";
 
 type Props = CollectionEntry<"blog">["data"];
 
@@ -27,11 +27,7 @@ const jsonLd = {
 	dateModified: toDateOnly(updatedDate ?? pubDate),
 	url: canonicalHref,
 	mainEntityOfPage: canonicalHref,
-	author: {
-		"@type": "Person",
-		name: AUTHOR.name,
-		url: AUTHOR.social.github,
-	},
+	author: AUTHOR_JSON_LD,
 	publisher: {
 		"@type": "Organization",
 		name: SITE_TITLE,
