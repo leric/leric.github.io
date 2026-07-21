@@ -44,7 +44,7 @@ export const CMP_PUBLICATION = {
 } as const;
 
 /** Airic project site — switch to https://airic.dev when the dedicated site launches */
-export const AIRIC_URL = 'https://github.com/leric/airic';
+export const AIRIC_URL = 'https://www.airic.dev';
 
 export function githubEditUrl(relativePathFromRepoRoot: string) {
 	const clean = relativePathFromRepoRoot.replace(/^\/+/, '');
