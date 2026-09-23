@@ -62,7 +62,7 @@ const jsonLd = {
 		{
 			heroImage && (
 				<figure class="essay-image">
-					<img src={heroImage} alt={title} loading="eager" />
+					<img src={typeof heroImage === "string" ? heroImage : heroImage.src} alt={title} loading="eager" />
 				</figure>
 			)
 		}
