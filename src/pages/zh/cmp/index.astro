@@ -1,0 +1,405 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { AUTHOR_JSON_LD, CMP_PUBLICATION, CMP_SOURCE_REPO, SITE_TITLE } from '../../../consts';
+import {
+	CMP_PART_ORDER,
+	cmpEntryPath,
+	cmpPartLabel,
+	getCmpChapters,
+	isCmpChapterPublished,
+} from '../../../lib/research-cmp';
+
+const pageTitle = `上下文最小化原则（CMP）中文版 — ${SITE_TITLE}`;
+const pageDescription =
+	'CMP 把软件设计看作一门降低上下文获取成本的学问：无论修改代码的是人还是 AI 智能体，好的设计都让正确修改所需的上下文更容易获得。';
+const canonicalUrl = new URL('/zh/cmp/', Astro.site).href;
+const jsonLd = {
+	'@context': 'https://schema.org',
+	'@type': 'Book',
+	name: '上下文最小化原则',
+	alternateName: 'Context Minimization Principle',
+	description: pageDescription,
+	url: canonicalUrl,
+	author: AUTHOR_JSON_LD,
+	license: 'https://creativecommons.org/licenses/by/4.0/',
+	inLanguage: 'zh-CN',
+	sameAs: [CMP_SOURCE_REPO, CMP_PUBLICATION.url],
+};
+
+const all = await getCollection('research');
+const published = getCmpChapters(all, 'zh').filter((e) => isCmpChapterPublished(e.data.status));
+
+let num = 0;
+const sections = CMP_PART_ORDER.map((partId) => ({
+	label: cmpPartLabel(partId, 'zh'),
+	chapters: published
+		.filter((e) => e.data.part === partId)
+		.map((e) => ({
+			num: ++num,
+			title: e.data.title,
+			description: e.data.description,
+			href: cmpEntryPath(e) as string | undefined,
+			planned: false,
+		})),
+})).filter((s) => s.chapters.length > 0);
+
+const plannedPractice = [
+	{
+		title: '如何设计一个懂 CMP 的编程智能体',
+		description:
+			'把 CMP 直接嵌入编程智能体的工作流：动手之前，用任务前规划梳理深度、广度和修改闭包；改完之后，用任务后反思修补边界与局部性。目标是让智能体用边界、局部性和上下文成本来思考设计，主动维护和收紧架构接缝，让 AI 维护的代码库比人维护的更干净。',
+	},
+];
+const plannedFrontiers = [
+	{
+		title: '上下文成本能被度量吗？',
+		description:
+			'上下文成本也许无法直接测量，但它会留下痕迹：被检索的文件、定位失败、漏改的地方、补丁的范围、测试失败、评审中的纠正，以及代码的静态结构。一个可信、可比较的指标应该是什么样子？',
+	},
+	{
+		title: '软件工程会变成什么样？',
+		description:
+			'当智能体成为软件工作的日常参与者，问题就不只是代码库的结构了。部署、基础设施、可靠性、性能、运维、安全、可观测性和产品迭代，都会成为智能体时代工程体系的一部分。如果整个生命周期，而不仅仅是代码库，都要围绕人的判断、机器的执行和持续反馈重新设计，软件工程会变成什么？',
+	},
+];
+
+const practice = sections.find((s) => s.label === cmpPartLabel('practice', 'zh'));
+for (const p of plannedPractice) {
+	practice?.chapters.push({ num: ++num, ...p, href: undefined, planned: true });
+}
+sections.push({
+	label: '第五部分 · 开放问题',
+	chapters: plannedFrontiers.map((p) => ({ num: ++num, ...p, href: undefined, planned: true })),
+});
+---
+
+<BaseLayout
+	title={pageTitle}
+	description={pageDescription}
+	canonicalHref={canonicalUrl}
+	jsonLd={jsonLd}
+	lang="zh-CN"
+	alternates={[
+		{ hreflang: 'zh-CN', href: canonicalUrl },
+		{ hreflang: 'en', href: new URL('/cmp/', Astro.site).href },
+	]}
+>
+	<section class="cmp-page">
+		<header>
+			<p class="lang-switch"><a href="/cmp/" hreflang="en">English</a></p>
+			<h1>上下文最小化原则</h1>
+			<p class="lead">软件设计，是为了修改。</p>
+			<p class="lead">要改对，就得有足够的上下文。</p>
+			<p class="lead">好的设计，让这些上下文更容易拿到。</p>
+			<blockquote class="intro">
+				<strong>对于一个系统现实中必须支持的那些修改，如果完成正确修改所需的充分上下文获取成本更低，这个设计就更好。</strong>
+			</blockquote>
+			<p class="zh-note">
+				中文版根据英文原版改写，力求符合中文的表达习惯，而非逐句直译。如有出入，以<a href="/cmp/">英文版</a>为准。
+			</p>
+		</header>
+
+		<nav class="roadmap" aria-label="CMP 目录">
+			{
+				sections.map((section) => (
+					<section class="roadmap-section">
+						<h2>{section.label}</h2>
+						<ol class="chapter-list" start={section.chapters[0]?.num}>
+							{section.chapters.map((chapter) => (
+								<li class="chapter">
+									<div class="chapter-heading">
+										{chapter.href ? (
+											<a href={chapter.href}>{chapter.title}</a>
+										) : (
+											<span>{chapter.title}</span>
+										)}
+										{chapter.planned && <small class="status">计划中</small>}
+									</div>
+									<p>{chapter.description}</p>
+								</li>
+							))}
+						</ol>
+					</section>
+				))
+			}
+		</nav>
+
+		<section class="citation" aria-labelledby="citation-heading">
+			<h2 id="citation-heading">引用</h2>
+			<p>在学术或技术写作中引用本书，请使用 Zenodo 上的固定版本预印本（英文）：</p>
+			<pre class="citation-bibtex" aria-label="BibTeX"><code>{`@misc{zhang2026cmp,
+  author  = {Zhang, Lianghui},
+  title   = {Context Minimization Principle},
+  year    = {2026},
+  version = {${CMP_PUBLICATION.version}},
+  doi     = {${CMP_PUBLICATION.doi}},
+  url     = {${CMP_PUBLICATION.url}},
+  note    = {Preprint},
+}`}</code></pre>
+			<p class="citation-note">
+				<a href={CMP_PUBLICATION.url} target="_blank" rel="noopener noreferrer">Zenodo 预印本（DOI）</a>
+				{' · '}
+				<a href={CMP_SOURCE_REPO} target="_blank" rel="noopener noreferrer">GitHub 仓库</a>
+				{' · '}
+				<a href="/CITATION.cff">CITATION.cff</a>
+			</p>
+		</section>
+
+		<section class="skills-entry" aria-labelledby="skills-entry-heading">
+			<h2 id="skills-entry-heading">把 CMP 装进你的智能体</h2>
+			<p>
+				CMP 不只是一本书，它还提供了两个 Agent Skill，可以安装到 Cursor、Claude Code 等编程智能体中：一个用于任务前规划，一个用于任务后反思。
+			</p>
+			<p>
+				<a href="/skills/">CMP Skills：下载与安装</a>
+			</p>
+		</section>
+	</section>
+</BaseLayout>
+
+<style>
+	.cmp-page {
+		max-width: 860px;
+		padding: 56px 0 8px;
+	}
+
+	.cmp-page header {
+		padding-bottom: 18px;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.zh-note {
+		margin: 16px 0 0;
+		font-size: 13px;
+		color: var(--text-muted);
+	}
+
+	.lang-switch {
+		float: right;
+		margin: 6px 0 0 12px;
+		font-size: 14px;
+		font-weight: 600;
+	}
+
+	.cmp-page h1 {
+		margin-bottom: 16px;
+	}
+
+	.cmp-page .lead {
+		font-size: 20px;
+		line-height: 1.6;
+		margin-bottom: 6px;
+	}
+
+	.intro {
+		margin: 20px 0 0;
+		padding: 0 0 0 1em;
+		border-left: 3px solid var(--border);
+		color: var(--secondary);
+		font-size: 17px;
+		line-height: 1.6;
+	}
+
+	.definition {
+		padding: 28px 0;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.definition h2 {
+		font-size: 20px;
+		font-weight: 600;
+		margin: 0 0 14px;
+		letter-spacing: -0.01em;
+	}
+
+	.definition > p {
+		margin: 0 0 14px;
+		color: var(--secondary);
+		font-size: 15px;
+		line-height: 1.55;
+	}
+
+	.constraints {
+		margin: 0;
+		display: grid;
+		gap: 14px;
+	}
+
+	.constraints dt {
+		font-size: 15px;
+		font-weight: 600;
+		margin: 0 0 4px;
+	}
+
+	.constraints dd {
+		margin: 0;
+		color: var(--secondary);
+		font-size: 15px;
+		line-height: 1.55;
+	}
+
+	.definition-link {
+		margin: 18px 0 0;
+		font-size: 14px;
+	}
+
+	.roadmap {
+		padding-top: 28px;
+	}
+
+	.roadmap-section {
+		margin-bottom: 36px;
+	}
+
+	.roadmap-section h2 {
+		font-size: 20px;
+		font-weight: 600;
+		margin: 0 0 14px;
+		color: var(--text);
+		letter-spacing: -0.01em;
+	}
+
+	.chapter-list {
+		margin: 0;
+		padding-left: 28px;
+		list-style: decimal;
+	}
+
+	.chapter {
+		margin-bottom: 20px;
+		padding-left: 4px;
+	}
+
+	.chapter-heading {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 8px 12px;
+	}
+
+	.chapter-heading a,
+	.chapter-heading span {
+		font-size: 17px;
+		font-weight: 500;
+		line-height: 1.35;
+	}
+
+	.chapter-heading span {
+		color: var(--secondary);
+	}
+
+	.chapter p {
+		margin: 6px 0 0;
+		color: var(--secondary);
+		font-size: 15px;
+		line-height: 1.55;
+	}
+
+	.status {
+		color: var(--text-muted);
+		font-size: 11px;
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+
+	.citation {
+		margin-top: 40px;
+		padding-top: 28px;
+		border-top: 1px solid var(--border);
+	}
+
+	.citation h2 {
+		font-size: 18px;
+		margin: 0 0 10px;
+	}
+
+	.citation > p {
+		margin: 0 0 12px;
+		color: var(--secondary);
+		font-size: 15px;
+		line-height: 1.55;
+	}
+
+	.citation-bibtex {
+		margin: 0;
+		padding: 14px 16px;
+		border: 1px solid var(--border-light);
+		border-radius: 8px;
+		background: var(--bg-subtle, #f8f9fa);
+		overflow-x: auto;
+		font-size: 13px;
+		line-height: 1.55;
+	}
+
+	.citation-bibtex code {
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+		color: var(--secondary);
+		white-space: pre;
+	}
+
+	.citation-note {
+		margin: 12px 0 0;
+		font-size: 13px;
+		color: var(--text-muted);
+	}
+
+	.citation-note a {
+		color: var(--secondary);
+	}
+
+	.skills-entry {
+		margin-top: 40px;
+		padding-top: 28px;
+		border-top: 1px solid var(--border);
+	}
+
+	.skills-entry h2 {
+		font-size: 18px;
+		margin: 0 0 10px;
+	}
+
+	.skills-entry p {
+		margin: 0 0 10px;
+		color: var(--secondary);
+		font-size: 15px;
+		line-height: 1.55;
+	}
+
+	.skills-entry a {
+		font-weight: 600;
+	}
+
+	.print-edition {
+		margin: 32px 0 0;
+		padding-top: 28px;
+		border-top: 1px solid var(--border);
+		font-size: 15px;
+		text-align: center;
+		color: var(--secondary);
+	}
+
+	.print-edition a {
+		font-weight: 600;
+	}
+
+	@media (max-width: 700px) {
+		.cmp-page {
+			padding-top: 40px;
+		}
+
+		.cmp-page .lead {
+			font-size: 18px;
+		}
+
+		.intro {
+			font-size: 16px;
+		}
+
+		.chapter-heading a,
+		.chapter-heading span {
+			font-size: 16px;
+		}
+	}
+</style>

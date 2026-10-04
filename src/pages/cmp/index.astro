@@ -229,9 +229,14 @@ const parts: RoadmapPart[] = [
 	description={pageDescription}
 	canonicalHref={canonicalUrl}
 	jsonLd={jsonLd}
+	alternates={[
+		{ hreflang: 'en', href: canonicalUrl },
+		{ hreflang: 'zh-CN', href: new URL('/zh/cmp/', Astro.site).href },
+	]}
 >
 	<section class="cmp-page">
 		<header>
+			<p class="lang-switch"><a href="/zh/cmp/" hreflang="zh-CN">中文版</a></p>
 			<h1>Context Minimization Principle</h1>
 			<p class="lead">Software design is for modification.</p>
 			<p class="lead">Correct modification requires sufficient context.</p>
@@ -330,6 +335,13 @@ const parts: RoadmapPart[] = [
 	.cmp-page header {
 		padding-bottom: 18px;
 		border-bottom: 1px solid var(--border);
+	}
+
+	.lang-switch {
+		float: right;
+		margin: 6px 0 0 12px;
+		font-size: 14px;
+		font-weight: 600;
 	}
 
 	.cmp-page h1 {

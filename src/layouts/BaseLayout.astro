@@ -12,13 +12,16 @@ interface Props {
 	ogType?: 'website' | 'article';
 	robots?: string;
 	jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+	lang?: string;
+	alternates?: { hreflang: string; href: string }[];
 }
 
-const { title, description, image, canonicalHref, ogType, robots, jsonLd } = Astro.props;
+const { title, description, image, canonicalHref, ogType, robots, jsonLd, lang = 'en', alternates = [] } =
+	Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
 	<head>
 		<BaseHead
 			title={title}
@@ -29,6 +32,7 @@ const { title, description, image, canonicalHref, ogType, robots, jsonLd } = Ast
 			robots={robots}
 			jsonLd={jsonLd}
 		/>
+		{alternates.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
 		<PostHog />
 	</head>
 	<body>

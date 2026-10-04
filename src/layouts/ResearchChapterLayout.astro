@@ -9,6 +9,7 @@ import ChapterOutline from '../components/research/ChapterOutline.astro';
 import ChapterPager from '../components/research/ChapterPager.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import { AUTHOR, cmpDiscussUrl } from '../consts';
+import { cmpEntryPath, parseCmpEntryId, type CmpLang } from '../lib/research-cmp';
 import 'katex/dist/katex.min.css';
 
 interface Props {
@@ -21,14 +22,60 @@ interface Props {
 	allChapters: CollectionEntry<'research'>[];
 	prev?: CollectionEntry<'research'>;
 	next?: CollectionEntry<'research'>;
+	translation?: CollectionEntry<'research'>;
 }
 
-const { entry, title, description, canonicalUrl, image, jsonLd, allChapters, prev, next } =
-	Astro.props;
+const {
+	entry,
+	title,
+	description,
+	canonicalUrl,
+	image,
+	jsonLd,
+	allChapters,
+	prev,
+	next,
+	translation,
+} = Astro.props;
 
-const ids = entry.id.match(/^cmp\/([^/]+)\/(.+)$/);
-const part = ids?.[1] ?? entry.data.part;
-const slug = ids?.[2] ?? '';
+const ids = parseCmpEntryId(entry.id);
+const part = ids?.part ?? entry.data.part;
+const slug = ids?.slug ?? '';
+const lang: CmpLang = ids?.lang ?? 'en';
+const zh = lang === 'zh';
+
+const t = zh
+	? {
+			wip: '写作中',
+			updated: '更新于',
+			lastUpdated: '最后更新',
+			licensePrefix: '除另有说明外，本章内容采用',
+			licenseSuffix: '许可协议。',
+			discuss: '讨论本章',
+			switchLabel: 'Read in English',
+			translationNote: '本文为中文版，根据英文原版改写，而非逐句直译。',
+		}
+	: {
+			wip: 'Work in progress',
+			updated: 'Updated',
+			lastUpdated: 'Last updated',
+			licensePrefix: 'Unless otherwise noted, this CMP chapter is licensed under',
+			licenseSuffix: '.',
+			discuss: 'Discuss this chapter',
+			switchLabel: '中文版',
+			translationNote: '',
+		};
+
+const translationHref = translation ? cmpEntryPath(translation) : undefined;
+const alternates = translation
+	? [
+			{ hreflang: zh ? 'zh-CN' : 'en', href: canonicalUrl },
+			{
+				hreflang: zh ? 'en' : 'zh-CN',
+				href: new URL(translationHref!, Astro.site).href,
+			},
+		]
+	: [];
 
 const wip = entry.data.status === 'wip';
 
@@ -36,7 +83,7 @@ const updated = entry.data.updatedDate ?? entry.data.pubDate;
 ---
 
 <!doctype html>
-<html lang={entry.data.lang ?? 'en'}>
+<html lang={zh ? 'zh-CN' : 'en'}>
 	<head>
 		<BaseHead
 			title={title}
@@ -46,18 +93,31 @@ const updated = entry.data.updatedDate ?? entry.data.pubDate;
 			ogType="article"
 			jsonLd={jsonLd}
 		/>
+		{alternates.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
 		<PostHog />
 	</head>
 	<body class="research-book-body">
 		<Header />
 		<div class="research-shell">
 			<div class="research-sidebar-left">
-				<BookTocSidebar chapters={allChapters} currentPart={part} currentSlug={slug} />
+				<BookTocSidebar
+					chapters={allChapters}
+					currentPart={part}
+					currentSlug={slug}
+					lang={lang}
+				/>
 			</div>
 			<main class="research-main">
 				<article class="research-chapter">
 					<header class="research-chapter-header">
-						{wip && <span class="wip-badge">Work in progress</span>}
+						{wip && <span class="wip-badge">{t.wip}</span>}
+						{
+							translationHref && (
+								<a class="lang-switch" href={translationHref} hreflang={zh ? 'en' : 'zh-CN'}>
+									{t.switchLabel}
+								</a>
+							)
+						}
 						<h1 class="research-chapter-title">{entry.data.title}</h1>
 						<p class="research-chapter-desc">{entry.data.description}</p>
 						<div class="research-chapter-meta">
@@ -65,29 +125,30 @@ const updated = entry.data.updatedDate ?? entry.data.pubDate;
 							<span>·</span>
 							<span>v{entry.data.version}</span>
 							<span>·</span>
-							<span>Updated <FormattedDate date={updated} /></span>
+							<span>{t.updated} <FormattedDate date={updated} /></span>
 						</div>
+						{t.translationNote && <p class="translation-note">{t.translationNote}</p>}
 					</header>
 					<div class="research-chapter-prose">
 						<slot />
 					</div>
-					<ChapterPager prev={prev} next={next} />
+					<ChapterPager prev={prev} next={next} lang={lang} />
 					<footer class="research-chapter-footer">
 						<div class="footer-row">
-							<span class="footer-muted">Last updated</span>
+							<span class="footer-muted">{t.lastUpdated}</span>
 							<FormattedDate date={updated} />
 						</div>
 						<p class="license-note">
-							Unless otherwise noted, this CMP chapter is licensed under
+							{t.licensePrefix}
 							<a
 								href="https://creativecommons.org/licenses/by/4.0/"
 								target="_blank"
 								rel="license noopener noreferrer">CC BY 4.0</a
-							>.
+							>{t.licenseSuffix}
 						</p>
 						<div class="footer-links">
 							<a href={cmpDiscussUrl()} target="_blank" rel="noopener noreferrer"
-								>Discuss this chapter</a
+								>{t.discuss}</a
 							>
 						</div>
 					</footer>
@@ -132,6 +193,25 @@ const updated = entry.data.updatedDate ?? entry.data.pubDate;
 				margin-bottom: 28px;
 				padding-bottom: 24px;
 				border-bottom: 1px solid var(--border);
+			}
+			.lang-switch {
+				float: right;
+				font-size: 13px;
+				font-weight: 600;
+				color: var(--accent);
+				text-decoration: none;
+				border: 1px solid var(--border);
+				border-radius: 999px;
+				padding: 3px 12px;
+				margin-left: 12px;
+			}
+			.lang-switch:hover {
+				border-color: var(--accent);
+			}
+			.translation-note {
+				margin: 12px 0 0;
+				font-size: 13px;
+				color: var(--text-muted);
 			}
 			.wip-badge {
 				display: inline-block;

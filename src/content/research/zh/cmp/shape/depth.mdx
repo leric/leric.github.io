@@ -1,0 +1,186 @@
+---
+title: "深度：当一次简单调用变成漫长的追查"
+description: "深度是获取焦点构件行为含义的上下文成本。边界只有在契约真正承担起职责时，才能让读者停下脚步。"
+book: cmp
+part: shape
+order: 1
+status: published
+version: "0.1"
+pubDate: May 19 2026
+updatedDate: May 19 2026
+canonicalUrl: "https://www.contextcost.dev/zh/research/cmp/shape/depth/"
+tags: ["CMP", "software-design", "context-cost", "depth"]
+lang: zh
+---
+
+## 一行简短的调用，背后可能是一场漫长的追查
+
+随便找一位读者，做一件普通的事：浏览 PR 的评审者、追查定价 bug 的开发者、正在熟悉代码库的新人。某一天，他们可能会停在这样一行代码上：
+
+```tsx
+const discount = calculateDiscount(order, customer)
+```
+
+这行代码看起来很小。但无论要批准它、修复它，还是在它之上继续开发，读者都得先回答同一个问题：我需要读多少代码，才能知道这一行到底在做什么？
+
+回答这个问题所需的上下文，差别可能非常大。
+
+在一种设计里，`calculateDiscount` 就是一个普通函数。函数名说明了职责，参数类型列出了所需输入，返回类型清楚地表明了结果。折扣规则就写在函数体里，测试描述了关键场景。读者打开函数，读完契约和旁边的测试，就可以停下来。
+
+在另一种设计里，同样的调用会先进入 `PricingService`，再委托给 `DiscountPolicy` 接口，通过运行时工厂选出具体策略，读取一个特性开关，查询用户配置，最后才计算出折扣。调用点几乎没变，背后的上下文却膨胀了。
+
+调用点一模一样，理解它的成本却完全不同。这种隐藏上下文的模式，就是 CMP 的第一个维度：深度（depth）。
+
+> **深度是获取焦点构件（focal artifact）行为含义的上下文成本。**
+>
+> 它包括构件自身的代码，以及读者在充分理解该构件承诺什么、要求什么之前，必须穿越的周边结构。
+
+深度并不意味着设计失败，它是理解代码的固有成本。构件之所以有深度，是因为它的行为必须由代码来表达：既在它自己的函数体里，也在它周围的被调用者、调用者、接口、配置、schema 和协议定义里。
+
+有些深度反映的是问题本身的难度。复杂的业务规则，理应比简单规则需要更多代码和更多上下文。CMP 不把这部分成本视为浪费。它关心的是：所需上下文是否与所表达的行为相称，周边结构能否阻止这份成本扩散到不必要的范围。
+
+深度有一个焦点。焦点构件可以是函数、类、模块、接口、端点、服务、schema，也可以是框架扩展点。深度追问的是：把这个构件摆在读者面前，读者要加载多少周边结构，才能看清它的行为？
+
+答案同时取决于两件事。第一是构件周围的代码拓扑：把函数体与周边代码连接起来的调用、导入和引用。第二是这条拓扑上的边界是否带有足够强的契约，能让读者停下来。拓扑描述存在哪些边，边界决定其中哪些边必须穿越。两者都是代码现状的属性，与具体的修改任务无关：一旦选定了要考察的构件，它的深度就由周围已有的结构和契约决定了。
+
+## 只有契约真正发挥作用，边界才能让读者停下
+
+既然深度是固有的，设计就无法消除它。设计能做的，是决定它能否在局部止住。
+
+每一层结构都提供了一个可能的停止点。函数调用可能被打开；接口可能把人引向它的实现；服务可能通往仓储、适配器和策略；工厂可能通往运行时选择规则；特性开关可能通往配置；框架注解可能通往生命周期行为；远程客户端可能通往另一个系统的协议。
+
+原则上，读者在每一处都可以停下。实际能否停下，取决于边界提供了什么。
+
+当边界的契约承载了该层级所需的足够行为，读者不必打开实现就能获得这些信息时，边界才算一个停止点。做不到这一点的边界依然是边界，有名字也有位置，但读者没有理由在这里止步。
+
+因此，在边界处真正要问的不是实现是否正确，而是可观察行为是否得到了充分说明：它承诺什么、要求什么、返回什么、可能在哪里失败、会产生哪些副作用、维护哪些不变量。说清了这些的边界并没有消除实现的复杂性，而是让日常推理不再需要这份复杂性。
+
+来看一个支付边界：
+
+```tsx
+type ChargeRequest = {
+  amount: number
+  currency: string
+  cardToken: string
+}
+
+type ChargeResult = {
+  success: boolean
+  transactionId?: string
+  errorMessage?: string
+}
+
+interface PaymentGateway {
+  charge(request: ChargeRequest): Promise<ChargeResult>
+}
+```
+
+类型签名告诉我们，一次扣款请求会产生一个扣款结果。但仅凭签名，行为仍然悬而未决：
+
+- 这个操作是幂等的吗？
+- 超时之后会发生什么？
+- 有没有可能款项已被扣取，本地却报告失败？
+- 哪些失败可以重试？
+- 结果可能处于待定状态吗？
+- 币种和精度如何表示？
+- 哪些外部副作用可能已经发生？
+
+如果边界没有表达这些问题的答案，读者就只能打开实现去找。接口虽然存在，却拦不住追查。每缺失一项义务，读者就得再往里走一步。
+
+<details class="cmp-code-details">
+<summary>回答了全部七个问题的契约</summary>
+
+```tsx
+type Currency = "USD" | "EUR" | "JPY"
+type MinorUnits = number & { readonly __brand: "MinorUnits" }
+type Money = { currency: Currency; minorUnits: MinorUnits }
+
+type IdempotencyKey = string & { readonly __brand: "IdempotencyKey" }
+type ChargeId      = string & { readonly __brand: "ChargeId" }
+type CardToken     = string & { readonly __brand: "CardToken" }
+
+type ChargeRequest = {
+  idempotencyKey: IdempotencyKey
+  amount: Money
+  cardToken: CardToken
+}
+
+type PermanentFailure =
+  | { kind: "card_declined";    reasonCode: string }
+  | { kind: "invalid_request";  field: string }
+  | { kind: "insufficient_funds" }
+
+type ChargeOutcome =
+  | { status: "succeeded"; chargeId: ChargeId; capturedAt: Date }
+  | { status: "failed";    reason: PermanentFailure }
+  | { status: "pending";   chargeId: ChargeId; pollAfter: Date }
+  | { status: "unknown";   idempotencyKey: IdempotencyKey }
+
+type TransientError = { kind: "transient"; retryAfter?: Date }
+
+interface PaymentGateway {
+  /**
+   * Idempotent by idempotencyKey: repeated calls with the same key
+   * return the same ChargeOutcome.
+   *
+   * Resolves with a definitive ChargeOutcome (including `unknown`).
+   * Rejects only with TransientError; the caller MAY retry with the same key.
+   *
+   * `unknown` means an external charge may exist. The caller MUST reconcile
+   * via getStatus before reporting a final outcome.
+   *
+   * No side effects other than the charge itself; notifications and ledger
+   * writes are driven by webhooks, not by this call.
+   */
+  charge(request: ChargeRequest): Promise<ChargeOutcome>
+
+  /** Returns the current ChargeOutcome for a known idempotencyKey. */
+  getStatus(key: IdempotencyKey): Promise<ChargeOutcome>
+}
+```
+
+</details>
+
+上面的例子借助几种语言机制回答了这七个问题：可辨识联合区分了 `pending`、`unknown` 和 `failed`；品牌类型让 `IdempotencyKey` 和 `Money` 不可能与普通字符串或数字混淆；单独的错误类型承载了可重试性。还有几项义务写在文档注释里，而不在任何类型中：`charge` 只会因暂时性错误而 reject，`unknown` 必须通过 `getStatus` 对账，除扣款外不产生其他副作用。注释比类型弱，它不受检查，还会逐渐与代码脱节；但这类义务没有别的承载方式，所以注释仍是契约中不可缺少的一部分。如何组合这些机制，是后面边界原则要讨论的事。眼下只需要这个诊断：行为在边界上不明确，读者就会继续往下追。
+
+## 深度是双向的
+
+人们通常从调用方的视角想象深度：读者从调用点出发，沿着实现一路向内，直到看清行为。但结构性理解还有另一个方向。
+
+修改构件内部的实现者，必须了解外部被允许依赖什么。如果边界契约不完整，实现者就无法在局部安全地推理，只能逐个扫描调用方，弄清哪些假设正在被使用。
+
+所以，可靠的边界会在两个方向上同时止住追查：
+
+> 由外向内：调用方无需了解实现细节，就能正确使用该构件。
+>
+> 由内向外：实现者无需了解特定调用方的假设，就能安全地修改实现。
+
+以 `DiscountPolicy` 接口为例。如果它的契约清楚说明了折扣能否为负、多个折扣能否叠加、客户分群是否属于策略的一部分、返回金额是否含税，那么两边都可以局部推理。调用方不必查看每一个具体策略；策略实现者也不必查看结账、计费、分析、促销预览等每一个调用方。
+
+如果契约没有写明这些义务，深度就会同时向内和向外扩张。调用方必须查看实现才能理解行为，实现者必须查看调用方才能理解依赖预期。
+
+这就是为什么边界的可靠性不只是封装。封装隐藏的是代码，可靠的边界隐藏的是上下文。
+
+## 间接层会重新分配深度
+
+读到这里，很容易把前面几节理解为反对间接层：每个接口、工厂、钩子或服务都是一条新的追查边，又多了一个读者可能停不下来的地方。但间接层既不是深度的对立面，也不等同于深度。
+
+一个程序可以有好几层间接，只要每层都有可靠的契约，它依然可以很浅。一个程序也可以几乎没有显式抽象，却因为行为依赖隐式状态、隐藏的副作用、全局约定或运行时魔法而很深。间接层既不创造也不消灭深度，它只是重新分配深度。
+
+最典型的例子是长函数。一个把校验、定价、持久化、通知和错误处理混在一起的过程，把全部深度都放在一段连续的局部上下文里，读者不读完整个函数体就无法停下。如果把这些部分提取成函数，并且函数的名字和契约对应真实的子职责，那么调用变多了，但任何时刻需要加载的内容变少了：顶层函数体变成一串有意义的步骤，读者只需打开与当前问题相关的那一步。
+
+同样的重构也可能失败。如果提取只是把随意切出的几行代码藏到含糊的名字后面，它只会增加追查路径，而不会形成有用的停止点。读者仍然得打开每个调用才能弄清行为，要看的地方反而更多了。只有当间接层把局部复杂性压缩进一个读者可以信任的边界时，它才能降低深度。
+
+## 深度的失败模式：耗竭
+
+当间接层没能起到压缩作用，或者实现做的事情超出了边界所承认的范围，深度就无法在局部止住。读者最终仍能理解，但路径漫长、零碎，认知代价高昂。他们要跟踪调用、查看实现、解读绑定规则、重建失败语义、推断副作用、对比散落各处的测试，才能看清构件的行为。
+
+对人类开发者来说，这表现为注意力被耗尽：打开的文件太多，工作记忆里的假设太多，在局部行为和全局结构之间来回切换太频繁。
+
+对 AI 编程智能体（coding agent）来说，这会体现在可观察的执行轨迹上：检索集更大，上下文窗口迅速耗尽，工具调用更多，无关的编辑更多，依赖测试反馈的修正循环也更多。资深开发者可能掌握项目的隐性知识，可以抄近路。智能体没有这样的捷径，它必须阅读真实的实现，才能获得资深开发者记在脑子里的东西。构件越深，它需要加载的实现就越多。
+
+## 深度是固有的，边界决定它在哪里止住
+
+在 CMP 中，深度指的是理解焦点构件周围行为的局部结构成本。它解释了为什么一个简短的调用点背后可能藏着巨大的理解负担，为什么抽象既可能降低也可能提高上下文成本，以及为什么信息隐藏只有在边界承载了语义契约时才有效。
+
+好的设计不会消除深度。部分深度是表达真实行为的代价，复杂领域理应承担更多。设计能做的，是合理放置边界，把深度划分成读者可以在局部理解的区域。如何设计出这样的边界，涉及职责契约、依赖倒置、接口隔离、可替换性、模块深度、面向客户端的抽象等，这些属于后面边界原则的讨论范围。

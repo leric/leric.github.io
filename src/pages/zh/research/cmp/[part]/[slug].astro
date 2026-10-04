@@ -1,14 +1,15 @@
 ---
 import { getCollection, render } from 'astro:content';
-import ResearchChapterLayout from '../../../../layouts/ResearchChapterLayout.astro';
+import ResearchChapterLayout from '../../../../../layouts/ResearchChapterLayout.astro';
 import {
 	getCmpChapters,
 	getAdjacentChapters,
 	isCmpChapterRenderable,
 	parseCmpEntryId,
 	findCmpTranslation,
-} from '../../../../lib/research-cmp';
-import { AUTHOR_JSON_LD } from '../../../../consts';
+	cmpBookPath,
+} from '../../../../../lib/research-cmp';
+import { AUTHOR_JSON_LD } from '../../../../../consts';
 
 export async function getStaticPaths() {
 	const all = await getCollection('research');
@@ -16,7 +17,7 @@ export async function getStaticPaths() {
 	for (const entry of all) {
 		if (!isCmpChapterRenderable(entry.data.status)) continue;
 		const p = parseCmpEntryId(entry.id);
-		if (!p || p.lang !== 'en') continue;
+		if (!p || p.lang !== 'zh') continue;
 		paths.push({ params: { part: p.part, slug: p.slug }, props: { entry } });
 	}
 	return paths;
@@ -25,14 +26,14 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 
 const all = await getCollection('research');
-const cmpChapters = getCmpChapters(all);
+const cmpChapters = getCmpChapters(all, 'zh');
 const renderable = cmpChapters.filter((c) => isCmpChapterRenderable(c.data.status));
 const { prev, next } = getAdjacentChapters(renderable, entry.id);
-const translation = findCmpTranslation(all, entry, 'zh');
+const translation = findCmpTranslation(all, entry, 'en');
 
 const { Content } = await render(entry);
 
-const pageTitle = `${entry.data.title} · CMP · Context Cost`;
+const pageTitle = `${entry.data.title} · CMP 中文版 · Context Cost`;
 const ogImage = entry.data.standalone?.ogImage;
 
 const jsonLd = {
@@ -40,14 +41,15 @@ const jsonLd = {
 	'@type': 'TechArticle',
 	headline: entry.data.title,
 	description: entry.data.description,
+	inLanguage: 'zh-CN',
 	datePublished: entry.data.pubDate.toISOString(),
 	dateModified: (entry.data.updatedDate ?? entry.data.pubDate).toISOString(),
 	url: entry.data.canonicalUrl,
 	author: AUTHOR_JSON_LD,
 	isPartOf: {
 		'@type': 'Book',
-		name: 'Context Minimization Principle',
-		url: new URL('/cmp/', Astro.site).href,
+		name: '上下文最小化原则',
+		url: new URL(cmpBookPath('zh'), Astro.site).href,
 	},
 };
 ---
