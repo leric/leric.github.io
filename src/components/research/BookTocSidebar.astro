@@ -41,6 +41,8 @@ let chapterCounter = 0;
 const chapterNum = new Map<string, number>();
 for (const partId of CMP_PART_ORDER) {
 	for (const ch of byPart.get(partId) ?? []) {
+		// The order-zero reading guide precedes the numbered book.
+		if (ch.data.part === 'start' && ch.data.order === 0) continue;
 		chapterCounter++;
 		chapterNum.set(ch.id, chapterCounter);
 	}

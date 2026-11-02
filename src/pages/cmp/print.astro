@@ -23,9 +23,11 @@ type PrintChapter = {
 	slug: string;
 	showPartLabel: boolean;
 	partLabel: string;
+	chapterNumber?: number;
 };
 
 let previousPart: string | null = null;
+let chapterNumber = 0;
 const chapters: PrintChapter[] = [];
 
 for (const entry of published) {
@@ -36,7 +38,8 @@ for (const entry of published) {
 	const showPartLabel = part !== previousPart && part !== CMP_START_PART;
 	const partLabel = CMP_PART_LABELS[part as CmpPartId] ?? part;
 
-	chapters.push({ entry, Content, part, slug, showPartLabel, partLabel });
+	chapters.push({ entry, Content, part, slug, showPartLabel, partLabel,
+		chapterNumber: part === CMP_START_PART && entry.data.order === 0 ? undefined : ++chapterNumber });
 	previousPart = part;
 }
 
@@ -50,7 +53,7 @@ const latestUpdated = published.reduce(
 
 const pageTitle = `CMP — Print edition · ${SITE_TITLE}`;
 const pageDescription =
-	'Full Context Minimization Principle book (published chapters) formatted for printing to PDF.';
+	'The CMP online book on Context-Cost-Driven Software Design, with published chapters formatted for printing to PDF.';
 const canonicalUrl = new URL('/cmp/print/', Astro.site).href;
 ---
 
@@ -69,15 +72,15 @@ const canonicalUrl = new URL('/cmp/print/', Astro.site).href;
 		<main class="cmp-print-main">
 			<header class="cmp-print-cover">
 				<p class="cmp-print-eyebrow">Context Cost · Research</p>
-				<h1 class="cmp-print-book-title">Context Minimization Principle</h1>
+				<h1 class="cmp-print-book-title">Context Minimization Principle (CMP)</h1>
 				<p class="cmp-print-book-subtitle">
-					A framework for software design as the discipline of reducing context acquisition cost — for
-					humans and AI agents alike.
+					<strong>Context-Cost-Driven Software Design.</strong> Software design through the cost of
+					acquiring sufficient context for correct modification.
 				</p>
 				<div class="cmp-print-cover-meta">
 					<span>{AUTHOR.citationName}</span>
 					<span>·</span>
-					<span>{published.length} published chapters</span>
+					<span>{chapterNumber} published chapters + reading guide</span>
 					<span>·</span>
 					<span>Updated <FormattedDate date={latestUpdated} /></span>
 				</div>
@@ -91,8 +94,8 @@ const canonicalUrl = new URL('/cmp/print/', Astro.site).href;
 				<h2 id="cmp-print-toc-heading">Contents</h2>
 				<ol>
 					{
-						chapters.map(({ entry, slug, part, showPartLabel, partLabel }) => (
-							<li class:list={[{ 'cmp-print-toc-part': showPartLabel }]}>
+						chapters.map(({ entry, slug, part, showPartLabel, partLabel, chapterNumber }) => (
+							<li value={chapterNumber ?? 0} style={chapterNumber === undefined ? "list-style: none" : undefined} class:list={[{ 'cmp-print-toc-part': showPartLabel }]}>
 								{showPartLabel && <span class="cmp-print-toc-part-label">{partLabel}</span>}
 								<a href={`#chapter-${slug}`}>{entry.data.title}</a>
 							</li>
@@ -102,7 +105,7 @@ const canonicalUrl = new URL('/cmp/print/', Astro.site).href;
 			</nav>
 
 			{
-				chapters.map(({ entry, Content, slug, showPartLabel, partLabel }, index) => (
+				chapters.map(({ entry, Content, slug, showPartLabel, partLabel, chapterNumber }) => (
 					<section
 						id={`chapter-${slug}`}
 						class="cmp-print-chapter"
@@ -111,7 +114,7 @@ const canonicalUrl = new URL('/cmp/print/', Astro.site).href;
 						{showPartLabel && <p class="cmp-print-part-label">{partLabel}</p>}
 						<header class="cmp-print-chapter-header">
 							<p class="cmp-print-chapter-num">
-								Chapter {index + 1}
+								{chapterNumber === undefined ? 'Reading guide' : `Chapter ${chapterNumber}`}
 							</p>
 							<h2 id={`chapter-title-${slug}`} class="cmp-print-chapter-title">
 								{entry.data.title}

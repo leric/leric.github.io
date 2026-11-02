@@ -18,7 +18,7 @@ export async function GET(context) {
 
 	return rss({
 		title: 'CMP — Context Minimization Principle',
-		description: 'Updates to the Context Minimization Principle online book (research chapters only).',
+		description: 'Updates to the CMP online book on Context-Cost-Driven Software Design (research chapters only).',
 		site: context.site,
 		items: items.map((entry) => {
 			const p = parseCmpEntryId(entry.id);

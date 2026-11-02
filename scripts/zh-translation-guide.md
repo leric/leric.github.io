@@ -10,10 +10,16 @@
 - 标点用中文全角标点（，。：；？！""「」可用""），中英文之间加空格（如"AI 智能体"、"Clean Architecture 的边界"）。
 - 代码块、行内代码、数学公式、URL 原样保留；代码中的注释和字符串可保持英文。
 
+## 名称与定位
+
+- CMP 是作品与核心原则的既有标识；章节标题、语言版本、打印版和订阅名称保留 CMP，例如“CMP 中文版”。
+- Context-Cost-Driven Software Design 用于说明整体的软件设计视角，可作为系列的副标题或定位说明。
+
 ## 术语表（全书统一）
 
 | English | 中文 |
 |---|---|
+| Context-Cost-Driven Software Design | 上下文成本驱动的软件设计 |
 | Context Minimization Principle (CMP) | 上下文最小化原则（CMP） |
 | context cost / context acquisition cost | 上下文成本 / 上下文获取成本 |
 | sufficient context | 充分上下文 |

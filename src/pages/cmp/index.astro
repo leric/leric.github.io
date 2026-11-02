@@ -2,26 +2,27 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { AUTHOR_JSON_LD, CMP_PUBLICATION, CMP_SOURCE_REPO, SITE_TITLE } from "../../consts";
 
-const pageTitle = `Context Minimization Principle — ${SITE_TITLE}`;
+const pageTitle = `CMP — Context-Cost-Driven Software Design — ${SITE_TITLE}`;
 const pageDescription =
-	"CMP is a framework for software design as the discipline of reducing context acquisition cost — for humans and AI agents alike.";
+	"Context-Cost-Driven Software Design evaluates software structure by the cost of acquiring sufficient context for correct modification. CMP is its core principle.";
 const canonicalUrl = new URL('/cmp/', Astro.site).href;
 const jsonLd = {
 	'@context': 'https://schema.org',
 	'@type': 'Book',
 	name: 'Context Minimization Principle',
+	alternateName: 'CMP',
 	description: pageDescription,
 	url: canonicalUrl,
 	author: AUTHOR_JSON_LD,
 	license: 'https://creativecommons.org/licenses/by/4.0/',
 	inLanguage: 'en',
-	identifier: {
-		'@type': 'PropertyValue',
-		propertyID: 'DOI',
-		value: CMP_PUBLICATION.doi,
+	isBasedOn: {
+		'@type': 'Book',
+		name: 'Context Minimization Principle',
+		version: CMP_PUBLICATION.version,
 		url: CMP_PUBLICATION.url,
 	},
-	sameAs: [CMP_SOURCE_REPO, CMP_PUBLICATION.url],
+	sameAs: [CMP_SOURCE_REPO],
 };
 
 type ChapterStatus = "published" | "planned";
@@ -42,9 +43,9 @@ interface RoadmapPart {
 
 const manifesto: Chapter = {
 	num: 1,
-	title: "Reliable Coding Agents Need Better Codebases",
+	title: "Software Design Through the Lens of Context Cost",
 	description:
-		"Better models and better harnesses matter. But agents also need codebases where the right context is cheap to find, trust, and use.",
+		"Every change depends on knowledge of existing behavior. An everyday form change introduces Context Cost, its role in software design, and CMP as the core principle.",
 	status: "published",
 	href: "/research/cmp/start/reliable-coding-agents-need-better-codebases/",
 };
@@ -66,7 +67,7 @@ const parts: RoadmapPart[] = [
 				num: 3,
 				title: "The Cost of Modification",
 				description:
-					"Required context, explicit and implicit knowledge, and why context cost is the shared currency of software engineering.",
+					"Required context, explicit and implicit knowledge, and Context Cost as the common currency of Context-Cost-Driven Software Design.",
 				status: "published",
 				href: "/research/cmp/foundations/the-cost-of-modification/",
 			},
@@ -74,7 +75,7 @@ const parts: RoadmapPart[] = [
 				num: 4,
 				title: "The Context Minimization Principle",
 				description:
-					"The formal statement of CMP and the four constraints that turn it from a slogan into a comparative frame for software design.",
+					"The core principle of Context-Cost-Driven Software Design, with four constraints: realistic modifications, sufficient context, correctness, and acquisition cost.",
 				status: "published",
 				href: "/research/cmp/foundations/the-context-minimization-principle/",
 			},
@@ -112,7 +113,7 @@ const parts: RoadmapPart[] = [
 	},
 	{
 		id: "principles",
-		label: "Part III — Design as Context Engineering",
+		label: "Part III — Designing for Lower Context Cost",
 		chapters: [
 			{
 				num: 8,
@@ -237,14 +238,32 @@ const parts: RoadmapPart[] = [
 	<section class="cmp-page">
 		<header>
 			<p class="lang-switch"><a href="/zh/cmp/" hreflang="zh-CN">中文版</a></p>
-			<h1>Context Minimization Principle</h1>
+			<h1>Context Minimization Principle (CMP)</h1>
+			<p class="lead"><strong>Context-Cost-Driven Software Design</strong></p>
 			<p class="lead">Software design is for modification.</p>
 			<p class="lead">Correct modification requires sufficient context.</p>
 			<p class="lead">Good design makes that context cheaper to acquire.</p>
+			<p class="series-intro">
+				This series examines software design through Context Cost: the cost of acquiring sufficient
+				context for correct modification. The Context Minimization Principle (CMP) is its core
+				principle. Depth, Breadth, and Context Transformation are its analytical tools; boundaries,
+				locality, architecture, testing, and language mechanisms are its applications.
+			</p>
+			<p class="series-intro">
+				The design objective is to make required context cheaper to acquire. More explicit types,
+				tests, or documentation can serve that objective even when an agent reads more tokens.
+			</p>
+			<p class="series-intro"><strong>The core principle — CMP</strong></p>
 			<blockquote class="intro">
 				<strong>For the modifications a system must realistically support, a design is better when the sufficient context required for correct modification is cheaper to acquire.</strong>
 			</blockquote>
 		</header>
+
+		<section class="definition">
+			<h2>What CMP contributes</h2>
+			<p>CMP proposes a common evaluation criterion: use it to explain, compare, and sometimes reject familiar design choices for the modifications at hand.</p>
+			<p><a href="/research/cmp/start/core-thesis-and-contributions/">Core Thesis &amp; Contributions →</a></p>
+		</section>
 
 		<nav class="roadmap" aria-label="CMP book roadmap">
 			<section class="roadmap-section">
@@ -290,7 +309,7 @@ const parts: RoadmapPart[] = [
 
 		<section class="citation" aria-labelledby="citation-heading">
 			<h2 id="citation-heading">Citation</h2>
-			<p>For academic or technical writing, cite the fixed Zenodo preprint:</p>
+			<p>The series builds on the fixed Zenodo preprint, published as <cite>Context Minimization Principle</cite>. For academic or technical writing, cite that edition:</p>
 			<pre class="citation-bibtex" aria-label="BibTeX entry"><code>{`@misc{zhang2026cmp,
   author  = {Zhang, Lianghui},
   title   = {Context Minimization Principle},
@@ -312,7 +331,7 @@ const parts: RoadmapPart[] = [
 		<section class="skills-entry" aria-labelledby="skills-entry-heading">
 			<h2 id="skills-entry-heading">Put CMP into your agent</h2>
 			<p>
-				CMP is not only a book — it ships as two Agent Skills you can install in Cursor, Claude Code,
+				The series also offers two Agent Skills that apply CMP in Cursor, Claude Code,
 				and other coding agents: a pre-task planner and a post-task reflection loop.
 			</p>
 			<p>
@@ -352,6 +371,12 @@ const parts: RoadmapPart[] = [
 		font-size: 20px;
 		line-height: 1.6;
 		margin-bottom: 6px;
+	}
+
+	.series-intro {
+		margin: 18px 0 0;
+		color: var(--secondary);
+		line-height: 1.6;
 	}
 
 	.intro {

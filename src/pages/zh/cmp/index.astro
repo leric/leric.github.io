@@ -10,25 +10,31 @@ import {
 	isCmpChapterPublished,
 } from '../../../lib/research-cmp';
 
-const pageTitle = `上下文最小化原则（CMP）中文版 — ${SITE_TITLE}`;
+const pageTitle = `CMP 中文版 — 上下文成本驱动的软件设计 — ${SITE_TITLE}`;
 const pageDescription =
-	'CMP 把软件设计看作一门降低上下文获取成本的学问：无论修改代码的是人还是 AI 智能体，好的设计都让正确修改所需的上下文更容易获得。';
+	'上下文成本驱动的软件设计，以获取正确修改所需充分上下文的成本来评价软件结构，并以上下文最小化原则（CMP）为核心原则。';
 const canonicalUrl = new URL('/zh/cmp/', Astro.site).href;
 const jsonLd = {
 	'@context': 'https://schema.org',
 	'@type': 'Book',
 	name: '上下文最小化原则',
-	alternateName: 'Context Minimization Principle',
+	alternateName: 'Context Minimization Principle (CMP)',
 	description: pageDescription,
 	url: canonicalUrl,
 	author: AUTHOR_JSON_LD,
 	license: 'https://creativecommons.org/licenses/by/4.0/',
 	inLanguage: 'zh-CN',
-	sameAs: [CMP_SOURCE_REPO, CMP_PUBLICATION.url],
+	isBasedOn: {
+		'@type': 'Book',
+		name: 'Context Minimization Principle',
+		version: CMP_PUBLICATION.version,
+		url: CMP_PUBLICATION.url,
+	},
+	sameAs: [CMP_SOURCE_REPO],
 };
 
 const all = await getCollection('research');
-const published = getCmpChapters(all, 'zh').filter((e) => isCmpChapterPublished(e.data.status));
+const published = getCmpChapters(all, 'zh').filter((e) => isCmpChapterPublished(e.data.status) && !e.id.endsWith('/core-thesis-and-contributions'));
 
 let num = 0;
 const sections = CMP_PART_ORDER.map((partId) => ({
@@ -88,10 +94,19 @@ sections.push({
 	<section class="cmp-page">
 		<header>
 			<p class="lang-switch"><a href="/cmp/" hreflang="en">English</a></p>
-			<h1>上下文最小化原则</h1>
+			<h1>上下文最小化原则（CMP）</h1>
+			<p class="lead"><strong>上下文成本驱动的软件设计</strong></p>
 			<p class="lead">软件设计，是为了修改。</p>
 			<p class="lead">要改对，就得有足够的上下文。</p>
 			<p class="lead">好的设计，让这些上下文更容易拿到。</p>
+			<p class="series-intro">
+				本系列以 Context-Cost-Driven Software Design 为整体视角，通过获取正确修改所需充分上下文的成本来分析软件设计。
+				上下文最小化原则（CMP）是核心原则；深度、广度和上下文变换是分析工具；边界、局部性、架构、测试和语言机制是具体应用。
+			</p>
+			<p class="series-intro">
+				设计的目标是让所需上下文更容易获取。更多显式的类型、测试或文档都可能服务于这个目标，即便智能体因此阅读了更多 Token。
+			</p>
+			<p class="series-intro"><strong>核心原则：CMP</strong></p>
 			<blockquote class="intro">
 				<strong>对于一个系统现实中必须支持的那些修改，如果完成正确修改所需的充分上下文获取成本更低，这个设计就更好。</strong>
 			</blockquote>
@@ -100,7 +115,13 @@ sections.push({
 			</p>
 		</header>
 
-		<nav class="roadmap" aria-label="CMP 目录">
+		<section class="definition">
+			<h2>CMP 的贡献</h2>
+			<p>CMP 提出一个共同的评价标准：针对现实的修改需求，解释、比较，并在必要时否定熟悉的设计选择。</p>
+			<p><a href="/zh/research/cmp/start/core-thesis-and-contributions/">核心主张与贡献 →</a></p>
+		</section>
+
+		<nav class="roadmap" aria-label="CMP 中文版目录">
 			{
 				sections.map((section) => (
 					<section class="roadmap-section">
@@ -127,7 +148,7 @@ sections.push({
 
 		<section class="citation" aria-labelledby="citation-heading">
 			<h2 id="citation-heading">引用</h2>
-			<p>在学术或技术写作中引用本书，请使用 Zenodo 上的固定版本预印本（英文）：</p>
+			<p>本系列基于 Zenodo 上以《Context Minimization Principle》为题发布的固定版本预印本。在学术或技术写作中，请引用该英文版本：</p>
 			<pre class="citation-bibtex" aria-label="BibTeX"><code>{`@misc{zhang2026cmp,
   author  = {Zhang, Lianghui},
   title   = {Context Minimization Principle},
@@ -149,7 +170,7 @@ sections.push({
 		<section class="skills-entry" aria-labelledby="skills-entry-heading">
 			<h2 id="skills-entry-heading">把 CMP 装进你的智能体</h2>
 			<p>
-				CMP 不只是一本书，它还提供了两个 Agent Skill，可以安装到 Cursor、Claude Code 等编程智能体中：一个用于任务前规划，一个用于任务后反思。
+				本系列还提供了两个应用 CMP 的 Agent Skill，可以安装到 Cursor、Claude Code 等编程智能体中：一个用于任务前规划，一个用于任务后反思。
 			</p>
 			<p>
 				<a href="/skills/">CMP Skills：下载与安装</a>
@@ -190,6 +211,12 @@ sections.push({
 		font-size: 20px;
 		line-height: 1.6;
 		margin-bottom: 6px;
+	}
+
+	.series-intro {
+		margin: 18px 0 0;
+		color: var(--secondary);
+		line-height: 1.6;
 	}
 
 	.intro {

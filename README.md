@@ -3,7 +3,9 @@
 [![Site](https://img.shields.io/badge/site-www.contextcost.dev-2563eb)](https://www.contextcost.dev)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21331759.svg)](https://doi.org/10.5281/zenodo.21331759)
 
-Source repository for **[Context Cost](https://www.contextcost.dev)** — essays on software design, context cost, and AI-assisted engineering, plus the online book [**Context Minimization Principle (CMP)**](https://www.contextcost.dev/cmp/).
+Source repository for **[Context Cost](https://www.contextcost.dev)** — essays on software design, context cost, and AI-assisted engineering, plus the online book [**CMP — Context-Cost-Driven Software Design**](https://www.contextcost.dev/cmp/).
+
+The series uses Context Cost to evaluate software structure; the Context Minimization Principle (CMP) is its core principle. Existing `/cmp/` chapter URLs remain stable.
 
 By [Lianghui Zhang (Leric Zhang)](https://github.com/leric).
 
@@ -25,7 +27,7 @@ The repository's **[GitHub Discussions](https://github.com/leric/leric.github.io
 - **Blog** — Markdown/MDX essays under `src/content/blog/`
 - **CMP research** — structured chapters under `src/content/research/cmp/`
 
-Topics include software architecture, domain-driven design, AI coding agents, context engineering, and the CMP research program.
+Topics include software architecture, domain-driven design, AI coding agents, context engineering, and Context-Cost-Driven Software Design.
 
 ## License
 

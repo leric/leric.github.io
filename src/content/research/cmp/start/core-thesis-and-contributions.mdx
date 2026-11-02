@@ -1,0 +1,75 @@
+---
+title: "Core Thesis & Contributions"
+description: "CMP proposes a common criterion for software design trade-offs: the cost of acquiring sufficient context for correct modification."
+book: cmp
+part: start
+order: 0
+status: published
+version: "0.1"
+pubDate: Nov 02 2026
+updatedDate: Nov 02 2026
+canonicalUrl: "https://www.contextcost.dev/research/cmp/start/core-thesis-and-contributions/"
+tags: ["CMP", "software-design", "context-cost"]
+lang: en
+---
+
+**Context-Cost-Driven Software Design** evaluates software designs by the cost of acquiring sufficient context for correct modification. The **Context Minimization Principle (CMP)** states its core criterion:
+
+> For the modifications a system must realistically support, a design is better when the sufficient context required for correct modification is cheaper to acquire.
+
+The central contribution proposed by this series is a **common evaluation criterion for design trade-offs**. Familiar principles become choices to explain, compare, and sometimes reject under that criterion. Showing that modularity helps understanding is only the beginning; the useful question is when a particular boundary, abstraction, or architecture earns its cost.
+
+## Five connected claims
+
+1. **Evaluate design against realistic modifications.** Software evolves through changes. Name the changes a system must support before judging its structure.
+2. **Correct modification requires sufficient context.** The modifier needs the facts that establish intended behavior, preserved constraints, and completeness. A cheaper but insufficient context does not satisfy the criterion.
+3. **Acquiring that context has a cost that design can change.** Context Cost provides a common basis for comparing design choices that otherwise appeal to different principles.
+4. **Design changes how context is acquired.** Reduce, Relocate, Index, and Check describe transformations of that work. A type, contract, test, or index may add text while making required knowledge cheaper to find, understand, or verify.
+5. **The better choice depends on the modification pattern.** A structure that pays for recurring integration changes can impose needless cost on a small, stable tool. No architectural style wins independently of the changes it must support.
+
+These claims form an argument: modification sets the problem; correctness requires sufficient context; acquisition introduces cost; design transforms that cost; realistic modification patterns determine whether a transformation pays.
+
+## Criterion, mechanisms, and choices
+
+**Context-Cost-Driven Software Design** names the overall perspective. **CMP** is its core evaluation principle. **Depth and Breadth** describe how context cost grows; **Context Transformation and Context Routing** explain how design changes acquisition. Boundaries, locality, testing, language features, and architectural styles are concrete design choices evaluated through those mechanisms.
+
+Traditional design knowledge supplies valuable mechanisms and examples. CMP's proposed contribution is to put their trade-offs on a common basis. A design does not earn approval merely by following SOLID, DRY, or Clean Architecture: explain what required context it makes cheaper, what cost it adds, and for which changes.
+
+## Where this changes a design decision
+
+### Similar code, different knowledge
+
+Two forms may use similar validation code but serve independently changing business rules. Extracting a shared validator reduces duplication. It can also force each future modifier to understand both policies and the flags distinguishing them. Under CMP, keeping the rules separate can be preferable when they change independently. If both forms express one invariant that must always change together, a shared owner with discoverable callers can instead reduce omission risk. The decision turns on shared knowledge and modification closure, not textual similarity alone.
+
+### An interface must earn its boundary
+
+An extra interface can appear to improve separation of concerns. If callers still need the implementation, wiring, and error-handling details to make a correct change, the interface adds traversal without a trustworthy stopping point. A direct call may cost less. A stronger contract can reverse that judgment when it lets callers stop and supports realistic variation. The question is which sufficient context each design requires, rather than how many interfaces it contains.
+
+### Architecture depends on the changes
+
+A feature slice can make a change local when its UI, behavior, and persistence normally evolve together. Separating policy from adapters can be more valuable when business policy remains stable while integrations vary. Both have legitimate uses; evaluate the actual acquisition routes, including verification and cross-feature invariants. Architectural labels alone do not settle the choice.
+
+## Common misreadings
+
+- **Token optimization:** tokens are one possible observation of agent work, not the design objective. Fewer tokens can simply mean that necessary context was missed.
+- **A context-retrieval algorithm:** retrieval operates over available artifacts; software design also determines which knowledge a correct change requires and whether current artifacts express it reliably.
+- **A restatement of traditional principles:** explaining their benefits is part of the argument. Comparing their costs and identifying when to depart from them is essential to the contribution.
+- **Minimum code or information volume:** sufficiency and correctness constrain the comparison. More explicit types, tests, and documentation can improve the design.
+
+Current contracts, configuration, and ownership should make current behavior understandable. Historical records can explain a trade-off or supply necessary provenance, but repeatedly reconstructing old PRs to discover today's active rule is a design cost worth examining. Move current applicability conditions into maintained artifacts where possible; retain genuinely required history and domain complexity.
+
+## What remains to be established
+
+This series presents a design argument and worked examples. It does not establish a universally calibrated metric or demonstrate that every CMP-guided change improves outcomes. Comparing designs requires comparable tasks and correctness standards, with the modifier's capabilities and tools accounted for. File counts, tokens, and tool calls are partial observations; none establishes sufficiency by itself.
+
+## Check an interpretation
+
+After reading, try answering these questions with a concrete example and a supporting chapter:
+
+1. What does CMP contribute to evaluating software design?
+2. How do the evaluation criterion, explanatory mechanisms, and design techniques differ?
+3. When could CMP justify departing from a conventional design rule, and what would reverse that judgment?
+4. Why can more code or more agent tokens accompany a better design?
+5. Which assumptions about future modifications determine an architectural comparison?
+
+A useful answer preserves correctness and sufficiency, explains the added and avoided acquisition costs, and states the modification pattern. A summary limited to “modularity saves agent tokens” misses the proposed contribution. These questions are a reading check, not evidence of a completed independent evaluation.
