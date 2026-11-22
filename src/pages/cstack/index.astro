@@ -1,0 +1,254 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { SITE_TITLE } from "../../consts";
+
+const repo = "https://github.com/leric/cstack";
+const installCommand = "npx skills add leric/cstack";
+const description =
+	"Four coding agent skills for exploring domains, specifying product behavior, designing changes, and feeding what implementation teaches back into the project.";
+
+const stages = [
+	{
+		skill: "cs-explore",
+		title: "Explore the domain",
+		example:
+			"Look at how assessors select standards today. Use real equipment examples to clarify which attributes determine applicability and where expert judgment is needed.",
+	},
+	{
+		skill: "cs-spec",
+		title: "Specify product behavior",
+		example:
+			"Define when to suggest standards, who confirms them, and when the app creates assessment tasks. Record acceptance scenarios and scope in the change file.",
+	},
+	{
+		skill: "cs-design",
+		title: "Design the code change",
+		example:
+			"Find where applicability rules belong, which interfaces and tests must change together, and which decisions need a human answer before the coding agent implements the plan.",
+	},
+	{
+		skill: "cs-reflect",
+		title: "Reflect and sync knowledge",
+		example:
+			"Review the live implementation trace for hard-to-find context, bypassed boundaries, or unclear ownership. If it exposed an undocumented exception, bring the discovery back to the owner and propose a knowledge update for approval.",
+	},
+];
+---
+
+<BaseLayout title={`cstack — ${SITE_TITLE}`} description={description}>
+	<div class="cstack-page">
+		<header class="hero">
+			<h1>cstack</h1>
+			<p class="tagline">For code you’ll have to maintain</p>
+			<p class="lead">{description}</p>
+			<p>
+				The name cstack comes from <a href="/cmp/">Context-Cost-Driven Software Design</a>,
+				which evaluates a design by how much effort it takes to gather the context needed
+				to make a correct change.
+			</p>
+
+			<div class="install">
+				<div class="command">
+					<code id="install-command">{installCommand}</code>
+					<button id="copy-install" type="button" hidden aria-label="Copy install command">Copy</button>
+				</div>
+				<a href={repo}>View on GitHub</a>
+			</div>
+			<p id="copy-status" class="copy-status" role="status"></p>
+		</header>
+
+		<section aria-labelledby="problems-heading">
+			<h2 id="problems-heading">The hard problems cstack tackles</h2>
+			<dl class="problems">
+				<div>
+					<dt>Who decides what the software should do?</dt>
+					<dd>
+						A feature request can hide business rules. If a standard is only recommended,
+						should the app create tasks immediately or wait for an assessor to confirm it?
+						cstack uses Domain Ontology to clarify the rules, surfaces open decisions for
+						human judgment, and records the agreed behavior in the change spec.
+					</dd>
+				</div>
+				<div>
+					<dt>How much of the system do you need to understand to make one change?</dt>
+					<dd>
+						A small request can touch several modules. If the same rule lives in several
+						places, the next change can miss one. cstack applies the
+						<a href="/cmp/">Context Minimization Principle</a> to decide where each rule
+						belongs and identify what must change together.
+					</dd>
+				</div>
+				<div>
+					<dt>What did the implementation teach you that the next session will need?</dt>
+					<dd>
+						The agent may discover an undocumented exception while making the change.
+						The final diff can show how it handled the exception while leaving its reason
+						unclear. With
+						<a href="https://www.airic.dev/research/reflective-bootstrapping/">Reflective Bootstrapping</a>,
+						cstack reviews the implementation trace and proposes updates to the project’s
+						Living Knowledge for human approval.
+					</dd>
+				</div>
+			</dl>
+		</section>
+
+		<section aria-labelledby="workflow-heading">
+			<h2 id="workflow-heading">The cstack workflow in practice</h2>
+			<p>
+				Suppose a customer asks the app to recommend compliance standards when a user selects
+				an equipment type, then generate assessment tasks.
+			</p>
+			<ol class="workflow">
+				{stages.map(({ skill, title, example }) => (
+					<li>
+						<div class="stage-heading">
+							<h3>{title}</h3>
+							<a href={`${repo}/tree/main/skills/${skill}`}><code>/{skill}</code></a>
+						</div>
+						<p>{example}</p>
+					</li>
+				))}
+			</ol>
+			<p>
+				For a clear bug fix or refactor, start with <code>/cs-design</code>, implement the
+				change, then run <code>/cs-reflect</code>. If a design question turns out to be a
+				product decision, go back to <code>/cs-spec</code>.
+			</p>
+		</section>
+
+		<p class="project-links">
+			<a href={`${repo}#readme`}>Read the full usage guide</a>
+			<a href="/skills/legacy/">Original CMP Skills archive</a>
+		</p>
+	</div>
+</BaseLayout>
+
+<script>
+	const button = document.querySelector<HTMLButtonElement>("#copy-install");
+	const command = document.getElementById("install-command");
+	const status = document.getElementById("copy-status");
+
+	if (button && command && status && navigator.clipboard) {
+		button.hidden = false;
+		button.addEventListener("click", async () => {
+			try {
+				await navigator.clipboard.writeText(command.textContent ?? "");
+				status.textContent = "Install command copied.";
+			} catch {
+				status.textContent = "Select and copy the command manually.";
+			}
+		});
+	}
+</script>
+
+<style>
+	.cstack-page {
+		width: min(calc(100vw - 2 * var(--content-padding)), var(--reading-width));
+		padding: clamp(32px, 6vw, 64px) 0 24px;
+	}
+
+	.hero {
+		border-bottom: 1px solid var(--border);
+		padding-bottom: 16px;
+	}
+
+	.hero h1 {
+		font-size: clamp(42px, 7vw, 64px);
+		letter-spacing: -0.045em;
+	}
+
+	.tagline {
+		font-size: clamp(21px, 4vw, 30px);
+		line-height: 1.35;
+		font-weight: 600;
+		text-wrap: balance;
+	}
+
+	.install,
+	.command,
+	.project-links,
+	.stage-heading {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 8px 16px;
+	}
+
+	.command {
+		max-width: 100%;
+		padding: 6px 8px 6px 12px;
+		border: 1px solid var(--border);
+		border-radius: var(--card-radius);
+		background: var(--background-alt);
+	}
+
+	.command code {
+		background: transparent;
+		padding: 0;
+		border: 0;
+		overflow-wrap: anywhere;
+	}
+
+	.command button {
+		font: inherit;
+		font-size: 0.85rem;
+		color: var(--accent);
+		background: var(--background);
+		border: 1px solid var(--border);
+		border-radius: 4px;
+		padding: 4px 9px;
+		cursor: pointer;
+	}
+
+	.copy-status {
+		min-height: 1.7em;
+		margin: 4px 0 0;
+		color: var(--text-muted);
+		font-size: 0.85rem;
+	}
+
+	.workflow {
+		padding-left: 1.65rem;
+		margin: 0 0 20px;
+	}
+
+	.workflow li {
+		padding: 14px 0 14px 4px;
+		margin: 0;
+		border-top: 1px solid var(--border);
+	}
+
+	.workflow li::marker {
+		color: var(--text-muted);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.workflow h3 {
+		margin: 0;
+		font-size: 1.125rem;
+	}
+
+	.workflow p {
+		margin: 5px 0 0;
+	}
+
+	.problems {
+		display: grid;
+		gap: 14px;
+		margin: 0 0 28px;
+	}
+
+	.problems dt {
+		font-weight: 600;
+	}
+
+	.problems dd {
+		margin: 3px 0 0;
+		color: var(--secondary);
+	}
+
+	.project-links {
+		border-top: 1px solid var(--border);
+		padding-top: 18px;
+	}
+</style>

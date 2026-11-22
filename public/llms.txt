@@ -38,12 +38,14 @@ The CMP online book and research chapters are licensed under [CC BY 4.0](https:/
 - [About the author](https://www.contextcost.dev/about/)
 - [Citation metadata](https://www.contextcost.dev/CITATION.cff)
 
-## Agent skills
+## cstack
 
-Context Cost publishes installable CMP agent skills for planning and reviewing software changes.
+cstack provides four coding agent skills for domain exploration, product specification, software design, and post-change reflection. It applies Domain Ontology, CMP, and Reflective Bootstrapping.
 
-- [Skills overview](https://www.contextcost.dev/skills/)
-- [Agent Skills discovery index](https://www.contextcost.dev/.well-known/agent-skills/index.json)
+- [cstack workflow and installation](https://www.contextcost.dev/cstack/)
+- [cstack source repository](https://github.com/leric/cstack)
+- [Original CMP Skills archive](https://www.contextcost.dev/skills/legacy/)
+- [Original CMP Skills discovery index](https://www.contextcost.dev/.well-known/agent-skills/index.json)
 
 ## Source and discussion
 

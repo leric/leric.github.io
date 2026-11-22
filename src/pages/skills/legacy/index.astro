@@ -1,12 +1,12 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import { SITE_REPO, SITE_TITLE } from "../../consts";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { SITE_REPO, SITE_TITLE } from "../../../consts";
 
-const pageTitle = `CMP Skills — ${SITE_TITLE}`;
+const pageTitle = `Original CMP Skills — ${SITE_TITLE}`;
 const pageDescription =
 	"Download and install CMP agent skills: a pre-task Clean Architecture planner and a post-change design reflection loop for coding agents.";
 
-const skillSources = import.meta.glob("../../../skills/**/SKILL.md", {
+const skillSources = import.meta.glob("../../../../skills/**/SKILL.md", {
 	query: "?raw",
 	import: "default",
 	eager: true,
@@ -92,7 +92,7 @@ const skillCards: SkillCard[] = [
 ];
 
 const skills = skillCards.map((card) => {
-	const raw = skillSources[`../../../skills/${card.dirName}/SKILL.md`] ?? "";
+	const raw = skillSources[`../../../../skills/${card.dirName}/SKILL.md`] ?? "";
 	const parsed = parseSkillMd(raw);
 	return {
 		...card,
@@ -108,7 +108,8 @@ const skills = skillCards.map((card) => {
 <BaseLayout title={pageTitle} description={pageDescription}>
 	<section class="skills-page">
 		<header>
-			<h1>CMP Skills</h1>
+			<h1>Original CMP Skills</h1>
+			<p>For the current set of skills, see <a href="/cstack/">cstack</a>.</p>
 			<p class="lead">Apply CMP in your coding agent's workflow.</p>
 		</header>
 
@@ -211,7 +212,7 @@ const skills = skillCards.map((card) => {
 								>
 									Copy
 								</button>
-								<pre id={`skill-md-${skill.name}`}><code>{skillSources[`../../../skills/${skill.dirName}/SKILL.md`]?.trim() ?? ""}</code></pre>
+								<pre id={`skill-md-${skill.name}`}><code>{skillSources[`../../../../skills/${skill.dirName}/SKILL.md`]?.trim() ?? ""}</code></pre>
 							</div>
 						</details>
 					</article>

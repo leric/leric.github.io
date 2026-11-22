@@ -18,6 +18,7 @@ export default defineConfig({
   output: "static",
   redirects: {
     "/research/cmp": "/cmp/",
+    "/skills": { status: 301, destination: "/cstack/" },
   },
   markdown: {
     processor: unified({ remarkPlugins, rehypePlugins }),

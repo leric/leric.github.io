@@ -52,7 +52,7 @@ That structure gives review a clear target. The changes you truly need to read s
 
 ## Clean Architecture Planner: decide who gets to decide what, before any code
 
-This is the second skill I built: [**Clean Architecture Planner**](/skills/) ([source on GitHub](https://github.com/leric/leric.github.io/tree/main/skills/clean-architecture-planner)).
+This is the second skill I built: [**Clean Architecture Planner**](/skills/legacy/) ([source on GitHub](https://github.com/leric/leric.github.io/tree/master/skills/clean-architecture-planner)).
 
 Plan-before-code is standard procedure now — every agent ships some version of it. The plan's goal is the same as always: get the task done. What this skill changes is the route the agent takes to get there. On the way to a working implementation, it pulls this change's policy apart from its mechanism and settles who owns which decision before a line gets written — a different way of working toward the same result, sharper than a general "think it through first" and more targeted than an architecture diagram.
 
@@ -91,8 +91,8 @@ Concentrate policy into use cases and domain entities, seal mechanism behind ada
 
 The earlier piece's [Post-Change Design Reflection](/blog/post-change-design-reflection/) answers a question at the end: after the task, is the codebase's context routing still correct? Clean Architecture Planner answers one at the start: before the task, does the ownership of each business decision sit where it should? One guards the exit, the other the entrance. Put together, the two skills form a single protective system:
 
-- **Before:** [Clean Architecture Planner](/skills/) splits policy from mechanism, holds business decisions out in the open, and hands mechanism to the agent.
-- **After:** [Post-Change Design Reflection](/skills/) checks how the change touched the codebase's routing signals and surfaces debt that should not stay.
+- **Before:** [Clean Architecture Planner](/skills/legacy/) splits policy from mechanism, holds business decisions out in the open, and hands mechanism to the agent.
+- **After:** [Post-Change Design Reflection](/skills/legacy/) checks how the change touched the codebase's routing signals and surfaces debt that should not stay.
 
 Together they answer one question: AI writes faster and faster, so who keeps the system — after countless AI edits — a system that can still be understood correctly and changed correctly?
 
