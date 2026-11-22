@@ -5,7 +5,7 @@ import { SITE_TITLE } from "../../consts";
 const repo = "https://github.com/leric/cstack";
 const installCommand = "npx skills add leric/cstack";
 const description =
-	"Four coding agent skills for exploring domains, specifying product behavior, designing changes, and feeding what implementation teaches back into the project.";
+	"Five coding agent skills for exploring domains, specifying product behavior, designing changes, learning from implementation, and keeping project knowledge current.";
 
 const stages = [
 	{
@@ -18,7 +18,7 @@ const stages = [
 		skill: "cs-spec",
 		title: "Specify product behavior",
 		example:
-			"Define when to suggest standards, who confirms them, and when the app creates assessment tasks. Record acceptance scenarios and scope in the change file.",
+			"Define when to suggest standards, who confirms them, and when the app creates assessment tasks. If the confirmation flow is hard to picture, sketch it in a standalone HTML file. Record agreed behavior, acceptance scenarios, and scope in the change file.",
 	},
 	{
 		skill: "cs-design",
@@ -28,9 +28,15 @@ const stages = [
 	},
 	{
 		skill: "cs-reflect",
-		title: "Reflect and sync knowledge",
+		title: "Reflect while the implementation is fresh",
 		example:
-			"Review the live implementation trace for hard-to-find context, bypassed boundaries, or unclear ownership. If it exposed an undocumented exception, bring the discovery back to the owner and propose a knowledge update for approval.",
+			"Review the live implementation trace for hard-to-find context, bypassed boundaries, and unclear ownership. Discuss any undocumented exception with the owner, make approved refactors, and record what the next session needs in the change file.",
+	},
+	{
+		skill: "cs-merge",
+		title: "Update Living Knowledge when the change lands",
+		example:
+			"At merge time, even in a fresh session, check the change file and reflection notes against the final git diff. If the app now waits for assessor confirmation, propose updating the relevant guidance and retiring the old rule. After approval, apply the edits, record any deferred refactors for follow-up, and retire the completed change file.",
 	},
 ];
 ---
@@ -79,14 +85,16 @@ const stages = [
 					</dd>
 				</div>
 				<div>
-					<dt>What did the implementation teach you that the next session will need?</dt>
+					<dt>How do you keep project knowledge current as the code changes?</dt>
 					<dd>
-						The agent may discover an undocumented exception while making the change.
-						The final diff can show how it handled the exception while leaving its reason
-						unclear. With
+						The final diff can show how the agent handled an undocumented exception while
+						leaving its reason unclear. With
 						<a href="https://www.airic.dev/research/reflective-bootstrapping/">Reflective Bootstrapping</a>,
-						cstack reviews the implementation trace and proposes updates to the project’s
-						Living Knowledge for human approval.
+						<code>/cs-reflect</code> captures that reasoning while the implementation trace
+						is still available. At merge time, <code>/cs-merge</code> checks it against the
+						final diff and proposes edits only to the relevant parts of the project’s Living
+						Knowledge. It can add a rule, resolve conflicting guidance, consolidate scattered
+						exceptions, or remove guidance the code or tests now enforce.
 					</dd>
 				</div>
 			</dl>
@@ -111,8 +119,9 @@ const stages = [
 			</ol>
 			<p>
 				For a clear bug fix or refactor, start with <code>/cs-design</code>, implement the
-				change, then run <code>/cs-reflect</code>. If a design question turns out to be a
-				product decision, go back to <code>/cs-spec</code>.
+				change, then run <code>/cs-reflect</code>. Use <code>/cs-merge</code> if reflection
+				leaves knowledge updates or deferred refactors to settle. If a design question
+				turns out to be a product decision, go back to <code>/cs-spec</code>.
 			</p>
 		</section>
 

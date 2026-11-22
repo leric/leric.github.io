@@ -40,7 +40,7 @@ The CMP online book and research chapters are licensed under [CC BY 4.0](https:/
 
 ## cstack
 
-cstack provides four coding agent skills for domain exploration, product specification, software design, and post-change reflection. It applies Domain Ontology, CMP, and Reflective Bootstrapping.
+cstack provides five coding agent skills for domain exploration, product specification, software design, implementation reflection, and project knowledge maintenance. It applies Domain Ontology, CMP, and Reflective Bootstrapping.
 
 - [cstack workflow and installation](https://www.contextcost.dev/cstack/)
 - [cstack source repository](https://github.com/leric/cstack)
