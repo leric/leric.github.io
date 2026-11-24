@@ -5,7 +5,7 @@ import { SITE_TITLE } from "../../consts";
 const repo = "https://github.com/leric/cstack";
 const installCommand = "npx skills add leric/cstack";
 const description =
-	"Five coding agent skills for exploring domains, specifying product behavior, designing changes, learning from implementation, and keeping project knowledge current.";
+	"Five coding agent skills for exploring domains, specifying product behavior, building and verifying changes, learning from implementation, and keeping project knowledge current.";
 
 const stages = [
 	{
@@ -18,13 +18,13 @@ const stages = [
 		skill: "cs-spec",
 		title: "Specify product behavior",
 		example:
-			"Define when to suggest standards, who confirms them, and when the app creates assessment tasks. If the confirmation flow is hard to picture, sketch it in a standalone HTML file. Record agreed behavior, acceptance scenarios, and scope in the change file.",
+			"Define who confirms the suggestions, when tasks are created, and what the assessor sees if confirmation fails. Sketch the interaction if helpful and record the agreed behavior.",
 	},
 	{
-		skill: "cs-design",
-		title: "Design the code change",
+		skill: "cs-build",
+		title: "Build and verify the change",
 		example:
-			"Find where applicability rules belong, which interfaces and tests must change together, and which decisions need a human answer before the coding agent implements the plan.",
+			"Decide where the applicability rules and confirmation state belong. Implement and verify the change across the affected backend and UI boundaries.",
 	},
 	{
 		skill: "cs-reflect",
@@ -36,7 +36,7 @@ const stages = [
 		skill: "cs-merge",
 		title: "Update Living Knowledge when the change lands",
 		example:
-			"At merge time, even in a fresh session, check the change file and reflection notes against the final git diff. If the app now waits for assessor confirmation, propose updating the relevant guidance and retiring the old rule. After approval, apply the edits, record any deferred refactors for follow-up, and retire the completed change file.",
+			"Check the change file against the final diff. If the app now waits for assessor confirmation, propose updating the relevant guidance. Apply approved edits and close out the change.",
 	},
 ];
 ---
@@ -118,8 +118,8 @@ const stages = [
 				))}
 			</ol>
 			<p>
-				For a clear bug fix or refactor, start with <code>/cs-design</code>, implement the
-				change, then run <code>/cs-reflect</code>. Use <code>/cs-merge</code> if reflection
+				For a clear bug fix or refactor, use <code>/cs-build</code> to implement and verify
+				the change, then run <code>/cs-reflect</code>. Use <code>/cs-merge</code> if reflection
 				leaves knowledge updates or deferred refactors to settle. If a design question
 				turns out to be a product decision, go back to <code>/cs-spec</code>.
 			</p>
